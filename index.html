@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<!-- 
+    SQ-24 DUAL Analog Sequencer (Modular Routing Studio)
+    Created & Developed by Jose Velazquez MA
+    Voltage & Wave (https://voltageandwave.co.uk/)
+    Updated: Restored Playback Modes (Step/Cont/Once) & Transport Controls
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SQ-24 Dual Analog Sequencer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0d0f12; color: #1a1e24; font-family: monospace; text-transform: uppercase; padding: 1.25rem; user-select: none; -webkit-tap-highlight-color: transparent; }
+        
+        .synth-enclosure { position: relative; display: flex; align-items: stretch; border-radius: 10px; box-shadow: 0 25px 60px rgba(0,0,0,0.95), 0 0 40px rgba(0,0,0,0.8); }
+
+        .wooden-ear { width: 26px; background: linear-gradient(90deg, #2b150c 0%, #522815 30%, #3a1b0d 70%, #1c0b05 100%); border-top: 2px solid #733c1d; border-bottom: 3px solid #0f0502; box-shadow: inset 0 2px 4px rgba(255,255,255,0.15), inset 0 -2px 6px rgba(0,0,0,0.9); flex-shrink: 0; }
+        .wooden-ear-left { border-top-left-radius: 10px; border-bottom-left-radius: 10px; border-right: 2px solid #111; }
+        .wooden-ear-right { border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-left: 2px solid #111; }
+
+        .chassis { background: radial-gradient(circle at 50% 20%, #f0ebd8 0%, #e2dbc8 60%, #cebba8 100%); border-top: 3px solid #f7f4e9; border-bottom: 4px solid #82796e; padding: 24px 28px; flex-grow: 1; position: relative; display: flex; flex-direction: column; align-items: center; box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.8), inset 0 -2px 5px rgba(0,0,0,0.3); }
+        @media (min-width: 768px) { .chassis { padding: 32px 36px; } }
+
+        .rack-bolt { width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #a39c8e 0%, #3a362f 80%); border: 1px solid #1a1815; box-shadow: inset 0 1px 1px rgba(255,255,255,0.6), 0 2px 4px rgba(0,0,0,0.3); position: absolute; }
+        .bolt-tl { top: 12px; left: 12px; } .bolt-tr { top: 12px; right: 12px; } .bolt-bl { bottom: 12px; left: 12px; } .bolt-br { bottom: 12px; right: 12px; }
+
+        .logo-panel { background: linear-gradient(180deg, #2a2722 0%, #171614 100%); border: 1.5px solid #000; box-shadow: inset 0 1px 1px rgba(255,255,255,0.2), 0 2px 4px rgba(0,0,0,0.4); }
+        .logo-panel-accent { background: linear-gradient(180deg, #8a2217 0%, #4a0d07 100%); border: 1.5px solid #000; box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), 0 0 10px rgba(200, 58, 42, 0.4); }
+        .logo-panel-accent .logo-char { color: #ff9d93; } .logo-panel .logo-char { color: #f0ebd8; }
+        .patch-jack-dot { width: 6px; height: 6px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ff7777 0%, #ff1111 60%, #990000 100%); box-shadow: 0 0 6px #ff2a2a, inset 0 1px 1px rgba(255,255,255,0.8); animation: blink-led 2s infinite ease-in-out; }
+        @keyframes blink-led { 0%, 100% { opacity: 1; filter: brightness(1); } 50% { opacity: 0.4; filter: brightness(0.6); } }
+
+        .panel-outline { border: 1.5px solid #38342e; border-radius: 6px; background: rgba(0, 0, 0, 0.025); box-shadow: inset 0 1px 2px rgba(0,0,0,0.05), 0 1px 0 rgba(255,255,255,0.7); width: 100%; box-sizing: border-box; }
+        .panel-divider { width: 1.5px; height: 60px; background: linear-gradient(180deg, transparent 0%, rgba(56, 52, 46, 0.15) 15%, rgba(56, 52, 46, 0.15) 85%, transparent 100%); border-right: 1px solid rgba(255,255,255,0.3); flex-shrink: 0; }
+
+        .led { width: 14px; height: 12px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #5a1212 0%, #200303 70%); border: 2px solid #111; box-shadow: inset 0 1px 2px rgba(255,255,255,0.2), 0 2px 4px rgba(0,0,0,0.3); margin: 0 auto; }
+        .active .led { background: radial-gradient(circle at 35% 35%, #ff7777 0%, #ff1111 60%, #990000 100%); box-shadow: 0 0 14px #ff2a2a, 0 0 4px #ff8888, inset 0 1px 2px rgba(255,255,255,0.8); }
+        .pilot { width: 9px; height: 9px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #0f4a0f 0%, #021a02 80%); border: 1px solid #111; box-shadow: inset 0 1px 1px rgba(255,255,255,0.2); transition: all 0.1s; }
+        .pilot-active { background: radial-gradient(circle at 35% 35%, #66ff66 0%, #00ff00 70%); box-shadow: 0 0 10px #2aff2a, inset 0 1px 2px rgba(255,255,255,0.6); }
+
+        .patch-point { width: 24px; height: 24px; border-radius: 50%; background: radial-gradient(circle, #080808 40%, #1a1a1a 50%, #8a6f27 85%, #d4af37 100%); border: 2px solid #111; box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 1px 2px rgba(255,255,255,0.6); margin: 0 auto; cursor: pointer; transition: all 0.2s; }
+        .patch-point:hover { filter: brightness(1.2); }
+        
+        .patch-point.patched { background: radial-gradient(circle, #ffea78 20%, #dca824 60%, #523b00 100%); box-shadow: 0 0 14px #dca824; }
+        .patch-point.patched-red { background: radial-gradient(circle, #ff7878 20%, #dc2424 60%, #520000 100%); box-shadow: 0 0 14px #dc2424; }
+        .patch-point.patched-yellow { background: radial-gradient(circle, #ffea78 20%, #dca824 60%, #523b00 100%); box-shadow: 0 0 14px #dca824; }
+        .patch-point.patched-blue { background: radial-gradient(circle, #78caff 20%, #248cdc 60%, #002752 100%); box-shadow: 0 0 14px #248cdc; }
+        .patch-point.patched-green { background: radial-gradient(circle, #78ff9e 20%, #24dc4a 60%, #005211 100%); box-shadow: 0 0 14px #24dc4a; }
+        
+        .knob-wrapper { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; width: 56px; }
+        .tick-container { position: relative; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; }
+        
+        .tick-ring { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; -webkit-mask: radial-gradient(circle, transparent 22px, #000 23px, #000 28px, transparent 28px); mask: radial-gradient(circle, transparent 22px, #000 23px, #000 28px, transparent 28px); background: conic-gradient(from -135deg, #221e1a 0deg 1.5deg, transparent 1.5deg 27deg, #221e1a 27deg 28.5deg, transparent 28.5deg 54deg, #221e1a 54deg 55.5deg, transparent 55.5deg 81deg, #221e1a 81deg 82.5deg, transparent 82.5deg 108deg, #221e1a 108deg 109.5deg, transparent 109.5deg 135deg, #221e1a 135deg 136.5deg, transparent 136.5deg 162deg, #221e1a 162deg 163.5deg, transparent 163.5deg 189deg, #221e1a 189deg 190.5deg, transparent 190.5deg 216deg, #221e1a 216deg 217.5deg, transparent 217.5deg 243deg, #221e1a 243deg 244.5deg, transparent 244.5deg 270deg, #221e1a 270deg 271.5deg, transparent 271.5deg 360deg); }
+        .tick-label { position: absolute; font-size: 8px; font-weight: bold; color: #221e1a; line-height: 1; pointer-events: none; }
+        .label-top { top: -2px; left: 50%; transform: translateX(-50%); } .label-left { bottom: 2px; left: 2px; } .label-right { bottom: 2px; right: 2px; }
+
+        .knob { width: 42px; height: 40px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #2d3036 0%, #15171a 70%, #050608 100%); border: 2px solid #000; cursor: ns-resize; position: relative; z-index: 2; box-shadow: inset 0 1px 2px rgba(255,255,255,0.3), 0 4px 7px rgba(0,0,0,0.35); transform: rotate(-135deg); touch-action: none; }
+        .knob::after { content: ''; position: absolute; top: 3px; left: 18px; width: 2px; height: 13px; background: #fff; border-radius: 1px; box-shadow: 0 0 2px rgba(255,255,255,0.9); }
+        
+        .row-label { width: 65px; font-weight: bold; font-size: 11px; text-align: right; color: #1f1a14; margin-right: 12px; display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 4px; line-height: 1.1; flex-shrink: 0; }
+        
+        .crt-screen { background: #041004; border: 4px solid #2a2722; border-radius: 8px; box-shadow: inset 0 0 20px rgba(0, 255, 0, 0.25), inset 0 0 12px #000, 0 3px 6px rgba(0,0,0,0.4); position: relative; overflow: hidden; box-sizing: border-box; }
+        .crt-screen::before { content: " "; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03)); z-index: 5; background-size: 100% 3px, 6px 100%; pointer-events: none; }
+
+        .rocker-button { background: linear-gradient(180deg, #991b1b 0%, #5c0f0f 100%); border: 2px solid #280505; box-shadow: 0 3px 0 #1a0303, 0 4px 6px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.3); transition: all 0.08s ease; }
+        .rocker-button:active { transform: translateY(2px); box-shadow: 0 1px 0 #1a0303; }
+        .rocker-button.is-active { background: linear-gradient(180deg, #ef4444 0%, #991b1b 100%); border-color: #fca5a5; box-shadow: 0 3px 0 #1a0303, 0 0 16px rgba(239, 68, 68, 0.7); }
+
+        .tactile-button { background: linear-gradient(180deg, #33363d 0%, #191a1e 100%); border: 2px solid #000; color: #f0ebd8; box-shadow: 0 2px 0 #000, 0 3px 5px rgba(0,0,0,0.3); transition: all 0.08s ease; }
+        .tactile-button:active { transform: translateY(1px); }
+
+        .oct-btn, .dest-btn, .mode-btn, .wave-btn { background: linear-gradient(180deg, #2d3036 0%, #17181c 100%); border: 1.5px solid #000; color: #cebba8; font-weight: 900; font-size: 8px; padding: 4px 6px; border-radius: 3px; box-shadow: 0 2px 0 #000; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .oct-btn.oct-active, .dest-btn.dest-active, .mode-btn.mode-active, .wave-btn.wave-active { background: linear-gradient(180deg, #c83a2a 0%, #801f13 100%); border-color: #ff8878; color: #fff; box-shadow: 0 2px 0 #000, 0 0 10px rgba(200, 58, 42, 0.8); }
+
+        .volt-rocker { width: 26px; height: 44px; border-radius: 4px; background: linear-gradient(180deg, #15171a 0%, #2d3036 100%); border: 2px solid #000; box-shadow: 0 2px 4px rgba(0,0,0,0.4); display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 2px; cursor: pointer; }
+        .volt-rocker-cap { width: 18px; height: 18px; border-radius: 2px; background: linear-gradient(180deg, #3d424a 0%, #1a1c20 100%); border: 1px solid #000; transition: all 0.1s ease; }
+        .volt-toggle-top .volt-rocker-cap { transform: translateY(0px); background: linear-gradient(180deg, #c83a2a 0%, #801f13 100%); }
+        .volt-toggle-bottom .volt-rocker-cap { transform: translateY(18px); background: linear-gradient(180deg, #3d424a 0%, #1a1c20 100%); }
+
+        .key-white { background: linear-gradient(180deg, #ffffff 0%, #d8d3c5 100%); color: #111; border: 2px solid #111; border-radius: 0 0 4px 4px; box-shadow: 0 3px 4px rgba(0,0,0,0.25); }
+        .key-white.active-key { background: #c83a2a; color: #fff; box-shadow: 0 0 12px #c83a2a; }
+        .key-black { background: linear-gradient(180deg, #222 0%, #050505 100%); color: #888; border: 2px solid #000; border-radius: 0 0 3px 3px; z-index: 10; box-shadow: 0 3px 4px rgba(0,0,0,0.5); }
+        .key-black.active-key { background: #c83a2a; color: #fff; box-shadow: 0 0 12px #c83a2a; }
+
+        .grid-scroll { scrollbar-width: thin; scrollbar-color: #38342e #cebba8; }
+        .grid-scroll::-webkit-scrollbar { height: 8px; }
+        .grid-scroll::-webkit-scrollbar-track { background: #cebba8; border-radius: 4px; }
+        .grid-scroll::-webkit-scrollbar-thumb { background: #38342e; border-radius: 4px; }
+        
+        .mod-select { font-family: monospace; font-size: 9px; font-weight: bold; background: transparent; border: 1px solid #38342e; border-radius: 3px; color: #1f1a14; outline: none; padding: 2px; cursor: pointer; text-align: right; }
+    </style>
+</head>
+<body class="min-h-screen flex justify-center items-start">
+    <div class="synth-enclosure w-full max-w-6xl">
+        <div class="wooden-ear wooden-ear-left"></div>
+
+        <div class="chassis w-full">
+            <div class="rack-bolt bolt-tl"></div><div class="rack-bolt bolt-tr"></div><div class="rack-bolt bolt-bl"></div><div class="rack-bolt bolt-br"></div>
+            
+            <div class="flex items-center justify-between w-full mb-6 pb-4 border-b-2 border-[#38342e]/30">
+                <div class="flex flex-col gap-1.5">
+                    <div class="flex items-center gap-1.5 select-none">
+                        <div class="logo-panel-accent w-10 h-11 rounded flex flex-col items-center justify-center relative"><span class="logo-char font-mono font-black text-xl tracking-tighter leading-none">S</span><span class="text-[6px] font-bold text-[#ff9d93]/60 tracking-widest mt-0.5">MOD</span></div>
+                        <div class="logo-panel-accent w-10 h-11 rounded flex flex-col items-center justify-between py-1 relative"><span class="logo-char font-mono font-black text-xl tracking-tighter leading-none mt-0.5">Q</span><div class="patch-jack-dot mb-0.5"></div></div>
+                        <div class="logo-panel w-10 h-11 rounded flex flex-col items-center justify-center relative ml-1"><span class="logo-char font-mono font-black text-xl tracking-tighter leading-none">2</span><span class="text-[6px] font-bold text-[#82796e] tracking-widest mt-0.5">CH</span></div>
+                        <div class="logo-panel w-10 h-11 rounded flex flex-col items-center justify-center relative"><span class="logo-char font-mono font-black text-xl tracking-tighter leading-none">4</span><span class="text-[6px] font-bold text-[#82796e] tracking-widest mt-0.5">OUT</span></div>
+                    </div>
+                    <div class="flex items-center justify-between w-full text-[8px] font-mono font-bold tracking-widest text-[#38342e] border-t border-[#38342e]/30 pt-1">
+                        <span>DUAL SEQUENCER</span><span class="text-[#c83a2a]">•</span><span>SQ-24 STUDIO</span>
+                    </div>
+                </div>
+                
+                <div class="crt-screen w-[320px] h-[72px] flex items-center justify-between px-4 py-2 flex-shrink-0 ml-4 hidden md:flex">
+                    <div class="flex-shrink-0 flex items-center justify-center"><canvas id="scopeCanvas" width="110" height="50" class="border border-[#111] z-10"></canvas></div>
+                    <div class="border-l border-[#0f0]/30 h-[50px] mx-4 z-10"></div>
+                    <div class="text-[#0f0] font-mono text-[10px] text-right leading-tight z-10 flex flex-col justify-center h-full flex-1">
+                        <div id="dispStep" class="mb-0.5">STEP: --</div>
+                        <div id="dispVolt" class="mb-0.5">VOLT: 0.00</div>
+                        <div id="dispNote" class="mb-1">NOTE: C2</div>
+                        <div id="resetStatus" class="text-[9px] text-[#ffaa00] font-bold tracking-wider mt-1 opacity-90">PATCH: NONE</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-outline w-full overflow-x-auto grid-scroll mb-8">
+                <div class="flex flex-nowrap items-center justify-between min-w-max gap-6 px-4 pt-8 pb-5 mx-auto h-full">
+                    
+                    <div class="flex items-center gap-4 relative">
+                        <span class="absolute -top-6 left-1/2 -translate-x-1/2 text-[8px] font-bold tracking-widest text-[#82796e] whitespace-nowrap">MASTER CLOCK</span>
+                        <div class="flex flex-col gap-2 justify-center w-[110px]">
+                            <button id="startStop" class="rocker-button text-white px-3 py-1.5 font-black rounded-sm flex items-center justify-center gap-2 w-full"><span class="w-1.5 h-1.5 rounded-full bg-red-400 opacity-60" id="rockerLed"></span>PLAY</button>
+                            <div class="flex gap-1.5 w-full mt-2">
+                                <button id="stepRev" class="tactile-button py-1 flex items-center justify-center rounded-sm flex-1"><svg width="12" height="12" viewBox="0 0 14 14" fill="currentColor"><rect x="1" y="2" width="2" height="10" /><polygon points="13,1 4,7 13,13" /></svg></button>
+                                <button id="stepAdv" class="tactile-button py-1 flex items-center justify-center rounded-sm flex-1"><svg width="12" height="12" viewBox="0 0 14 14" fill="currentColor"><polygon points="1,1 10,7 1,13" /><rect x="11" y="2" width="2" height="10" /></svg></button>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="clockSpeed" data-val="40"></div></div><span class="text-[9px] font-bold text-[#1f1a14]">SPEED</span></div>
+                            <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="portamento" data-val="0"></div></div><span class="text-[9px] font-bold text-[#1f1a14]">PORTA</span></div>
+                        </div>
+                    </div>
+
+                    <div class="panel-divider"></div>
+
+                    <div class="flex items-center gap-5 relative">
+                        <span class="absolute -top-6 left-1/2 -translate-x-1/2 text-[8px] font-bold tracking-widest text-[#82796e] whitespace-nowrap">MAIN ROUTING</span>
+                        
+                        <div class="flex flex-col items-center justify-center h-full">
+                            <div class="flex flex-col gap-1" id="playModeBank">
+                                <button class="mode-btn" data-play="step">STEP</button>
+                                <button class="mode-btn mode-active" data-play="cont">CONT</button>
+                                <button class="mode-btn" data-play="one">ONCE</button>
+                            </div>
+                            <span class="text-[8px] font-bold text-[#1f1a14] mt-1.5">MODE</span>
+                        </div>
+
+                        <div class="flex flex-col items-center gap-1 ml-2">
+                            <span class="text-[7px] font-bold text-[#1f1a14]">&plusmn;5V</span>
+                            <div class="volt-rocker volt-toggle-top" id="voltRockerBtn"><div class="volt-rocker-cap"></div></div>
+                            <span class="text-[7px] font-bold text-[#1f1a14]">&plusmn;1V</span>
+                            <span class="text-[8px] font-bold text-[#1f1a14] mt-0.5">RANGE</span>
+                        </div>
+
+                        <div class="flex flex-col items-center justify-center h-full ml-2">
+                            <div class="flex flex-col gap-1" id="chCDestBank">
+                                <button class="dest-btn dest-active" data-dest="filter">VCF</button>
+                                <button class="dest-btn" data-dest="volume">VCA</button>
+                            </div>
+                            <span class="text-[8px] font-bold text-[#1f1a14] mt-1.5">S1 ROW C DEST</span>
+                        </div>
+                    </div>
+
+                    <div class="panel-divider"></div>
+
+                    <div class="flex items-center gap-4 relative">
+                        <span class="absolute -top-6 left-1/2 -translate-x-1/2 text-[8px] font-bold tracking-widest text-[#82796e] whitespace-nowrap">OSCILLATOR (VCO)</span>
+                        <div class="flex flex-col items-center justify-center h-full">
+                            <div class="grid grid-cols-2 gap-1 mb-1.5" id="waveBtnBank">
+                                <button class="wave-btn wave-active" data-wave="0"><svg width="16" height="12" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"><path d="M4 14 L12 2 V14 L20 2 V14" /></svg></button>
+                                <button class="wave-btn" data-wave="1"><svg width="16" height="12" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"><path d="M3 14 V4 h8 v10 h8 v-10" /></svg></button>
+                            </div>
+                            <span class="text-[8px] font-bold text-[#1f1a14]">WAVE</span>
+                        </div>
+                        <div class="flex flex-col items-center justify-center h-full">
+                            <div class="grid grid-cols-2 gap-1 mb-1.5" id="octaveBtnBank">
+                                <button class="oct-btn" data-oct="0">32'</button><button class="oct-btn oct-active" data-oct="1">16'</button>
+                                <button class="oct-btn" data-oct="2">8'</button><button class="oct-btn" data-oct="3">4'</button>
+                            </div>
+                            <span class="text-[8px] font-bold text-[#1f1a14]">SCALE</span>
+                        </div>
+                        <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="pitchTuneKnob" data-val="50"></div></div><span class="text-[9px] font-bold text-[#1f1a14]">PITCH</span></div>
+                    </div>
+
+                    <div class="panel-divider"></div>
+
+                    <div class="flex items-center gap-3 relative">
+                        <span class="absolute -top-6 left-1/2 -translate-x-1/2 text-[8px] font-bold tracking-widest text-[#82796e] whitespace-nowrap">ENVELOPE (ADSR)</span>
+                        <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="envAttack" data-val="5"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">ATK</span></div>
+                        <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="envDecay" data-val="30"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">DEC</span></div>
+                        <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="envSustain" data-val="20"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">SUS</span></div>
+                        <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="envRelease" data-val="25"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">REL</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEQUENCER 1 GRID -->
+            <div class="w-full flex justify-between items-end px-2 mb-1">
+                <span class="text-[#82796e] font-bold text-[11px] tracking-widest">SEQ 1 (PRIMARY CV)</span>
+                <div class="flex gap-4 text-[10px] font-bold text-[#1f1a14]">
+                    <label>CLOCK: <select id="clk1" class="bg-transparent border border-[#38342e] rounded p-1 outline-none"><option value="int">INTERNAL</option><option value="ext">EXT (FROM S2)</option></select></label>
+                    <label>RATE: <select id="rate1" class="bg-transparent border border-[#38342e] rounded p-1 outline-none"><option value="0.25">1/16</option><option value="0.375">3/16</option><option value="0.5">1/8</option></select></label>
+                </div>
+            </div>
+            <div class="panel-outline w-full overflow-x-auto grid-scroll mb-6 !py-6 !px-4">
+                <div class="flex flex-col gap-5 min-w-max mx-auto px-2">
+                    <div class="flex"><div class="row-label"></div><div class="flex gap-4 flex-1" id="ledRow1"></div></div>
+                    <div class="flex"><div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot1A" class="pilot pilot-active"></div>ROW A</div><span class="text-[9px] font-bold mt-1">PITCH</span></div><div class="flex gap-4 flex-1" id="row1A"></div></div>
+                    <div class="flex"><div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot1B" class="pilot pilot-active"></div>ROW B</div><span class="text-[9px] font-bold mt-1">FILTER</span></div><div class="flex gap-4 flex-1" id="row1B"></div></div>
+                    <div class="flex"><div class="row-label text-[#1f1a14]">ROW C<span class="text-[9px] font-bold mt-1">MOD</span></div><div class="flex gap-4 flex-1" id="row1C"></div></div>
+                    <div class="flex mt-2"><div class="row-label text-[#1f1a14] text-[10px] items-center justify-end">TRIG<br>OUT</div><div class="flex gap-4 flex-1" id="trigRow1"></div></div>
+                </div>
+            </div>
+
+            <!-- SEQUENCER 2 GRID -->
+            <div class="w-full flex justify-between items-end px-2 mb-1 mt-2">
+                <span class="text-[#82796e] font-bold text-[11px] tracking-widest">SEQ 2 (MODULAR ASSIGN)</span>
+                <div class="flex gap-4 text-[10px] font-bold text-[#1f1a14]">
+                    <label>CLOCK: <select id="clk2" class="bg-transparent border border-[#38342e] rounded p-1 outline-none"><option value="int">INTERNAL</option><option value="ext">EXT (FROM S1)</option></select></label>
+                    <label>RATE: <select id="rate2" class="bg-transparent border border-[#38342e] rounded p-1 outline-none"><option value="0.25">1/16</option><option value="0.375">3/16</option><option value="0.5">1/8</option></select></label>
+                    <label>TRIG ASSIGN: <select id="trigAssign2" class="bg-transparent border border-[#38342e] rounded p-1 outline-none font-bold text-[#c83a2a]">
+                        <option value="reset2">LOOP LENGTH (RED)</option>
+                        <option value="accent">ACCENT (YEL)</option>
+                        <option value="glide">GLIDE (BLU)</option>
+                        <option value="clock1">CLOCK SEQ1 (GRN)</option>
+                    </select></label>
+                </div>
+            </div>
+            <div class="panel-outline w-full overflow-x-auto grid-scroll mb-6 !py-6 !px-4">
+                <div class="flex flex-col gap-5 min-w-max mx-auto px-2">
+                    <div class="flex"><div class="row-label"></div><div class="flex gap-4 flex-1" id="ledRow2"></div></div>
+                    <div class="flex">
+                        <div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot2A" class="pilot pilot-active"></div>ROW A</div>
+                            <select id="route2A" class="mod-select mt-1"><option value="pitch">+ PITCH</option><option value="filter">+ FILTER</option><option value="mod">+ MOD</option><option value="decay">DECAY TIME</option><option value="porta">GLIDE TIME</option></select>
+                        </div>
+                        <div class="flex gap-4 flex-1" id="row2A"></div>
+                    </div>
+                    <div class="flex">
+                        <div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot2B" class="pilot pilot-active"></div>ROW B</div>
+                            <select id="route2B" class="mod-select mt-1"><option value="filter">+ FILTER</option><option value="pitch">+ PITCH</option><option value="mod">+ MOD</option><option value="decay">DECAY TIME</option><option value="porta">GLIDE TIME</option></select>
+                        </div>
+                        <div class="flex gap-4 flex-1" id="row2B"></div>
+                    </div>
+                    <div class="flex">
+                        <div class="row-label text-[#1f1a14]">ROW C
+                            <select id="route2C" class="mod-select mt-1"><option value="decay">DECAY TIME</option><option value="pitch">+ PITCH</option><option value="filter">+ FILTER</option><option value="mod">+ MOD</option><option value="porta">GLIDE TIME</option></select>
+                        </div>
+                        <div class="flex gap-4 flex-1" id="row2C"></div>
+                    </div>
+                    <div class="flex mt-2"><div class="row-label text-[#1f1a14] text-[10px] items-center justify-end">TRIG<br>OUT</div><div class="flex gap-4 flex-1" id="trigRow2"></div></div>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="flex flex-wrap items-center justify-between gap-6 w-full pt-4 border-t-2 border-[#38342e]/30">
+                <div class="flex flex-col gap-1">
+                    <span class="text-[10px] font-bold text-[#1f1a14]">KEYBOARD TRANSPOSE / PREVIEW</span>
+                    <div class="flex relative h-16" id="keyboardContainer"></div>
+                </div>
+                <div class="flex flex-col items-end gap-3">
+                    <div class="flex gap-4">
+                        <button id="demoBtn" class="tactile-button text-[10px] font-bold tracking-widest px-3 py-2 rounded-sm cursor-pointer outline-none hover:text-white hover:border-[#c83a2a]">DEMO: TECHNOPOP</button>
+                    </div>
+                    <div class="text-[9px] text-[#38342e] font-mono font-bold tracking-widest text-right mt-1">
+                        &copy; JOSE VELAZQUEZ MA / <a href="https://voltageandwave.co.uk/" target="_blank" rel="noopener noreferrer" class="hover:text-[#c83a2a] underline transition-colors">VOLTAGE &amp; WAVE</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="wooden-ear wooden-ear-right"></div>
+    </div>
+
+    <script>
+        const NUM_STEPS = 12;
+        let isPlaying = false, isPreviewing = false;
+        let timerId;
+        let audioCtx, synthOsc, synthVcf, synthVca, analyser;
+        
+        let bpm = 120, portamentoTime = 0.01, transposeSemitones = 0, voltageRangeMultiplier = 1, activeChCDest = 'filter', playMode = 'cont';
+        const waveforms = ['sawtooth', 'square']; let activeWaveform = 'sawtooth';
+        let octaveOffsetSemitones = 0, finePitchTuneSemitones = 0; 
+        let attackTime = 0.01, decayTime = 0.15, sustainLevel = 0.2, releaseTime = 0.2;   
+
+        const seq1 = { id: 1, step: -1, nextTime: 0, clock: 'int', rate: 0.25, resetStep: null, tracks: { A: new Array(12).fill(0), B: new Array(12).fill(0), C: new Array(12).fill(0) }};
+        const seq2 = { id: 2, step: -1, nextTime: 0, clock: 'int', rate: 0.25, trigAssign: 'reset2', activeTrigs: new Array(12).fill(false), tracks: { A: new Array(12).fill(0), B: new Array(12).fill(0), C: new Array(12).fill(0) }};
+        const seq2Routing = { A: 'pitch', B: 'filter', C: 'decay' };
+        const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+        async function initAudio() {
+            if(!audioCtx) {
+                const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioCtxClass();
+                synthOsc = audioCtx.createOscillator(); synthVcf = audioCtx.createBiquadFilter(); synthVca = audioCtx.createGain(); analyser = audioCtx.createAnalyser();
+                synthOsc.type = activeWaveform; synthVcf.type = 'lowpass'; synthVcf.Q.value = 12; synthVca.gain.value = 0.0001; analyser.fftSize = 256;
+                synthOsc.connect(synthVcf); synthVcf.connect(synthVca); synthVca.connect(analyser); analyser.connect(audioCtx.destination);
+                synthOsc.start(); drawScope();
+            }
+            if(audioCtx.state === 'suspended') await audioCtx.resume();
+        }
+
+        function drawScope() {
+            requestAnimationFrame(drawScope); if (!analyser) return;
+            const bufferLength = analyser.frequencyBinCount; const dataArray = new Uint8Array(bufferLength); analyser.getByteTimeDomainData(dataArray);
+            const canvas = document.getElementById('scopeCanvas');
+            if (canvas) {
+                const ctx = canvas.getContext('2d'); ctx.fillStyle = '#041004'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.lineWidth = 1.5; ctx.strokeStyle = '#0f0'; ctx.beginPath();
+                const sliceWidth = canvas.width * 1.0 / bufferLength; let x = 0;
+                for(let i = 0; i < bufferLength; i++) {
+                    const v = dataArray[i] / 128.0; const y = v * canvas.height / 2;
+                    if(i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); x += sliceWidth;
+                }
+                ctx.lineTo(canvas.width, canvas.height / 2); ctx.stroke();
+            }
+        }
+
+        function updateDisplay(step, sumPitch) {
+            const stepEl = document.getElementById('dispStep');
+            const voltEl = document.getElementById('dispVolt');
+            const noteEl = document.getElementById('dispNote');
+            
+            if(stepEl) stepEl.innerText = `STEP: ${step < 0 ? '--' : step + 1}`;
+            if(voltEl) voltEl.innerText = `VOLT: ${sumPitch >= 0 ? '+' : ''}${sumPitch.toFixed(2)}`;
+            
+            const semitoneOffset = Math.round(sumPitch * 12) + transposeSemitones + octaveOffsetSemitones + Math.round(finePitchTuneSemitones);
+            const totalNote = 24 + semitoneOffset; 
+            const noteIndex = ((totalNote % 12) + 12) % 12;
+            const octave = Math.floor(totalNote / 12);
+            if(noteEl) noteEl.innerText = `NOTE: ${noteNames[noteIndex]}${octave}`;
+        }
+
+        function updateKnobVisual(knobEl, val) {
+            if (!knobEl) return;
+            if (knobEl.dataset.ch) {
+                knobEl.style.transform = (knobEl.dataset.ch === 'C') ? `rotate(${-135 + (val / 5) * 270}deg)` : `rotate(${val * 27}deg)`; 
+            } else {
+                knobEl.style.transform = `rotate(${-135 + (val / 100) * 270}deg)`;
+            }
+        }
+
+        const voltRockerBtn = document.getElementById('voltRockerBtn');
+        if(voltRockerBtn) {
+            voltRockerBtn.addEventListener('click', (e) => {
+                const btn = e.currentTarget;
+                if (btn.classList.contains('volt-toggle-top')) { btn.classList.replace('volt-toggle-top', 'volt-toggle-bottom'); voltageRangeMultiplier = 0.2; } 
+                else { btn.classList.replace('volt-toggle-bottom', 'volt-toggle-top'); voltageRangeMultiplier = 1; }
+            });
+        }
+
+        document.querySelectorAll('#playModeBank .mode-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                playMode = e.target.dataset.play;
+                document.querySelectorAll('#playModeBank .mode-btn').forEach(b => b.classList.toggle('mode-active', b.dataset.play === playMode));
+            });
+        });
+
+        document.querySelectorAll('#chCDestBank .dest-btn').forEach(btn => btn.addEventListener('click', (e) => {
+            activeChCDest = e.target.dataset.dest;
+            document.querySelectorAll('#chCDestBank .dest-btn').forEach(b => b.classList.toggle('dest-active', b.dataset.dest === activeChCDest));
+        }));
+        document.querySelectorAll('#waveBtnBank .wave-btn').forEach(btn => btn.addEventListener('click', (e) => {
+            const idx = parseInt(e.currentTarget.dataset.wave); activeWaveform = waveforms[idx];
+            if(synthOsc) synthOsc.type = activeWaveform;
+            document.querySelectorAll('#waveBtnBank .wave-btn').forEach(b => b.classList.toggle('wave-active', parseInt(b.dataset.wave) === idx));
+        }));
+        document.querySelectorAll('#octaveBtnBank .oct-btn').forEach(btn => btn.addEventListener('click', (e) => {
+            const octIdx = parseInt(e.target.dataset.oct); octaveOffsetSemitones = (octIdx - 1) * 12;
+            document.querySelectorAll('#octaveBtnBank .oct-btn').forEach(b => b.classList.toggle('oct-active', parseInt(b.dataset.oct) === octIdx));
+        }));
+
+        ['1', '2'].forEach(id => {
+            const clkEl = document.getElementById(`clk${id}`);
+            const rateEl = document.getElementById(`rate${id}`);
+            if(clkEl) clkEl.addEventListener('change', e => { if(id==='1') seq1.clock = e.target.value; else seq2.clock = e.target.value; });
+            if(rateEl) rateEl.addEventListener('change', e => { if(id==='1') seq1.rate = parseFloat(e.target.value); else seq2.rate = parseFloat(e.target.value); });
+        });
+
+        ['A', 'B', 'C'].forEach(ch => { 
+            const routeEl = document.getElementById(`route2${ch}`);
+            if(routeEl) routeEl.addEventListener('change', e => seq2Routing[ch] = e.target.value); 
+        });
+        
+        const trigAssign2 = document.getElementById('trigAssign2');
+        if(trigAssign2) {
+            trigAssign2.addEventListener('change', e => {
+                seq2.trigAssign = e.target.value; renderTrig2Colors();
+            });
+        }
+
+        function getRoutingModifiers(s2Step) {
+            let modPitch = 0, modFilter = 0, modDest = 0, modDecay = 0, modPorta = 0;
+            if (s2Step >= 0) {
+                ['A', 'B', 'C'].forEach(ch => {
+                    const val = seq2.tracks[ch][s2Step]; const route = seq2Routing[ch];
+                    if (route === 'pitch') modPitch += val; if (route === 'filter') modFilter += val; if (route === 'mod') modDest += val;
+                    if (route === 'decay') modDecay += val; if (route === 'porta') modPorta += val;
+                });
+            }
+            return { modPitch, modFilter, modDest, modDecay, modPorta };
+        }
+
+        function previewSynth(s1Step, s2Step, isNewPress) {
+            if(!audioCtx) return;
+            const now = audioCtx.currentTime;
+            const mods = getRoutingModifiers(s2Step);
+
+            const sumPitch = (seq1.tracks.A[s1Step] + mods.modPitch) * voltageRangeMultiplier;
+            const sumFilter = (seq1.tracks.B[s1Step] + mods.modFilter) * voltageRangeMultiplier;
+            const sumMod = (seq1.tracks.C[s1Step] + mods.modDest); 
+            
+            const dynPorta = Math.max(0.001, portamentoTime + (mods.modPorta * 0.05));
+            const dynDecay = Math.max(0.005, decayTime + (mods.modDecay * 0.1));
+
+            const semitone = (sumPitch * 12) + transposeSemitones + octaveOffsetSemitones + finePitchTuneSemitones; 
+            const freq = 65.41 * Math.pow(2, semitone / 12); 
+            synthOsc.frequency.setTargetAtTime(freq, now, dynPorta);
+
+            let baseCutoff = 400 + (sumFilter * 2000); 
+            let peakVolume = 0.8;
+            const normalizedC = Math.max(0, Math.min(1, sumMod / 5)); 
+
+            if (activeChCDest === 'filter') baseCutoff = 100 + (normalizedC * 3000);
+            else if (activeChCDest === 'volume') peakVolume = 0.1 + (normalizedC * 0.9); 
+            baseCutoff = Math.max(20, Math.min(20000, baseCutoff)); 
+
+            const t0 = now;
+            const t1_atk = t0 + Math.max(0.005, attackTime);
+            const t2_dec = t1_atk + dynDecay;
+
+            if (isNewPress || !isPreviewing) {
+                synthVcf.frequency.cancelScheduledValues(t0); 
+                synthVcf.frequency.setValueAtTime(Math.max(20, baseCutoff), t0); 
+                synthVcf.frequency.linearRampToValueAtTime(Math.max(20, Math.min(20000, baseCutoff + 5000)), t1_atk);
+                synthVcf.frequency.exponentialRampToValueAtTime(Math.max(20, Math.min(20000, baseCutoff + (5000 * sustainLevel))), t2_dec);
+
+                synthVca.gain.cancelScheduledValues(t0); 
+                synthVca.gain.setValueAtTime(0.0001, t0);
+                synthVca.gain.linearRampToValueAtTime(Math.max(0.0001, peakVolume), t1_atk);
+                synthVca.gain.linearRampToValueAtTime(Math.max(0.0001, peakVolume * sustainLevel), t2_dec);
+                isPreviewing = true;
+            } else {
+                synthVcf.frequency.setTargetAtTime(Math.max(20, Math.min(20000, baseCutoff + (5000 * sustainLevel))), now, 0.05);
+                synthVca.gain.setTargetAtTime(Math.max(0.0001, peakVolume * sustainLevel), now, 0.05);
+            }
+            updateDisplay(s1Step, sumPitch);
+        }
+
+        function stopPreview() {
+            if (isPreviewing && audioCtx) {
+                const now = audioCtx.currentTime;
+                synthVca.gain.cancelScheduledValues(now); 
+                const currentGain = Math.max(0.0001, synthVca.gain.value);
+                synthVca.gain.setValueAtTime(currentGain, now); 
+                synthVca.gain.exponentialRampToValueAtTime(0.0001, now + Math.max(0.01, releaseTime));
+                isPreviewing = false;
+            }
+        }
+
+        let activeKnob = null, startY = 0, startVal = 0;
+        document.addEventListener('pointerdown', async (e) => {
+            if (e.target.classList.contains('knob')) {
+                await initAudio(); activeKnob = e.target;
+                if (activeKnob.setPointerCapture) activeKnob.setPointerCapture(e.pointerId);
+                startY = e.clientY; startVal = parseFloat(activeKnob.dataset.val);
+                if (activeKnob.dataset.ch && !isPlaying) {
+                    const stepIdx = parseInt(activeKnob.dataset.step);
+                    const s1Step = activeKnob.dataset.seq === '1' ? stepIdx : Math.max(0, seq1.step);
+                    const s2Step = activeKnob.dataset.seq === '2' ? stepIdx : Math.max(0, seq2.step);
+                    previewSynth(s1Step, s2Step, true); 
+                }
+            }
+        });
+
+        document.addEventListener('pointermove', (e) => {
+            if (activeKnob) {
+                if (activeKnob.dataset.ch) {
+                    const ch = activeKnob.dataset.ch; const sId = activeKnob.dataset.seq;
+                    let newVal = (ch === 'C') ? Math.max(0, Math.min(5, startVal + (startY - e.clientY) * 0.025)) : Math.max(-5, Math.min(5, startVal + (startY - e.clientY) * 0.05));
+                    if (sId === '1') seq1.tracks[ch][activeKnob.dataset.step] = newVal; else seq2.tracks[ch][activeKnob.dataset.step] = newVal;
+                    activeKnob.dataset.val = newVal; updateKnobVisual(activeKnob, newVal);
+
+                    if (!isPlaying && isPreviewing) {
+                        const stepIdx = parseInt(activeKnob.dataset.step);
+                        const s1Step = (sId === '1') ? stepIdx : Math.max(0, seq1.step);
+                        const s2Step = (sId === '2') ? stepIdx : Math.max(0, seq2.step);
+                        previewSynth(s1Step, s2Step, false); 
+                    }
+                } else {
+                    let newVal = Math.max(0, Math.min(100, startVal + (startY - e.clientY)));
+                    if(activeKnob.id === 'clockSpeed') bpm = 40 + (newVal / 100) * 200;
+                    else if(activeKnob.id === 'portamento') portamentoTime = 0.01 + (newVal / 100) * 0.3;
+                    else if(activeKnob.id === 'pitchTuneKnob') finePitchTuneSemitones = -12 + (newVal / 100) * 24;
+                    else if(activeKnob.id === 'envAttack') attackTime = 0.005 + (newVal / 100) * 0.5;
+                    else if(activeKnob.id === 'envDecay') decayTime = 0.02 + (newVal / 100) * 0.8;
+                    else if(activeKnob.id === 'envSustain') sustainLevel = newVal / 100;
+                    else if(activeKnob.id === 'envRelease') releaseTime = 0.02 + (newVal / 100) * 1.5;
+                    activeKnob.dataset.val = newVal; updateKnobVisual(activeKnob, newVal);
+                }
+            }
+        });
+        
+        const endDrag = (e) => { 
+            if (activeKnob) { 
+                if (activeKnob.releasePointerCapture && e.pointerId) { try { activeKnob.releasePointerCapture(e.pointerId); } catch(err){} }
+                activeKnob = null; stopPreview(); 
+            }
+        };
+        document.addEventListener('pointerup', endDrag); document.addEventListener('pointercancel', endDrag);
+
+        function triggerSynthStep(time, s1Step, s2Step) {
+            if(!audioCtx) return;
+            const mods = getRoutingModifiers(s2Step);
+            
+            const s2Accent = s2Step >= 0 && seq2.activeTrigs[s2Step] && seq2.trigAssign === 'accent';
+            const s2Glide = s2Step >= 0 && seq2.activeTrigs[s2Step] && seq2.trigAssign === 'glide';
+
+            const sumPitch = (seq1.tracks.A[s1Step] + mods.modPitch) * voltageRangeMultiplier;
+            const sumFilter = (seq1.tracks.B[s1Step] + mods.modFilter) * voltageRangeMultiplier;
+            const sumMod = (seq1.tracks.C[s1Step] + mods.modDest); 
+            
+            let dynPorta = Math.max(0.001, portamentoTime + (mods.modPorta * 0.05));
+            if (s2Glide) dynPorta += 0.15;
+            let dynDecay = Math.max(0.005, decayTime + (mods.modDecay * 0.1));
+
+            const semitone = (sumPitch * 12) + transposeSemitones + octaveOffsetSemitones + finePitchTuneSemitones; 
+            const freq = 65.41 * Math.pow(2, semitone / 12); 
+            synthOsc.frequency.setTargetAtTime(freq, time, dynPorta);
+
+            let baseCutoff = 400 + (sumFilter * 2000); 
+            let peakVolume = 0.8;
+            if (s2Accent) { baseCutoff += 3000; peakVolume = 1.0; }
+            
+            const normalizedC = Math.max(0, Math.min(1, sumMod / 5)); 
+            if (activeChCDest === 'filter') baseCutoff = 100 + (normalizedC * 3000);
+            else if (activeChCDest === 'volume') peakVolume = 0.1 + (normalizedC * 0.9); 
+            baseCutoff = Math.max(20, Math.min(20000, baseCutoff)); 
+
+            const t0 = time;
+            const t1_atk = t0 + Math.max(0.005, attackTime);
+            const t2_dec = t1_atk + dynDecay;
+            const stepGateTime = Math.max(0.05, (60.0 / bpm) * seq1.rate * 4);
+            const t3_gateOff = Math.max(t2_dec + 0.005, t0 + stepGateTime); 
+            const t4_rel = t3_gateOff + Math.max(0.005, releaseTime);
+
+            synthVcf.frequency.cancelScheduledValues(t0); 
+            synthVcf.frequency.setValueAtTime(Math.max(20, baseCutoff), t0); 
+            synthVcf.frequency.linearRampToValueAtTime(Math.max(20, Math.min(20000, baseCutoff + 5000)), t1_atk);
+            synthVcf.frequency.exponentialRampToValueAtTime(Math.max(20, Math.min(20000, baseCutoff + (5000 * sustainLevel))), t2_dec);
+            synthVcf.frequency.setValueAtTime(Math.max(20, Math.min(20000, baseCutoff + (5000 * sustainLevel))), t3_gateOff);
+            synthVcf.frequency.exponentialRampToValueAtTime(Math.max(20, baseCutoff), t4_rel);
+
+            synthVca.gain.cancelScheduledValues(t0); 
+            synthVca.gain.setValueAtTime(0.0001, t0);
+            synthVca.gain.linearRampToValueAtTime(Math.max(0.0001, peakVolume), t1_atk);
+            synthVca.gain.linearRampToValueAtTime(Math.max(0.0001, peakVolume * sustainLevel), t2_dec);
+            synthVca.gain.setValueAtTime(Math.max(0.0001, peakVolume * sustainLevel), t3_gateOff);
+            synthVca.gain.exponentialRampToValueAtTime(0.0001, t4_rel);
+
+            updateDisplay(s1Step, sumPitch);
+        }
+
+        function updateUIForStep(seqObj) {
+            document.querySelectorAll(`#ledRow${seqObj.id} .step-indicator`).forEach(el => el.classList.remove('active'));
+            if(seqObj.step >= 0) {
+                const stepEl = document.querySelector(`#ledRow${seqObj.id} .step-indicator[data-step="${seqObj.step}"]`);
+                if(stepEl) stepEl.classList.add('active');
+            }
+        }
+
+        function manualStep(dir) {
+            if(!audioCtx) return;
+            
+            // Advance S1
+            seq1.step += dir;
+            if (dir > 0 && seq1.step === seq1.resetStep) seq1.step = 0;
+            if (seq1.step >= NUM_STEPS) seq1.step = 0;
+            if (seq1.step < 0) seq1.step = (seq1.resetStep !== null) ? seq1.resetStep - 1 : NUM_STEPS - 1;
+
+            // Advance S2
+            seq2.step += dir;
+            if (dir > 0 && seq2.activeTrigs[seq2.step] && seq2.trigAssign === 'reset2') seq2.step = 0;
+            if (seq2.step >= NUM_STEPS) seq2.step = 0;
+            if (seq2.step < 0) {
+                let resetPoint = NUM_STEPS - 1;
+                if (seq2.trigAssign === 'reset2') {
+                    for(let i=NUM_STEPS-1; i>=0; i--){
+                        if(seq2.activeTrigs[i]){ resetPoint = i - 1; break; }
+                    }
+                }
+                seq2.step = resetPoint < 0 ? NUM_STEPS - 1 : resetPoint;
+            }
+
+            updateUIForStep(seq1); updateUIForStep(seq2);
+            triggerSynthStep(audioCtx.currentTime + 0.02, Math.max(0, seq1.step), Math.max(0, seq2.step));
+        }
+
+        const stepAdvBtn = document.getElementById('stepAdv');
+        if(stepAdvBtn) stepAdvBtn.addEventListener('click', async () => { await initAudio(); manualStep(1); });
+        const stepRevBtn = document.getElementById('stepRev');
+        if(stepRevBtn) stepRevBtn.addEventListener('click', async () => { await initAudio(); manualStep(-1); });
+
+        async function scheduler() {
+            if(!isPlaying) return;
+            
+            if (playMode === 'step') {
+                timerId = setTimeout(scheduler, 25);
+                return;
+            }
+
+            const secondsPerBeat = 60.0 / bpm;
+            let advanceS1 = false; let advanceS2 = false;
+
+            if (seq1.clock === 'int' && seq1.nextTime < audioCtx.currentTime + 0.1) {
+                advanceS1 = true; seq1.nextTime += secondsPerBeat * seq1.rate * 4;
+            }
+            if (seq2.clock === 'int' && seq2.nextTime < audioCtx.currentTime + 0.1) {
+                advanceS2 = true; seq2.nextTime += secondsPerBeat * seq2.rate * 4;
+            }
+
+            let s1TriggerHit = false;
+            if (advanceS1) {
+                seq1.step++;
+                if (seq1.step === seq1.resetStep) { seq1.step = 0; s1TriggerHit = true; }
+                else if (seq1.step >= NUM_STEPS) { seq1.step = 0; s1TriggerHit = true; }
+            }
+
+            if (advanceS2) {
+                seq2.step++; if (seq2.step >= NUM_STEPS) seq2.step = 0;
+                if (seq2.activeTrigs[seq2.step]) {
+                    if (seq2.trigAssign === 'reset2') seq2.step = 0;
+                    else if (seq2.trigAssign === 'clock1' && seq1.clock === 'ext') {
+                        seq1.step++; 
+                        if (seq1.step === seq1.resetStep) { seq1.step = 0; s1TriggerHit = true; } 
+                        else if (seq1.step >= NUM_STEPS) { seq1.step = 0; s1TriggerHit = true; }
+                        advanceS1 = true;
+                    }
+                }
+            }
+
+            if (s1TriggerHit && seq2.clock === 'ext') {
+                advanceS2 = true; seq2.step++; if (seq2.step >= NUM_STEPS) seq2.step = 0;
+                if (seq2.activeTrigs[seq2.step] && seq2.trigAssign === 'reset2') seq2.step = 0;
+            }
+            
+            if (playMode === 'one' && s1TriggerHit) {
+                const startStopBtn = document.getElementById('startStop');
+                if(startStopBtn) startStopBtn.click();
+                return;
+            }
+
+            if (advanceS1 || advanceS2) {
+                if (advanceS1) updateUIForStep(seq1); if (advanceS2) updateUIForStep(seq2);
+                triggerSynthStep(audioCtx.currentTime + 0.05, Math.max(0, seq1.step), Math.max(0, seq2.step));
+            }
+            timerId = setTimeout(scheduler, 25);
+        }
+
+        const startStopBtn = document.getElementById('startStop');
+        if(startStopBtn) {
+            startStopBtn.addEventListener('click', async (e) => {
+                await initAudio();
+                const rockerLed = document.getElementById('rockerLed');
+                if(isPlaying) {
+                    isPlaying = false; clearTimeout(timerId); stopPreview();
+                    seq1.step = -1; seq2.step = -1; updateUIForStep(seq1); updateUIForStep(seq2);
+                    startStopBtn.classList.remove('is-active');
+                    if(rockerLed) rockerLed.classList.replace('bg-red-200', 'bg-red-400');
+                } else { 
+                    isPlaying = true; 
+                    startStopBtn.classList.add('is-active');
+                    if(rockerLed) rockerLed.classList.replace('bg-red-400', 'bg-red-200');
+                    seq1.nextTime = audioCtx.currentTime + 0.05; seq2.nextTime = audioCtx.currentTime + 0.05;
+                    scheduler();
+                }
+            });
+        }
+
+        function handlePatch1Click(e) {
+            const step = parseInt(e.target.dataset.step);
+            const resetStatus = document.getElementById('resetStatus');
+            if (seq1.resetStep === step) {
+                seq1.resetStep = null; e.target.classList.remove('patched'); 
+                if(resetStatus) resetStatus.innerText = "PATCH: NONE";
+            } else {
+                document.querySelectorAll('#trigRow1 .patch-point').forEach(el => el.classList.remove('patched'));
+                seq1.resetStep = step; e.target.classList.add('patched'); 
+                if(resetStatus) resetStatus.innerText = `TRIG: STEP ${step + 1}`;
+            }
+        }
+
+        function handlePatch2Click(e) {
+            const step = parseInt(e.target.dataset.step); seq2.activeTrigs[step] = !seq2.activeTrigs[step]; renderTrig2Colors();
+        }
+
+        function renderTrig2Colors() {
+            document.querySelectorAll('#trigRow2 .patch-point').forEach(el => {
+                const step = parseInt(el.dataset.step); el.className = 'patch-point'; 
+                if (seq2.activeTrigs[step]) {
+                    if (seq2.trigAssign === 'reset2') el.classList.add('patched-red');
+                    else if (seq2.trigAssign === 'accent') el.classList.add('patched-yellow');
+                    else if (seq2.trigAssign === 'glide') el.classList.add('patched-blue');
+                    else if (seq2.trigAssign === 'clock1') el.classList.add('patched-green');
+                }
+            });
+        }
+
+        const demoBtn = document.getElementById('demoBtn');
+        if(demoBtn) {
+            demoBtn.addEventListener('click', async () => {
+                await initAudio();
+                const rockerLed = document.getElementById('rockerLed');
+                if(isPlaying) {
+                    isPlaying = false; clearTimeout(timerId); stopPreview();
+                    if(startStopBtn) startStopBtn.classList.remove('is-active'); 
+                    if(rockerLed) rockerLed.classList.replace('bg-red-200', 'bg-red-400');
+                }
+
+                voltageRangeMultiplier = 1; 
+                const voltBtn = document.getElementById('voltRockerBtn');
+                if(voltBtn) {
+                    voltBtn.classList.remove('volt-toggle-bottom');
+                    voltBtn.classList.add('volt-toggle-top');
+                }
+                
+                playMode = 'cont';
+                document.querySelectorAll('#playModeBank .mode-btn').forEach(b => b.classList.toggle('mode-active', b.dataset.play === playMode));
+
+                bpm = 120; updateKnobVisual(document.getElementById('clockSpeed'), 40); 
+                const speedKnob = document.getElementById('clockSpeed'); if(speedKnob) speedKnob.dataset.val = 40;
+                
+                portamentoTime = 0.01; updateKnobVisual(document.getElementById('portamento'), 0); 
+                const portaKnob = document.getElementById('portamento'); if(portaKnob) portaKnob.dataset.val = 0;
+
+                attackTime = 0.01; updateKnobVisual(document.getElementById('envAttack'), 2); 
+                const atkKnob = document.getElementById('envAttack'); if(atkKnob) atkKnob.dataset.val = 2;
+
+                decayTime = 0.15; updateKnobVisual(document.getElementById('envDecay'), 20); 
+                const decKnob = document.getElementById('envDecay'); if(decKnob) decKnob.dataset.val = 20;
+
+                sustainLevel = 0.1; updateKnobVisual(document.getElementById('envSustain'), 10); 
+                const susKnob = document.getElementById('envSustain'); if(susKnob) susKnob.dataset.val = 10;
+
+                releaseTime = 0.1; updateKnobVisual(document.getElementById('envRelease'), 15); 
+                const relKnob = document.getElementById('envRelease'); if(relKnob) relKnob.dataset.val = 15;
+                
+                document.querySelectorAll('#waveBtnBank .wave-btn').forEach(b => b.classList.remove('wave-active'));
+                const squareWaveBtn = document.querySelector('#waveBtnBank .wave-btn[data-wave="1"]');
+                if(squareWaveBtn) squareWaveBtn.classList.add('wave-active'); 
+                activeWaveform = 'square'; if(synthOsc) synthOsc.type = activeWaveform;
+
+                const route2A = document.getElementById('route2A'); if(route2A) route2A.value = 'pitch'; seq2Routing.A = 'pitch';
+                const route2B = document.getElementById('route2B'); if(route2B) route2B.value = 'filter'; seq2Routing.B = 'filter';
+                const route2C = document.getElementById('route2C'); if(route2C) route2C.value = 'decay'; seq2Routing.C = 'decay';
+
+                const clk1 = document.getElementById('clk1'); if(clk1) clk1.value = 'int'; seq1.clock = 'int';
+                const rate1 = document.getElementById('rate1'); if(rate1) rate1.value = '0.25'; seq1.rate = 0.25;
+                const clk2 = document.getElementById('clk2'); if(clk2) clk2.value = 'ext'; seq2.clock = 'ext';
+                const rate2 = document.getElementById('rate2'); if(rate2) rate2.value = '0.25'; seq2.rate = 0.25;
+                const trig2 = document.getElementById('trigAssign2'); if(trig2) trig2.value = 'reset2'; seq2.trigAssign = 'reset2';
+
+                const s1A = [0.0, 0.0, 0.25, 0.0, 0.416, 0.0, 0.583, 0.25, 0.0, 0.0, 0.0, 0.0];
+                const s1B = [0.5, 0.0, 0.2, 0.0, 0.6, 0.0, 0.3, 0.0, 0.0, 0.0, 0.0, 0.0];
+                const s1C = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+                
+                const s2A = [0.0, -0.333, 0.25, -0.166, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+                const s2B = [0.0, -0.5, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+                const s2C = [0.0, -1.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+                const s2Trigs = [false, false, false, false, true, false, false, false, false, false, false, false];
+
+                for(let i=0; i<12; i++) {
+                    seq1.tracks.A[i] = s1A[i]; seq1.tracks.B[i] = s1B[i]; seq1.tracks.C[i] = s1C[i];
+                    seq2.tracks.A[i] = s2A[i]; seq2.tracks.B[i] = s2B[i]; seq2.tracks.C[i] = s2C[i];
+                    seq2.activeTrigs[i] = s2Trigs[i];
+
+                    let k1A = document.querySelector(`.knob[data-seq="1"][data-ch="A"][data-step="${i}"]`); if(k1A) { k1A.dataset.val = s1A[i]; updateKnobVisual(k1A, s1A[i]); }
+                    let k1B = document.querySelector(`.knob[data-seq="1"][data-ch="B"][data-step="${i}"]`); if(k1B) { k1B.dataset.val = s1B[i]; updateKnobVisual(k1B, s1B[i]); }
+                    let k1C = document.querySelector(`.knob[data-seq="1"][data-ch="C"][data-step="${i}"]`); if(k1C) { k1C.dataset.val = s1C[i]; updateKnobVisual(k1C, s1C[i]); }
+                    
+                    let k2A = document.querySelector(`.knob[data-seq="2"][data-ch="A"][data-step="${i}"]`); if(k2A) { k2A.dataset.val = s2A[i]; updateKnobVisual(k2A, s2A[i]); }
+                    let k2B = document.querySelector(`.knob[data-seq="2"][data-ch="B"][data-step="${i}"]`); if(k2B) { k2B.dataset.val = s2B[i]; updateKnobVisual(k2B, s2B[i]); }
+                    let k2C = document.querySelector(`.knob[data-seq="2"][data-ch="C"][data-step="${i}"]`); if(k2C) { k2C.dataset.val = s2C[i]; updateKnobVisual(k2C, s2C[i]); }
+                }
+
+                seq1.resetStep = 8;
+                document.querySelectorAll('#trigRow1 .patch-point').forEach(el => el.classList.remove('patched'));
+                const patch8 = document.querySelector('#trigRow1 .patch-point[data-step="8"]');
+                if(patch8) patch8.classList.add('patched');
+                
+                renderTrig2Colors();
+                setTimeout(() => { if(startStopBtn) startStopBtn.click(); }, 150);
+            });
+        }
+
+        function renderGrids() {
+            [1, 2].forEach(sId => {
+                const ledRow = document.getElementById(`ledRow${sId}`); if(ledRow) ledRow.innerHTML = '';
+                const rowA = document.getElementById(`row${sId}A`); if(rowA) rowA.innerHTML = '';
+                const rowB = document.getElementById(`row${sId}B`); if(rowB) rowB.innerHTML = '';
+                const rowC = document.getElementById(`row${sId}C`); if(rowC) rowC.innerHTML = '';
+                const trigRow = document.getElementById(`trigRow${sId}`); if(trigRow) trigRow.innerHTML = '';
+                
+                for(let i=0; i<NUM_STEPS; i++) {
+                    if(ledRow) ledRow.innerHTML += `<div class="w-[56px] flex justify-center step-indicator" data-step="${i}"><div class="led"></div></div>`;
+                    ['A', 'B', 'C'].forEach(ch => {
+                        const defaultVal = 0;
+                        const labels = (ch === 'A' || ch === 'B') ? `<span class="tick-label label-left">-5</span><span class="tick-label label-top">0</span><span class="tick-label label-right">+5</span>` : `<span class="tick-label label-left">0</span><span class="tick-label label-right">+5</span>`;
+                        const targetRow = document.getElementById(`row${sId}${ch}`);
+                        if(targetRow) targetRow.innerHTML += `<div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div>${labels}<div class="knob" data-seq="${sId}" data-ch="${ch}" data-step="${i}" data-val="${defaultVal}"></div></div></div>`;
+                    });
+                    const pp = document.createElement('div'); pp.className = 'patch-point'; pp.dataset.step = i; 
+                    if (sId === 1) pp.addEventListener('click', handlePatch1Click); else pp.addEventListener('click', handlePatch2Click);
+                    const pc = document.createElement('div'); pc.className = 'w-[56px] flex justify-center'; pc.appendChild(pp); 
+                    if(trigRow) trigRow.appendChild(pc);
+                }
+            });
+            document.querySelectorAll('.knob[data-ch]').forEach(k => updateKnobVisual(k, parseFloat(k.dataset.val)));
+            ['clockSpeed','pitchTuneKnob'].forEach(id => updateKnobVisual(document.getElementById(id), 50));
+            updateKnobVisual(document.getElementById('portamento'), 0);
+            updateKnobVisual(document.getElementById('envAttack'), 5); updateKnobVisual(document.getElementById('envDecay'), 30);
+            updateKnobVisual(document.getElementById('envSustain'), 20); updateKnobVisual(document.getElementById('envRelease'), 25);
+        }
+
+        function renderKeyboard() {
+            const container = document.getElementById('keyboardContainer');
+            if(!container) return;
+            container.innerHTML = '';
+            const keys = [{note:'C',isBlack:false,offset:0},{note:'C#',isBlack:true,offset:1},{note:'D',isBlack:false,offset:2},{note:'D#',isBlack:true,offset:3},{note:'E',isBlack:false,offset:4},{note:'F',isBlack:false,offset:5},{note:'F#',isBlack:true,offset:6},{note:'G',isBlack:false,offset:7},{note:'G#',isBlack:true,offset:8},{note:'A',isBlack:false,offset:9},{note:'A#',isBlack:true,offset:10},{note:'B',isBlack:false,offset:11},{note:'C',isBlack:false,offset:12}];
+            let whiteIndex = 0;
+            keys.forEach(k => {
+                const btn = document.createElement('button'); btn.dataset.offset = k.offset;
+                if (k.isBlack) { btn.className = `key-black absolute w-5 h-10 text-[8px] font-bold flex items-end justify-center pb-1 ${k.offset === transposeSemitones ? 'active-key' : ''}`; btn.style.left = `${(whiteIndex * 24) - 10}px`; } 
+                else { btn.className = `key-white w-6 h-16 text-[9px] font-bold flex items-end justify-center pb-1 ${k.offset === transposeSemitones ? 'active-key' : ''}`; whiteIndex++; }
+                btn.innerText = k.note;
+                btn.addEventListener('pointerdown', async (e) => {
+                    await initAudio(); transposeSemitones = parseInt(e.target.dataset.offset);
+                    document.querySelectorAll('#keyboardContainer button').forEach(el => el.classList.remove('active-key')); e.target.classList.add('active-key');
+                    if (!isPlaying) previewSynth(Math.max(0, seq1.step), Math.max(0, seq2.step), true);
+                });
+                btn.addEventListener('pointerup', stopPreview); btn.addEventListener('pointercancel', stopPreview);
+                container.appendChild(btn);
+            });
+        }
+
+        renderGrids(); renderKeyboard();
+    </script>
+</body>
+</html>
