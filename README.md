@@ -1,4 +1,4 @@
-# SQ-24 dual analog sequencer — signal flow
+# SQ-24 dual analog sequencer — signal flow (WORK IN PROGRESS)
 
 ## Overall architecture
 
