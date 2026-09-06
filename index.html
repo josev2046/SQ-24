@@ -1,10 +1,4 @@
 <!DOCTYPE html>
-<!-- 
-    SQ-24 DUAL Analog Sequencer (Modular Routing Studio)
-    Created & Developed by Jose Velazquez MA
-    Voltage & Wave (https://voltageandwave.co.uk/)
-    Updated: Restored Playback Modes (Step/Cont/Once) & Transport Controls
--->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -147,7 +141,14 @@
                     <div class="flex items-center gap-5 relative">
                         <span class="absolute -top-6 left-1/2 -translate-x-1/2 text-[8px] font-bold tracking-widest text-[#82796e] whitespace-nowrap">MAIN ROUTING</span>
                         
-                        <div class="flex flex-col items-center justify-center h-full">
+                        <div class="flex flex-col items-center gap-1">
+                            <span class="text-[7px] font-bold text-[#1f1a14]">12</span>
+                            <div class="volt-rocker volt-toggle-top" id="lengthRockerBtn"><div class="volt-rocker-cap"></div></div>
+                            <span class="text-[7px] font-bold text-[#1f1a14]">24</span>
+                            <span class="text-[8px] font-bold text-[#1f1a14] mt-0.5">STEPS</span>
+                        </div>
+
+                        <div class="flex flex-col items-center justify-center h-full ml-1">
                             <div class="flex flex-col gap-1" id="playModeBank">
                                 <button class="mode-btn" data-play="step">STEP</button>
                                 <button class="mode-btn mode-active" data-play="cont">CONT</button>
@@ -205,7 +206,6 @@
                 </div>
             </div>
 
-            <!-- SEQUENCER 1 GRID -->
             <div class="w-full flex justify-between items-end px-2 mb-1">
                 <span class="text-[#82796e] font-bold text-[11px] tracking-widest">SEQ 1 (PRIMARY CV)</span>
                 <div class="flex gap-4 text-[10px] font-bold text-[#1f1a14]">
@@ -216,14 +216,13 @@
             <div class="panel-outline w-full overflow-x-auto grid-scroll mb-6 !py-6 !px-4">
                 <div class="flex flex-col gap-5 min-w-max mx-auto px-2">
                     <div class="flex"><div class="row-label"></div><div class="flex gap-4 flex-1" id="ledRow1"></div></div>
-                    <div class="flex"><div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot1A" class="pilot pilot-active"></div>ROW A</div><span class="text-[9px] font-bold mt-1">PITCH</span></div><div class="flex gap-4 flex-1" id="row1A"></div></div>
-                    <div class="flex"><div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot1B" class="pilot pilot-active"></div>ROW B</div><span class="text-[9px] font-bold mt-1">FILTER</span></div><div class="flex gap-4 flex-1" id="row1B"></div></div>
+                    <div class="flex"><div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot1A" class="pilot pilot-active"></div>ROW A</div><span class="text-[9px] font-bold mt-1" id="label1A">PITCH</span></div><div class="flex gap-4 flex-1" id="row1A"></div></div>
+                    <div class="flex"><div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot1B" class="pilot pilot-active"></div>ROW B</div><span class="text-[9px] font-bold mt-1" id="label1B">FILTER</span></div><div class="flex gap-4 flex-1" id="row1B"></div></div>
                     <div class="flex"><div class="row-label text-[#1f1a14]">ROW C<span class="text-[9px] font-bold mt-1">MOD</span></div><div class="flex gap-4 flex-1" id="row1C"></div></div>
                     <div class="flex mt-2"><div class="row-label text-[#1f1a14] text-[10px] items-center justify-end">TRIG<br>OUT</div><div class="flex gap-4 flex-1" id="trigRow1"></div></div>
                 </div>
             </div>
 
-            <!-- SEQUENCER 2 GRID -->
             <div class="w-full flex justify-between items-end px-2 mb-1 mt-2">
                 <span class="text-[#82796e] font-bold text-[11px] tracking-widest">SEQ 2 (MODULAR ASSIGN)</span>
                 <div class="flex gap-4 text-[10px] font-bold text-[#1f1a14]">
@@ -262,7 +261,6 @@
                 </div>
             </div>
             
-            <!-- Footer -->
             <div class="flex flex-wrap items-center justify-between gap-6 w-full pt-4 border-t-2 border-[#38342e]/30">
                 <div class="flex flex-col gap-1">
                     <span class="text-[10px] font-bold text-[#1f1a14]">KEYBOARD TRANSPOSE / PREVIEW</span>
@@ -288,6 +286,8 @@
         let audioCtx, synthOsc, synthVcf, synthVca, analyser;
         
         let bpm = 120, portamentoTime = 0.01, transposeSemitones = 0, voltageRangeMultiplier = 1, activeChCDest = 'filter', playMode = 'cont';
+        let seq1Length = 12; // Controls 12/24 A+B Chaining
+
         const waveforms = ['sawtooth', 'square']; let activeWaveform = 'sawtooth';
         let octaveOffsetSemitones = 0, finePitchTuneSemitones = 0; 
         let attackTime = 0.01, decayTime = 0.15, sustainLevel = 0.2, releaseTime = 0.2;   
@@ -358,6 +358,27 @@
             });
         }
 
+        const lengthRockerBtn = document.getElementById('lengthRockerBtn');
+        if(lengthRockerBtn) {
+            lengthRockerBtn.addEventListener('click', (e) => {
+                const btn = e.currentTarget;
+                const lA = document.getElementById('label1A');
+                const lB = document.getElementById('label1B');
+                if (btn.classList.contains('volt-toggle-top')) { 
+                    btn.classList.replace('volt-toggle-top', 'volt-toggle-bottom'); 
+                    seq1Length = 24; 
+                    if(lA) lA.innerText = "PITCH (1-12)";
+                    if(lB) lB.innerText = "PITCH (13-24)";
+                } else { 
+                    btn.classList.replace('volt-toggle-bottom', 'volt-toggle-top'); 
+                    seq1Length = 12; 
+                    if(lA) lA.innerText = "PITCH";
+                    if(lB) lB.innerText = "FILTER";
+                }
+                updateUIForStep(seq1);
+            });
+        }
+
         document.querySelectorAll('#playModeBank .mode-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 playMode = e.target.dataset.play;
@@ -415,9 +436,22 @@
             const now = audioCtx.currentTime;
             const mods = getRoutingModifiers(s2Step);
 
-            const sumPitch = (seq1.tracks.A[s1Step] + mods.modPitch) * voltageRangeMultiplier;
-            const sumFilter = (seq1.tracks.B[s1Step] + mods.modFilter) * voltageRangeMultiplier;
-            const sumMod = (seq1.tracks.C[s1Step] + mods.modDest); 
+            let s1_A_val, s1_B_val, s1_C_val;
+            let uiStep1 = s1Step % 12;
+
+            if (seq1Length === 24) {
+                s1_A_val = (s1Step < 12) ? seq1.tracks.A[uiStep1] : seq1.tracks.B[uiStep1];
+                s1_B_val = 0; 
+                s1_C_val = seq1.tracks.C[uiStep1];
+            } else {
+                s1_A_val = seq1.tracks.A[uiStep1];
+                s1_B_val = seq1.tracks.B[uiStep1];
+                s1_C_val = seq1.tracks.C[uiStep1];
+            }
+
+            const sumPitch = (s1_A_val + mods.modPitch) * voltageRangeMultiplier;
+            const sumFilter = (s1_B_val + mods.modFilter) * voltageRangeMultiplier;
+            const sumMod = (s1_C_val + mods.modDest); 
             
             const dynPorta = Math.max(0.001, portamentoTime + (mods.modPorta * 0.05));
             const dynDecay = Math.max(0.005, decayTime + (mods.modDecay * 0.1));
@@ -475,7 +509,11 @@
                 startY = e.clientY; startVal = parseFloat(activeKnob.dataset.val);
                 if (activeKnob.dataset.ch && !isPlaying) {
                     const stepIdx = parseInt(activeKnob.dataset.step);
-                    const s1Step = activeKnob.dataset.seq === '1' ? stepIdx : Math.max(0, seq1.step);
+                    let s1Step = Math.max(0, seq1.step);
+                    if (activeKnob.dataset.seq === '1') {
+                        if (seq1Length === 24 && activeKnob.dataset.ch === 'B') s1Step = stepIdx + 12;
+                        else s1Step = stepIdx;
+                    }
                     const s2Step = activeKnob.dataset.seq === '2' ? stepIdx : Math.max(0, seq2.step);
                     previewSynth(s1Step, s2Step, true); 
                 }
@@ -492,7 +530,11 @@
 
                     if (!isPlaying && isPreviewing) {
                         const stepIdx = parseInt(activeKnob.dataset.step);
-                        const s1Step = (sId === '1') ? stepIdx : Math.max(0, seq1.step);
+                        let s1Step = Math.max(0, seq1.step);
+                        if (sId === '1') {
+                            if (seq1Length === 24 && ch === 'B') s1Step = stepIdx + 12;
+                            else s1Step = stepIdx;
+                        }
                         const s2Step = (sId === '2') ? stepIdx : Math.max(0, seq2.step);
                         previewSynth(s1Step, s2Step, false); 
                     }
@@ -525,9 +567,22 @@
             const s2Accent = s2Step >= 0 && seq2.activeTrigs[s2Step] && seq2.trigAssign === 'accent';
             const s2Glide = s2Step >= 0 && seq2.activeTrigs[s2Step] && seq2.trigAssign === 'glide';
 
-            const sumPitch = (seq1.tracks.A[s1Step] + mods.modPitch) * voltageRangeMultiplier;
-            const sumFilter = (seq1.tracks.B[s1Step] + mods.modFilter) * voltageRangeMultiplier;
-            const sumMod = (seq1.tracks.C[s1Step] + mods.modDest); 
+            let s1_A_val, s1_B_val, s1_C_val;
+            let uiStep1 = s1Step % 12;
+
+            if (seq1Length === 24) {
+                s1_A_val = (s1Step < 12) ? seq1.tracks.A[uiStep1] : seq1.tracks.B[uiStep1];
+                s1_B_val = 0; 
+                s1_C_val = seq1.tracks.C[uiStep1];
+            } else {
+                s1_A_val = seq1.tracks.A[uiStep1];
+                s1_B_val = seq1.tracks.B[uiStep1];
+                s1_C_val = seq1.tracks.C[uiStep1];
+            }
+
+            const sumPitch = (s1_A_val + mods.modPitch) * voltageRangeMultiplier;
+            const sumFilter = (s1_B_val + mods.modFilter) * voltageRangeMultiplier;
+            const sumMod = (s1_C_val + mods.modDest); 
             
             let dynPorta = Math.max(0.001, portamentoTime + (mods.modPorta * 0.05));
             if (s2Glide) dynPorta += 0.15;
@@ -573,21 +628,30 @@
         function updateUIForStep(seqObj) {
             document.querySelectorAll(`#ledRow${seqObj.id} .step-indicator`).forEach(el => el.classList.remove('active'));
             if(seqObj.step >= 0) {
-                const stepEl = document.querySelector(`#ledRow${seqObj.id} .step-indicator[data-step="${seqObj.step}"]`);
+                const uiStep = seqObj.step % 12;
+                const stepEl = document.querySelector(`#ledRow${seqObj.id} .step-indicator[data-step="${uiStep}"]`);
                 if(stepEl) stepEl.classList.add('active');
+            }
+            if (seqObj.id === 1) {
+                const p1A = document.getElementById('pilot1A');
+                const p1B = document.getElementById('pilot1B');
+                if (seq1Length === 24) {
+                    if (seq1.step < 12) { if(p1A) p1A.classList.add('pilot-active'); if(p1B) p1B.classList.remove('pilot-active'); }
+                    else { if(p1A) p1A.classList.remove('pilot-active'); if(p1B) p1B.classList.add('pilot-active'); }
+                } else {
+                    if(p1A) p1A.classList.add('pilot-active'); if(p1B) p1B.classList.add('pilot-active');
+                }
             }
         }
 
         function manualStep(dir) {
             if(!audioCtx) return;
             
-            // Advance S1
             seq1.step += dir;
             if (dir > 0 && seq1.step === seq1.resetStep) seq1.step = 0;
-            if (seq1.step >= NUM_STEPS) seq1.step = 0;
-            if (seq1.step < 0) seq1.step = (seq1.resetStep !== null) ? seq1.resetStep - 1 : NUM_STEPS - 1;
+            if (seq1.step >= seq1Length) seq1.step = 0;
+            if (seq1.step < 0) seq1.step = (seq1.resetStep !== null) ? seq1.resetStep - 1 : seq1Length - 1;
 
-            // Advance S2
             seq2.step += dir;
             if (dir > 0 && seq2.activeTrigs[seq2.step] && seq2.trigAssign === 'reset2') seq2.step = 0;
             if (seq2.step >= NUM_STEPS) seq2.step = 0;
@@ -632,7 +696,7 @@
             if (advanceS1) {
                 seq1.step++;
                 if (seq1.step === seq1.resetStep) { seq1.step = 0; s1TriggerHit = true; }
-                else if (seq1.step >= NUM_STEPS) { seq1.step = 0; s1TriggerHit = true; }
+                else if (seq1.step >= seq1Length) { seq1.step = 0; s1TriggerHit = true; }
             }
 
             if (advanceS2) {
@@ -642,7 +706,7 @@
                     else if (seq2.trigAssign === 'clock1' && seq1.clock === 'ext') {
                         seq1.step++; 
                         if (seq1.step === seq1.resetStep) { seq1.step = 0; s1TriggerHit = true; } 
-                        else if (seq1.step >= NUM_STEPS) { seq1.step = 0; s1TriggerHit = true; }
+                        else if (seq1.step >= seq1Length) { seq1.step = 0; s1TriggerHit = true; }
                         advanceS1 = true;
                     }
                 }
@@ -689,12 +753,26 @@
         function handlePatch1Click(e) {
             const step = parseInt(e.target.dataset.step);
             const resetStatus = document.getElementById('resetStatus');
+            
             if (seq1.resetStep === step) {
-                seq1.resetStep = null; e.target.classList.remove('patched'); 
+                if (seq1Length === 24) {
+                    seq1.resetStep = step + 12;
+                    e.target.classList.remove('patched');
+                    e.target.classList.add('patched-red'); 
+                    if(resetStatus) resetStatus.innerText = `TRIG: STEP ${seq1.resetStep + 1}`;
+                } else {
+                    seq1.resetStep = null;
+                    e.target.classList.remove('patched', 'patched-red');
+                    if(resetStatus) resetStatus.innerText = "PATCH: NONE";
+                }
+            } else if (seq1.resetStep === step + 12) {
+                seq1.resetStep = null;
+                e.target.classList.remove('patched-red');
                 if(resetStatus) resetStatus.innerText = "PATCH: NONE";
             } else {
-                document.querySelectorAll('#trigRow1 .patch-point').forEach(el => el.classList.remove('patched'));
-                seq1.resetStep = step; e.target.classList.add('patched'); 
+                document.querySelectorAll('#trigRow1 .patch-point').forEach(el => el.classList.remove('patched', 'patched-red'));
+                seq1.resetStep = step;
+                e.target.classList.add('patched');
                 if(resetStatus) resetStatus.innerText = `TRIG: STEP ${step + 1}`;
             }
         }
@@ -726,6 +804,7 @@
                     if(rockerLed) rockerLed.classList.replace('bg-red-200', 'bg-red-400');
                 }
 
+                // Voltage Range +/- 5V
                 voltageRangeMultiplier = 1; 
                 const voltBtn = document.getElementById('voltRockerBtn');
                 if(voltBtn) {
@@ -733,35 +812,45 @@
                     voltBtn.classList.add('volt-toggle-top');
                 }
                 
+                // Engage 24-step Series Mode
+                const lenBtn = document.getElementById('lengthRockerBtn');
+                if(lenBtn) {
+                    lenBtn.classList.remove('volt-toggle-top');
+                    lenBtn.classList.add('volt-toggle-bottom');
+                }
+                seq1Length = 24;
+                const lA = document.getElementById('label1A'); if(lA) lA.innerText = "PITCH (1-12)";
+                const lB = document.getElementById('label1B'); if(lB) lB.innerText = "PITCH (13-24)";
+                
                 playMode = 'cont';
                 document.querySelectorAll('#playModeBank .mode-btn').forEach(b => b.classList.toggle('mode-active', b.dataset.play === playMode));
 
-                bpm = 120; updateKnobVisual(document.getElementById('clockSpeed'), 40); 
-                const speedKnob = document.getElementById('clockSpeed'); if(speedKnob) speedKnob.dataset.val = 40;
+                bpm = 135; updateKnobVisual(document.getElementById('clockSpeed'), 47.5); 
+                const speedKnob = document.getElementById('clockSpeed'); if(speedKnob) speedKnob.dataset.val = 47.5;
                 
-                portamentoTime = 0.01; updateKnobVisual(document.getElementById('portamento'), 0); 
-                const portaKnob = document.getElementById('portamento'); if(portaKnob) portaKnob.dataset.val = 0;
+                portamentoTime = 0.02; updateKnobVisual(document.getElementById('portamento'), 10); 
+                const portaKnob = document.getElementById('portamento'); if(portaKnob) portaKnob.dataset.val = 10;
 
                 attackTime = 0.01; updateKnobVisual(document.getElementById('envAttack'), 2); 
                 const atkKnob = document.getElementById('envAttack'); if(atkKnob) atkKnob.dataset.val = 2;
 
-                decayTime = 0.15; updateKnobVisual(document.getElementById('envDecay'), 20); 
-                const decKnob = document.getElementById('envDecay'); if(decKnob) decKnob.dataset.val = 20;
+                decayTime = 0.18; updateKnobVisual(document.getElementById('envDecay'), 25); 
+                const decKnob = document.getElementById('envDecay'); if(decKnob) decKnob.dataset.val = 25;
 
-                sustainLevel = 0.1; updateKnobVisual(document.getElementById('envSustain'), 10); 
-                const susKnob = document.getElementById('envSustain'); if(susKnob) susKnob.dataset.val = 10;
+                sustainLevel = 0.15; updateKnobVisual(document.getElementById('envSustain'), 15); 
+                const susKnob = document.getElementById('envSustain'); if(susKnob) susKnob.dataset.val = 15;
 
-                releaseTime = 0.1; updateKnobVisual(document.getElementById('envRelease'), 15); 
-                const relKnob = document.getElementById('envRelease'); if(relKnob) relKnob.dataset.val = 15;
+                releaseTime = 0.15; updateKnobVisual(document.getElementById('envRelease'), 20); 
+                const relKnob = document.getElementById('envRelease'); if(relKnob) relKnob.dataset.val = 20;
                 
                 document.querySelectorAll('#waveBtnBank .wave-btn').forEach(b => b.classList.remove('wave-active'));
                 const squareWaveBtn = document.querySelector('#waveBtnBank .wave-btn[data-wave="1"]');
                 if(squareWaveBtn) squareWaveBtn.classList.add('wave-active'); 
                 activeWaveform = 'square'; if(synthOsc) synthOsc.type = activeWaveform;
 
-                const route2A = document.getElementById('route2A'); if(route2A) route2A.value = 'pitch'; seq2Routing.A = 'pitch';
-                const route2B = document.getElementById('route2B'); if(route2B) route2B.value = 'filter'; seq2Routing.B = 'filter';
-                const route2C = document.getElementById('route2C'); if(route2C) route2C.value = 'decay'; seq2Routing.C = 'decay';
+                const route2A = document.getElementById('route2A'); if(route2A) route2A.value = 'filter'; seq2Routing.A = 'filter';
+                const route2B = document.getElementById('route2B'); if(route2B) route2B.value = 'decay'; seq2Routing.B = 'decay';
+                const route2C = document.getElementById('route2C'); if(route2C) route2C.value = 'pitch'; seq2Routing.C = 'pitch';
 
                 const clk1 = document.getElementById('clk1'); if(clk1) clk1.value = 'int'; seq1.clock = 'int';
                 const rate1 = document.getElementById('rate1'); if(rate1) rate1.value = '0.25'; seq1.rate = 0.25;
@@ -769,14 +858,16 @@
                 const rate2 = document.getElementById('rate2'); if(rate2) rate2.value = '0.25'; seq2.rate = 0.25;
                 const trig2 = document.getElementById('trigAssign2'); if(trig2) trig2.value = 'reset2'; seq2.trigAssign = 'reset2';
 
-                const s1A = [0.0, 0.0, 0.25, 0.0, 0.416, 0.0, 0.583, 0.25, 0.0, 0.0, 0.0, 0.0];
-                const s1B = [0.5, 0.0, 0.2, 0.0, 0.6, 0.0, 0.3, 0.0, 0.0, 0.0, 0.0, 0.0];
-                const s1C = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+                // 24-step melody across Row A (Steps 1-12) & Row B (Steps 13-24)
+                const s1A = [0.0, 0.0, 0.25, 0.416, 0.0, 0.583, 0.25, 0.0, 0.416, 0.0, 0.25, 0.0];
+                const s1B = [0.5, 0.5, 0.75, 0.916, 0.5, 1.083, 0.75, 0.5, 0.916, 0.5, 0.75, 0.25];
+                const s1C = [0.0, 2.0, 0.0, 4.0, 0.0, 1.0, 0.0, 3.0, 0.0, 5.0, 0.0, 2.0];
                 
-                const s2A = [0.0, -0.333, 0.25, -0.166, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
-                const s2B = [0.0, -0.5, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
-                const s2C = [0.0, -1.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
-                const s2Trigs = [false, false, false, false, true, false, false, false, false, false, false, false];
+                // Seq 2 modulation driving Filter Cutoff, Decay Time & Micro-pitch shifts
+                const s2A = [0.0, 0.5, 1.5, 0.0, -0.5, 2.0, 0.5, 0.0, 1.0, -0.5, 2.5, 0.0];
+                const s2B = [0.0, 2.0, -1.0, 0.5, 3.0, 0.0, -0.5, 1.5, 2.5, 0.0, -1.0, 0.5];
+                const s2C = [0.0, 0.0, 0.166, 0.0, -0.166, 0.0, 0.25, 0.0, 0.0, -0.25, 0.0, 0.166];
+                const s2Trigs = [false, false, false, false, false, false, false, false, true, false, false, false];
 
                 for(let i=0; i<12; i++) {
                     seq1.tracks.A[i] = s1A[i]; seq1.tracks.B[i] = s1B[i]; seq1.tracks.C[i] = s1C[i];
@@ -792,11 +883,15 @@
                     let k2C = document.querySelector(`.knob[data-seq="2"][data-ch="C"][data-step="${i}"]`); if(k2C) { k2C.dataset.val = s2C[i]; updateKnobVisual(k2C, s2C[i]); }
                 }
 
-                seq1.resetStep = 8;
-                document.querySelectorAll('#trigRow1 .patch-point').forEach(el => el.classList.remove('patched'));
-                const patch8 = document.querySelector('#trigRow1 .patch-point[data-step="8"]');
-                if(patch8) patch8.classList.add('patched');
+                // Patch Step 18 (Step 6 of Row B) as a Red Trigger Reset (24-step Series Patching feature)
+                seq1.resetStep = 18;
+                document.querySelectorAll('#trigRow1 .patch-point').forEach(el => el.classList.remove('patched', 'patched-red'));
+                const patch6 = document.querySelector('#trigRow1 .patch-point[data-step="5"]');
+                if(patch6) patch6.classList.add('patched-red');
                 
+                const resetStatus = document.getElementById('resetStatus');
+                if(resetStatus) resetStatus.innerText = `TRIG: STEP 18`;
+
                 renderTrig2Colors();
                 setTimeout(() => { if(startStopBtn) startStopBtn.click(); }, 150);
             });
