@@ -148,6 +148,13 @@
                             <span class="text-[8px] font-bold text-[#1f1a14] mt-0.5">STEPS</span>
                         </div>
 
+                        <div class="flex flex-col items-center gap-1 ml-2">
+                            <span class="text-[7px] font-bold text-[#1f1a14]">SUM</span>
+                            <div class="volt-rocker volt-toggle-top" id="voiceModeBtn"><div class="volt-rocker-cap"></div></div>
+                            <span class="text-[7px] font-bold text-[#1f1a14]">DUO</span>
+                            <span class="text-[8px] font-bold text-[#1f1a14] mt-0.5">VOICE</span>
+                        </div>
+
                         <div class="flex flex-col items-center justify-center h-full ml-1">
                             <div class="flex flex-col gap-1" id="playModeBank">
                                 <button class="mode-btn" data-play="step">STEP</button>
@@ -176,7 +183,7 @@
                     <div class="panel-divider"></div>
 
                     <div class="flex items-center gap-4 relative">
-                        <span class="absolute -top-6 left-1/2 -translate-x-1/2 text-[8px] font-bold tracking-widest text-[#82796e] whitespace-nowrap">OSCILLATOR (VCO)</span>
+                        <span class="absolute -top-6 left-1/2 -translate-x-1/2 text-[8px] font-bold tracking-widest text-[#82796e] whitespace-nowrap">OSCILLATORS (VCO 1 & 2)</span>
                         <div class="flex flex-col items-center justify-center h-full">
                             <div class="grid grid-cols-2 gap-1 mb-1.5" id="waveBtnBank">
                                 <button class="wave-btn wave-active" data-wave="0"><svg width="16" height="12" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"><path d="M4 14 L12 2 V14 L20 2 V14" /></svg></button>
@@ -207,7 +214,7 @@
             </div>
 
             <div class="w-full flex justify-between items-end px-2 mb-1">
-                <span class="text-[#82796e] font-bold text-[11px] tracking-widest">SEQ 1 (PRIMARY CV)</span>
+                <span class="text-[#82796e] font-bold text-[11px] tracking-widest" id="seq1Title">SEQ 1 (PRIMARY CV)</span>
                 <div class="flex gap-4 text-[10px] font-bold text-[#1f1a14]">
                     <label>CLOCK: <select id="clk1" class="bg-transparent border border-[#38342e] rounded p-1 outline-none"><option value="int">INTERNAL</option><option value="ext">EXT (FROM S2)</option></select></label>
                     <label>RATE: <select id="rate1" class="bg-transparent border border-[#38342e] rounded p-1 outline-none"><option value="0.25">1/16</option><option value="0.375">3/16</option><option value="0.5">1/8</option></select></label>
@@ -224,7 +231,7 @@
             </div>
 
             <div class="w-full flex justify-between items-end px-2 mb-1 mt-2">
-                <span class="text-[#82796e] font-bold text-[11px] tracking-widest">SEQ 2 (MODULAR ASSIGN)</span>
+                <span class="text-[#82796e] font-bold text-[11px] tracking-widest transition-all" id="seq2Title">SEQ 2 (MODULAR ASSIGN)</span>
                 <div class="flex gap-4 text-[10px] font-bold text-[#1f1a14]">
                     <label>CLOCK: <select id="clk2" class="bg-transparent border border-[#38342e] rounded p-1 outline-none"><option value="int">INTERNAL</option><option value="ext">EXT (FROM S1)</option></select></label>
                     <label>RATE: <select id="rate2" class="bg-transparent border border-[#38342e] rounded p-1 outline-none"><option value="0.25">1/16</option><option value="0.375">3/16</option><option value="0.5">1/8</option></select></label>
@@ -242,18 +249,21 @@
                     <div class="flex">
                         <div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot2A" class="pilot pilot-active"></div>ROW A</div>
                             <select id="route2A" class="mod-select mt-1"><option value="pitch">+ PITCH</option><option value="filter">+ FILTER</option><option value="mod">+ MOD</option><option value="decay">DECAY TIME</option><option value="porta">GLIDE TIME</option></select>
+                            <span class="text-[9px] font-bold mt-1 hidden text-center" id="label2A">V2 PITCH</span>
                         </div>
                         <div class="flex gap-4 flex-1" id="row2A"></div>
                     </div>
                     <div class="flex">
                         <div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot2B" class="pilot pilot-active"></div>ROW B</div>
                             <select id="route2B" class="mod-select mt-1"><option value="filter">+ FILTER</option><option value="pitch">+ PITCH</option><option value="mod">+ MOD</option><option value="decay">DECAY TIME</option><option value="porta">GLIDE TIME</option></select>
+                            <span class="text-[9px] font-bold mt-1 hidden text-center" id="label2B">V2 FILTER</span>
                         </div>
                         <div class="flex gap-4 flex-1" id="row2B"></div>
                     </div>
                     <div class="flex">
                         <div class="row-label text-[#1f1a14]">ROW C
                             <select id="route2C" class="mod-select mt-1"><option value="decay">DECAY TIME</option><option value="pitch">+ PITCH</option><option value="filter">+ FILTER</option><option value="mod">+ MOD</option><option value="porta">GLIDE TIME</option></select>
+                            <span class="text-[9px] font-bold mt-1 hidden text-center" id="label2C">V2 DECAY</span>
                         </div>
                         <div class="flex gap-4 flex-1" id="row2C"></div>
                     </div>
@@ -268,7 +278,7 @@
                 </div>
                 <div class="flex flex-col items-end gap-3">
                     <div class="flex gap-4">
-                        <button id="demoBtn" class="tactile-button text-[10px] font-bold tracking-widest px-3 py-2 rounded-sm cursor-pointer outline-none hover:text-white hover:border-[#c83a2a]">DEMO: TECHNOPOP</button>
+                        <button id="demoBtn" class="tactile-button text-[10px] font-bold tracking-widest px-3 py-2 rounded-sm cursor-pointer outline-none hover:text-white hover:border-[#c83a2a]">DEMO: DUOPHONIC</button>
                     </div>
                     <div class="text-[9px] text-[#38342e] font-mono font-bold tracking-widest text-right mt-1">
                         &copy; JOSE VELAZQUEZ MA / <a href="https://voltageandwave.co.uk/" target="_blank" rel="noopener noreferrer" class="hover:text-[#c83a2a] underline transition-colors">VOLTAGE &amp; WAVE</a>
@@ -283,10 +293,16 @@
         const NUM_STEPS = 12;
         let isPlaying = false, isPreviewing = false;
         let timerId;
-        let audioCtx, synthOsc, synthVcf, synthVca, analyser;
+        
+        // Dual Audio Architecture
+        let audioCtx;
+        let synthOsc1, synthVcf1, synthVca1;
+        let synthOsc2, synthVcf2, synthVca2;
+        let analyser;
         
         let bpm = 120, portamentoTime = 0.01, transposeSemitones = 0, voltageRangeMultiplier = 1, activeChCDest = 'filter', playMode = 'cont';
-        let seq1Length = 12; // Controls 12/24 A+B Chaining
+        let seq1Length = 12; 
+        let voiceMode = 'sum'; // 'sum' or 'duo'
 
         const waveforms = ['sawtooth', 'square']; let activeWaveform = 'sawtooth';
         let octaveOffsetSemitones = 0, finePitchTuneSemitones = 0; 
@@ -301,10 +317,27 @@
             if(!audioCtx) {
                 const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
                 audioCtx = new AudioCtxClass();
-                synthOsc = audioCtx.createOscillator(); synthVcf = audioCtx.createBiquadFilter(); synthVca = audioCtx.createGain(); analyser = audioCtx.createAnalyser();
-                synthOsc.type = activeWaveform; synthVcf.type = 'lowpass'; synthVcf.Q.value = 12; synthVca.gain.value = 0.0001; analyser.fftSize = 256;
-                synthOsc.connect(synthVcf); synthVcf.connect(synthVca); synthVca.connect(analyser); analyser.connect(audioCtx.destination);
-                synthOsc.start(); drawScope();
+                
+                // Voice 1 Setup
+                synthOsc1 = audioCtx.createOscillator(); synthVcf1 = audioCtx.createBiquadFilter(); synthVca1 = audioCtx.createGain(); 
+                synthOsc1.type = activeWaveform; synthVcf1.type = 'lowpass'; synthVcf1.Q.value = 12; synthVca1.gain.value = 0.0001; 
+                synthOsc1.connect(synthVcf1); synthVcf1.connect(synthVca1);
+                
+                // Voice 2 Setup
+                synthOsc2 = audioCtx.createOscillator(); synthVcf2 = audioCtx.createBiquadFilter(); synthVca2 = audioCtx.createGain(); 
+                synthOsc2.type = activeWaveform; synthVcf2.type = 'lowpass'; synthVcf2.Q.value = 12; synthVca2.gain.value = 0.0001; 
+                synthOsc2.connect(synthVcf2); synthVcf2.connect(synthVca2);
+
+                analyser = audioCtx.createAnalyser();
+                analyser.fftSize = 256;
+                
+                // Mixdown
+                synthVca1.connect(analyser);
+                synthVca2.connect(analyser);
+                analyser.connect(audioCtx.destination);
+                
+                synthOsc1.start(); synthOsc2.start();
+                drawScope();
             }
             if(audioCtx.state === 'suspended') await audioCtx.resume();
         }
@@ -358,6 +391,40 @@
             });
         }
 
+        const voiceModeBtn = document.getElementById('voiceModeBtn');
+        if(voiceModeBtn) {
+            voiceModeBtn.addEventListener('click', (e) => {
+                const btn = e.currentTarget;
+                if (btn.classList.contains('volt-toggle-top')) { 
+                    btn.classList.replace('volt-toggle-top', 'volt-toggle-bottom'); 
+                    voiceMode = 'duo'; 
+                } else { 
+                    btn.classList.replace('volt-toggle-bottom', 'volt-toggle-top'); 
+                    voiceMode = 'sum'; 
+                }
+                updateVoiceModeUI();
+            });
+        }
+
+        function updateVoiceModeUI() {
+            const seq2Title = document.getElementById('seq2Title');
+            const routeA = document.getElementById('route2A'); const labelA = document.getElementById('label2A');
+            const routeB = document.getElementById('route2B'); const labelB = document.getElementById('label2B');
+            const routeC = document.getElementById('route2C'); const labelC = document.getElementById('label2C');
+
+            if (voiceMode === 'duo') {
+                if(seq2Title) seq2Title.innerText = "SEQ 2 (SYNTH VOICE 2)";
+                if(routeA) routeA.classList.add('hidden'); if(labelA) labelA.classList.remove('hidden');
+                if(routeB) routeB.classList.add('hidden'); if(labelB) labelB.classList.remove('hidden');
+                if(routeC) routeC.classList.add('hidden'); if(labelC) labelC.classList.remove('hidden');
+            } else {
+                if(seq2Title) seq2Title.innerText = "SEQ 2 (MODULAR ASSIGN)";
+                if(routeA) routeA.classList.remove('hidden'); if(labelA) labelA.classList.add('hidden');
+                if(routeB) routeB.classList.remove('hidden'); if(labelB) labelB.classList.add('hidden');
+                if(routeC) routeC.classList.remove('hidden'); if(labelC) labelC.classList.add('hidden');
+            }
+        }
+
         const lengthRockerBtn = document.getElementById('lengthRockerBtn');
         if(lengthRockerBtn) {
             lengthRockerBtn.addEventListener('click', (e) => {
@@ -392,7 +459,8 @@
         }));
         document.querySelectorAll('#waveBtnBank .wave-btn').forEach(btn => btn.addEventListener('click', (e) => {
             const idx = parseInt(e.currentTarget.dataset.wave); activeWaveform = waveforms[idx];
-            if(synthOsc) synthOsc.type = activeWaveform;
+            if(synthOsc1) synthOsc1.type = activeWaveform;
+            if(synthOsc2) synthOsc2.type = activeWaveform;
             document.querySelectorAll('#waveBtnBank .wave-btn').forEach(b => b.classList.toggle('wave-active', parseInt(b.dataset.wave) === idx));
         }));
         document.querySelectorAll('#octaveBtnBank .oct-btn').forEach(btn => btn.addEventListener('click', (e) => {
@@ -421,7 +489,7 @@
 
         function getRoutingModifiers(s2Step) {
             let modPitch = 0, modFilter = 0, modDest = 0, modDecay = 0, modPorta = 0;
-            if (s2Step >= 0) {
+            if (s2Step >= 0 && voiceMode === 'sum') {
                 ['A', 'B', 'C'].forEach(ch => {
                     const val = seq2.tracks[ch][s2Step]; const route = seq2Routing[ch];
                     if (route === 'pitch') modPitch += val; if (route === 'filter') modFilter += val; if (route === 'mod') modDest += val;
@@ -431,72 +499,124 @@
             return { modPitch, modFilter, modDest, modDecay, modPorta };
         }
 
-        function previewSynth(s1Step, s2Step, isNewPress) {
-            if(!audioCtx) return;
-            const now = audioCtx.currentTime;
-            const mods = getRoutingModifiers(s2Step);
-
-            let s1_A_val, s1_B_val, s1_C_val;
-            let uiStep1 = s1Step % 12;
-
-            if (seq1Length === 24) {
-                s1_A_val = (s1Step < 12) ? seq1.tracks.A[uiStep1] : seq1.tracks.B[uiStep1];
-                s1_B_val = 0; 
-                s1_C_val = seq1.tracks.C[uiStep1];
-            } else {
-                s1_A_val = seq1.tracks.A[uiStep1];
-                s1_B_val = seq1.tracks.B[uiStep1];
-                s1_C_val = seq1.tracks.C[uiStep1];
-            }
-
-            const sumPitch = (s1_A_val + mods.modPitch) * voltageRangeMultiplier;
-            const sumFilter = (s1_B_val + mods.modFilter) * voltageRangeMultiplier;
-            const sumMod = (s1_C_val + mods.modDest); 
-            
-            const dynPorta = Math.max(0.001, portamentoTime + (mods.modPorta * 0.05));
-            const dynDecay = Math.max(0.005, decayTime + (mods.modDecay * 0.1));
-
-            const semitone = (sumPitch * 12) + transposeSemitones + octaveOffsetSemitones + finePitchTuneSemitones; 
+        function triggerVoice(osc, vcf, vca, time, pitchVal, filterVal, modVal, dynDecay, dynPorta, isAccent, isNewPress) {
+            if(!osc) return;
+            const semitone = (pitchVal * 12) + transposeSemitones + octaveOffsetSemitones + finePitchTuneSemitones; 
             const freq = 65.41 * Math.pow(2, semitone / 12); 
-            synthOsc.frequency.setTargetAtTime(freq, now, dynPorta);
+            osc.frequency.setTargetAtTime(freq, time, dynPorta);
 
-            let baseCutoff = 400 + (sumFilter * 2000); 
+            let baseCutoff = 400 + (filterVal * 2000); 
             let peakVolume = 0.8;
-            const normalizedC = Math.max(0, Math.min(1, sumMod / 5)); 
-
+            if (isAccent) { baseCutoff += 3000; peakVolume = 1.0; }
+            
+            const normalizedC = Math.max(0, Math.min(1, modVal / 5)); 
             if (activeChCDest === 'filter') baseCutoff = 100 + (normalizedC * 3000);
             else if (activeChCDest === 'volume') peakVolume = 0.1 + (normalizedC * 0.9); 
             baseCutoff = Math.max(20, Math.min(20000, baseCutoff)); 
 
-            const t0 = now;
+            const t0 = time;
             const t1_atk = t0 + Math.max(0.005, attackTime);
             const t2_dec = t1_atk + dynDecay;
 
             if (isNewPress || !isPreviewing) {
-                synthVcf.frequency.cancelScheduledValues(t0); 
-                synthVcf.frequency.setValueAtTime(Math.max(20, baseCutoff), t0); 
-                synthVcf.frequency.linearRampToValueAtTime(Math.max(20, Math.min(20000, baseCutoff + 5000)), t1_atk);
-                synthVcf.frequency.exponentialRampToValueAtTime(Math.max(20, Math.min(20000, baseCutoff + (5000 * sustainLevel))), t2_dec);
+                vcf.frequency.cancelScheduledValues(t0); 
+                vcf.frequency.setValueAtTime(Math.max(20, baseCutoff), t0); 
+                vcf.frequency.linearRampToValueAtTime(Math.max(20, Math.min(20000, baseCutoff + 5000)), t1_atk);
+                vcf.frequency.exponentialRampToValueAtTime(Math.max(20, Math.min(20000, baseCutoff + (5000 * sustainLevel))), t2_dec);
 
-                synthVca.gain.cancelScheduledValues(t0); 
-                synthVca.gain.setValueAtTime(0.0001, t0);
-                synthVca.gain.linearRampToValueAtTime(Math.max(0.0001, peakVolume), t1_atk);
-                synthVca.gain.linearRampToValueAtTime(Math.max(0.0001, peakVolume * sustainLevel), t2_dec);
-                isPreviewing = true;
+                vca.gain.cancelScheduledValues(t0); 
+                vca.gain.setValueAtTime(0.0001, t0);
+                vca.gain.linearRampToValueAtTime(Math.max(0.0001, peakVolume), t1_atk);
+                vca.gain.linearRampToValueAtTime(Math.max(0.0001, peakVolume * sustainLevel), t2_dec);
             } else {
-                synthVcf.frequency.setTargetAtTime(Math.max(20, Math.min(20000, baseCutoff + (5000 * sustainLevel))), now, 0.05);
-                synthVca.gain.setTargetAtTime(Math.max(0.0001, peakVolume * sustainLevel), now, 0.05);
+                vcf.frequency.setTargetAtTime(Math.max(20, Math.min(20000, baseCutoff + (5000 * sustainLevel))), t0, 0.05);
+                vca.gain.setTargetAtTime(Math.max(0.0001, peakVolume * sustainLevel), t0, 0.05);
             }
-            updateDisplay(s1Step, sumPitch);
+        }
+
+        function triggerVoiceStep(osc, vcf, vca, time, pitchVal, filterVal, modVal, dynDecay, dynPorta, isAccent, stepRate) {
+            if(!osc) return;
+            const semitone = (pitchVal * 12) + transposeSemitones + octaveOffsetSemitones + finePitchTuneSemitones; 
+            const freq = 65.41 * Math.pow(2, semitone / 12); 
+            osc.frequency.setTargetAtTime(freq, time, dynPorta);
+
+            let baseCutoff = 400 + (filterVal * 2000); 
+            let peakVolume = 0.8;
+            if (isAccent) { baseCutoff += 3000; peakVolume = 1.0; }
+            
+            const normalizedC = Math.max(0, Math.min(1, modVal / 5)); 
+            if (activeChCDest === 'filter') baseCutoff = 100 + (normalizedC * 3000);
+            else if (activeChCDest === 'volume') peakVolume = 0.1 + (normalizedC * 0.9); 
+            baseCutoff = Math.max(20, Math.min(20000, baseCutoff)); 
+
+            const t0 = time;
+            const t1_atk = t0 + Math.max(0.005, attackTime);
+            const t2_dec = t1_atk + dynDecay;
+            const stepGateTime = Math.max(0.05, (60.0 / bpm) * stepRate * 4);
+            const t3_gateOff = Math.max(t2_dec + 0.005, t0 + stepGateTime); 
+            const t4_rel = t3_gateOff + Math.max(0.005, releaseTime);
+
+            vcf.frequency.cancelScheduledValues(t0); 
+            vcf.frequency.setValueAtTime(Math.max(20, baseCutoff), t0); 
+            vcf.frequency.linearRampToValueAtTime(Math.max(20, Math.min(20000, baseCutoff + 5000)), t1_atk);
+            vcf.frequency.exponentialRampToValueAtTime(Math.max(20, Math.min(20000, baseCutoff + (5000 * sustainLevel))), t2_dec);
+            vcf.frequency.setValueAtTime(Math.max(20, Math.min(20000, baseCutoff + (5000 * sustainLevel))), t3_gateOff);
+            vcf.frequency.exponentialRampToValueAtTime(Math.max(20, baseCutoff), t4_rel);
+
+            vca.gain.cancelScheduledValues(t0); 
+            vca.gain.setValueAtTime(0.0001, t0);
+            vca.gain.linearRampToValueAtTime(Math.max(0.0001, peakVolume), t1_atk);
+            vca.gain.linearRampToValueAtTime(Math.max(0.0001, peakVolume * sustainLevel), t2_dec);
+            vca.gain.setValueAtTime(Math.max(0.0001, peakVolume * sustainLevel), t3_gateOff);
+            vca.gain.exponentialRampToValueAtTime(0.0001, t4_rel);
+        }
+
+        function previewSynth(s1Step, s2Step, isNewPress) {
+            if(!audioCtx) return;
+            const now = audioCtx.currentTime;
+            
+            // Collect S1 Base
+            let uiStep1 = s1Step % 12;
+            let s1A = (seq1Length === 24 && s1Step >= 12) ? seq1.tracks.B[uiStep1] : seq1.tracks.A[uiStep1];
+            let s1B = (seq1Length === 24) ? 0 : seq1.tracks.B[uiStep1];
+            let s1C = seq1.tracks.C[uiStep1];
+
+            if (voiceMode === 'sum') {
+                const mods = getRoutingModifiers(s2Step);
+                const sumPitch = s1A + mods.modPitch;
+                const sumFilter = s1B + mods.modFilter;
+                const sumMod = s1C + mods.modDest;
+                const dynPorta = Math.max(0.001, portamentoTime + (mods.modPorta * 0.05));
+                const dynDecay = Math.max(0.005, decayTime + (mods.modDecay * 0.1));
+                
+                triggerVoice(synthOsc1, synthVcf1, synthVca1, now, sumPitch * voltageRangeMultiplier, sumFilter * voltageRangeMultiplier, sumMod, dynDecay, dynPorta, false, isNewPress);
+                updateDisplay(s1Step, sumPitch * voltageRangeMultiplier);
+                
+                // Ensure Voice 2 is silent
+                synthVca2.gain.cancelScheduledValues(now); synthVca2.gain.setValueAtTime(0.0001, now);
+            } else {
+                // DUO Mode
+                const p1 = s1A * voltageRangeMultiplier; const f1 = s1B * voltageRangeMultiplier; const m1 = s1C;
+                const p2 = seq2.tracks.A[s2Step % 12] * voltageRangeMultiplier; const f2 = seq2.tracks.B[s2Step % 12] * voltageRangeMultiplier; const m2 = seq2.tracks.C[s2Step % 12];
+                
+                triggerVoice(synthOsc1, synthVcf1, synthVca1, now, p1, f1, m1, Math.max(0.005, decayTime), Math.max(0.001, portamentoTime), false, isNewPress);
+                triggerVoice(synthOsc2, synthVcf2, synthVca2, now, p2, f2, m2, Math.max(0.005, m2/5), Math.max(0.001, portamentoTime), false, isNewPress);
+                updateDisplay(s1Step, p1);
+            }
+            isPreviewing = true;
         }
 
         function stopPreview() {
             if (isPreviewing && audioCtx) {
                 const now = audioCtx.currentTime;
-                synthVca.gain.cancelScheduledValues(now); 
-                const currentGain = Math.max(0.0001, synthVca.gain.value);
-                synthVca.gain.setValueAtTime(currentGain, now); 
-                synthVca.gain.exponentialRampToValueAtTime(0.0001, now + Math.max(0.01, releaseTime));
+                [synthVca1, synthVca2].forEach(vca => {
+                    if(vca) {
+                        vca.gain.cancelScheduledValues(now); 
+                        const currentGain = Math.max(0.0001, vca.gain.value);
+                        vca.gain.setValueAtTime(currentGain, now); 
+                        vca.gain.exponentialRampToValueAtTime(0.0001, now + Math.max(0.01, releaseTime));
+                    }
+                });
                 isPreviewing = false;
             }
         }
@@ -560,69 +680,63 @@
         };
         document.addEventListener('pointerup', endDrag); document.addEventListener('pointercancel', endDrag);
 
-        function triggerSynthStep(time, s1Step, s2Step) {
+        function triggerSystemStep(time, triggerS1, triggerS2) {
             if(!audioCtx) return;
-            const mods = getRoutingModifiers(s2Step);
             
-            const s2Accent = s2Step >= 0 && seq2.activeTrigs[s2Step] && seq2.trigAssign === 'accent';
-            const s2Glide = s2Step >= 0 && seq2.activeTrigs[s2Step] && seq2.trigAssign === 'glide';
+            let uiStep1 = seq1.step % 12;
+            let uiStep2 = seq2.step % 12;
 
-            let s1_A_val, s1_B_val, s1_C_val;
-            let uiStep1 = s1Step % 12;
+            if (voiceMode === 'sum') {
+                if (triggerS1 || triggerS2) {
+                    const mods = getRoutingModifiers(triggerS2 ? seq2.step : -1);
+                    const s2Accent = seq2.step >= 0 && seq2.activeTrigs[uiStep2] && seq2.trigAssign === 'accent';
+                    const s2Glide = seq2.step >= 0 && seq2.activeTrigs[uiStep2] && seq2.trigAssign === 'glide';
 
-            if (seq1Length === 24) {
-                s1_A_val = (s1Step < 12) ? seq1.tracks.A[uiStep1] : seq1.tracks.B[uiStep1];
-                s1_B_val = 0; 
-                s1_C_val = seq1.tracks.C[uiStep1];
+                    let s1_A_val, s1_B_val, s1_C_val;
+                    if (seq1Length === 24) {
+                        s1_A_val = (seq1.step < 12) ? seq1.tracks.A[uiStep1] : seq1.tracks.B[uiStep1];
+                        s1_B_val = 0; s1_C_val = seq1.tracks.C[uiStep1];
+                    } else {
+                        s1_A_val = seq1.tracks.A[uiStep1]; s1_B_val = seq1.tracks.B[uiStep1]; s1_C_val = seq1.tracks.C[uiStep1];
+                    }
+
+                    const sumPitch = (s1_A_val + mods.modPitch) * voltageRangeMultiplier;
+                    const sumFilter = (s1_B_val + mods.modFilter) * voltageRangeMultiplier;
+                    const sumMod = (s1_C_val + mods.modDest); 
+                    
+                    let dynPorta = Math.max(0.001, portamentoTime + (mods.modPorta * 0.05));
+                    if (s2Glide) dynPorta += 0.15;
+                    let dynDecay = Math.max(0.005, decayTime + (mods.modDecay * 0.1));
+
+                    triggerVoiceStep(synthOsc1, synthVcf1, synthVca1, time, sumPitch, sumFilter, sumMod, dynDecay, dynPorta, s2Accent, seq1.rate);
+                    updateDisplay(seq1.step, sumPitch);
+                }
             } else {
-                s1_A_val = seq1.tracks.A[uiStep1];
-                s1_B_val = seq1.tracks.B[uiStep1];
-                s1_C_val = seq1.tracks.C[uiStep1];
+                // DUO MODE
+                if (triggerS1) {
+                    let s1_A_val, s1_B_val, s1_C_val;
+                    if (seq1Length === 24) {
+                        s1_A_val = (seq1.step < 12) ? seq1.tracks.A[uiStep1] : seq1.tracks.B[uiStep1];
+                        s1_B_val = 0; s1_C_val = seq1.tracks.C[uiStep1];
+                    } else {
+                        s1_A_val = seq1.tracks.A[uiStep1]; s1_B_val = seq1.tracks.B[uiStep1]; s1_C_val = seq1.tracks.C[uiStep1];
+                    }
+                    triggerVoiceStep(synthOsc1, synthVcf1, synthVca1, time, s1_A_val * voltageRangeMultiplier, s1_B_val * voltageRangeMultiplier, s1_C_val, Math.max(0.005, decayTime), Math.max(0.001, portamentoTime), false, seq1.rate);
+                    updateDisplay(seq1.step, s1_A_val * voltageRangeMultiplier);
+                }
+                
+                if (triggerS2) {
+                    const s2Accent = seq2.activeTrigs[uiStep2] && seq2.trigAssign === 'accent';
+                    const s2Glide = seq2.activeTrigs[uiStep2] && seq2.trigAssign === 'glide';
+                    let dynPorta = Math.max(0.001, portamentoTime); if(s2Glide) dynPorta += 0.15;
+                    
+                    const p2 = seq2.tracks.A[uiStep2] * voltageRangeMultiplier;
+                    const f2 = seq2.tracks.B[uiStep2] * voltageRangeMultiplier;
+                    const m2 = seq2.tracks.C[uiStep2]; // Decay
+                    
+                    triggerVoiceStep(synthOsc2, synthVcf2, synthVca2, time, p2, f2, m2, Math.max(0.005, m2/5), dynPorta, s2Accent, seq2.rate);
+                }
             }
-
-            const sumPitch = (s1_A_val + mods.modPitch) * voltageRangeMultiplier;
-            const sumFilter = (s1_B_val + mods.modFilter) * voltageRangeMultiplier;
-            const sumMod = (s1_C_val + mods.modDest); 
-            
-            let dynPorta = Math.max(0.001, portamentoTime + (mods.modPorta * 0.05));
-            if (s2Glide) dynPorta += 0.15;
-            let dynDecay = Math.max(0.005, decayTime + (mods.modDecay * 0.1));
-
-            const semitone = (sumPitch * 12) + transposeSemitones + octaveOffsetSemitones + finePitchTuneSemitones; 
-            const freq = 65.41 * Math.pow(2, semitone / 12); 
-            synthOsc.frequency.setTargetAtTime(freq, time, dynPorta);
-
-            let baseCutoff = 400 + (sumFilter * 2000); 
-            let peakVolume = 0.8;
-            if (s2Accent) { baseCutoff += 3000; peakVolume = 1.0; }
-            
-            const normalizedC = Math.max(0, Math.min(1, sumMod / 5)); 
-            if (activeChCDest === 'filter') baseCutoff = 100 + (normalizedC * 3000);
-            else if (activeChCDest === 'volume') peakVolume = 0.1 + (normalizedC * 0.9); 
-            baseCutoff = Math.max(20, Math.min(20000, baseCutoff)); 
-
-            const t0 = time;
-            const t1_atk = t0 + Math.max(0.005, attackTime);
-            const t2_dec = t1_atk + dynDecay;
-            const stepGateTime = Math.max(0.05, (60.0 / bpm) * seq1.rate * 4);
-            const t3_gateOff = Math.max(t2_dec + 0.005, t0 + stepGateTime); 
-            const t4_rel = t3_gateOff + Math.max(0.005, releaseTime);
-
-            synthVcf.frequency.cancelScheduledValues(t0); 
-            synthVcf.frequency.setValueAtTime(Math.max(20, baseCutoff), t0); 
-            synthVcf.frequency.linearRampToValueAtTime(Math.max(20, Math.min(20000, baseCutoff + 5000)), t1_atk);
-            synthVcf.frequency.exponentialRampToValueAtTime(Math.max(20, Math.min(20000, baseCutoff + (5000 * sustainLevel))), t2_dec);
-            synthVcf.frequency.setValueAtTime(Math.max(20, Math.min(20000, baseCutoff + (5000 * sustainLevel))), t3_gateOff);
-            synthVcf.frequency.exponentialRampToValueAtTime(Math.max(20, baseCutoff), t4_rel);
-
-            synthVca.gain.cancelScheduledValues(t0); 
-            synthVca.gain.setValueAtTime(0.0001, t0);
-            synthVca.gain.linearRampToValueAtTime(Math.max(0.0001, peakVolume), t1_atk);
-            synthVca.gain.linearRampToValueAtTime(Math.max(0.0001, peakVolume * sustainLevel), t2_dec);
-            synthVca.gain.setValueAtTime(Math.max(0.0001, peakVolume * sustainLevel), t3_gateOff);
-            synthVca.gain.exponentialRampToValueAtTime(0.0001, t4_rel);
-
-            updateDisplay(s1Step, sumPitch);
         }
 
         function updateUIForStep(seqObj) {
@@ -653,7 +767,7 @@
             if (seq1.step < 0) seq1.step = (seq1.resetStep !== null) ? seq1.resetStep - 1 : seq1Length - 1;
 
             seq2.step += dir;
-            if (dir > 0 && seq2.activeTrigs[seq2.step] && seq2.trigAssign === 'reset2') seq2.step = 0;
+            if (dir > 0 && seq2.activeTrigs[seq2.step % 12] && seq2.trigAssign === 'reset2') seq2.step = 0;
             if (seq2.step >= NUM_STEPS) seq2.step = 0;
             if (seq2.step < 0) {
                 let resetPoint = NUM_STEPS - 1;
@@ -666,7 +780,7 @@
             }
 
             updateUIForStep(seq1); updateUIForStep(seq2);
-            triggerSynthStep(audioCtx.currentTime + 0.02, Math.max(0, seq1.step), Math.max(0, seq2.step));
+            triggerSystemStep(audioCtx.currentTime + 0.02, true, true);
         }
 
         const stepAdvBtn = document.getElementById('stepAdv');
@@ -701,7 +815,7 @@
 
             if (advanceS2) {
                 seq2.step++; if (seq2.step >= NUM_STEPS) seq2.step = 0;
-                if (seq2.activeTrigs[seq2.step]) {
+                if (seq2.activeTrigs[seq2.step % 12]) {
                     if (seq2.trigAssign === 'reset2') seq2.step = 0;
                     else if (seq2.trigAssign === 'clock1' && seq1.clock === 'ext') {
                         seq1.step++; 
@@ -714,7 +828,7 @@
 
             if (s1TriggerHit && seq2.clock === 'ext') {
                 advanceS2 = true; seq2.step++; if (seq2.step >= NUM_STEPS) seq2.step = 0;
-                if (seq2.activeTrigs[seq2.step] && seq2.trigAssign === 'reset2') seq2.step = 0;
+                if (seq2.activeTrigs[seq2.step % 12] && seq2.trigAssign === 'reset2') seq2.step = 0;
             }
             
             if (playMode === 'one' && s1TriggerHit) {
@@ -725,7 +839,7 @@
 
             if (advanceS1 || advanceS2) {
                 if (advanceS1) updateUIForStep(seq1); if (advanceS2) updateUIForStep(seq2);
-                triggerSynthStep(audioCtx.currentTime + 0.05, Math.max(0, seq1.step), Math.max(0, seq2.step));
+                triggerSystemStep(audioCtx.currentTime + 0.05, advanceS1, advanceS2);
             }
             timerId = setTimeout(scheduler, 25);
         }
@@ -804,7 +918,12 @@
                     if(rockerLed) rockerLed.classList.replace('bg-red-200', 'bg-red-400');
                 }
 
-                // Voltage Range +/- 5V
+                // Voice Mode -> DUO
+                voiceMode = 'duo';
+                const vModeBtn = document.getElementById('voiceModeBtn');
+                if (vModeBtn) vModeBtn.classList.replace('volt-toggle-top', 'volt-toggle-bottom');
+                updateVoiceModeUI();
+
                 voltageRangeMultiplier = 1; 
                 const voltBtn = document.getElementById('voltRockerBtn');
                 if(voltBtn) {
@@ -812,45 +931,42 @@
                     voltBtn.classList.add('volt-toggle-top');
                 }
                 
-                // Engage 24-step Series Mode
                 const lenBtn = document.getElementById('lengthRockerBtn');
                 if(lenBtn) {
-                    lenBtn.classList.remove('volt-toggle-top');
-                    lenBtn.classList.add('volt-toggle-bottom');
+                    lenBtn.classList.remove('volt-toggle-bottom');
+                    lenBtn.classList.add('volt-toggle-top');
                 }
-                seq1Length = 24;
-                const lA = document.getElementById('label1A'); if(lA) lA.innerText = "PITCH (1-12)";
-                const lB = document.getElementById('label1B'); if(lB) lB.innerText = "PITCH (13-24)";
+                seq1Length = 12;
+                const lA = document.getElementById('label1A'); if(lA) lA.innerText = "PITCH";
+                const lB = document.getElementById('label1B'); if(lB) lB.innerText = "FILTER";
                 
                 playMode = 'cont';
                 document.querySelectorAll('#playModeBank .mode-btn').forEach(b => b.classList.toggle('mode-active', b.dataset.play === playMode));
 
-                bpm = 135; updateKnobVisual(document.getElementById('clockSpeed'), 47.5); 
-                const speedKnob = document.getElementById('clockSpeed'); if(speedKnob) speedKnob.dataset.val = 47.5;
+                bpm = 110; updateKnobVisual(document.getElementById('clockSpeed'), 30); 
+                const speedKnob = document.getElementById('clockSpeed'); if(speedKnob) speedKnob.dataset.val = 30;
                 
-                portamentoTime = 0.02; updateKnobVisual(document.getElementById('portamento'), 10); 
-                const portaKnob = document.getElementById('portamento'); if(portaKnob) portaKnob.dataset.val = 10;
+                portamentoTime = 0.01; updateKnobVisual(document.getElementById('portamento'), 0); 
+                const portaKnob = document.getElementById('portamento'); if(portaKnob) portaKnob.dataset.val = 0;
 
                 attackTime = 0.01; updateKnobVisual(document.getElementById('envAttack'), 2); 
                 const atkKnob = document.getElementById('envAttack'); if(atkKnob) atkKnob.dataset.val = 2;
 
-                decayTime = 0.18; updateKnobVisual(document.getElementById('envDecay'), 25); 
-                const decKnob = document.getElementById('envDecay'); if(decKnob) decKnob.dataset.val = 25;
+                decayTime = 0.15; updateKnobVisual(document.getElementById('envDecay'), 20); 
+                const decKnob = document.getElementById('envDecay'); if(decKnob) decKnob.dataset.val = 20;
 
-                sustainLevel = 0.15; updateKnobVisual(document.getElementById('envSustain'), 15); 
-                const susKnob = document.getElementById('envSustain'); if(susKnob) susKnob.dataset.val = 15;
+                sustainLevel = 0.1; updateKnobVisual(document.getElementById('envSustain'), 10); 
+                const susKnob = document.getElementById('envSustain'); if(susKnob) susKnob.dataset.val = 10;
 
-                releaseTime = 0.15; updateKnobVisual(document.getElementById('envRelease'), 20); 
-                const relKnob = document.getElementById('envRelease'); if(relKnob) relKnob.dataset.val = 20;
+                releaseTime = 0.1; updateKnobVisual(document.getElementById('envRelease'), 15); 
+                const relKnob = document.getElementById('envRelease'); if(relKnob) relKnob.dataset.val = 15;
                 
                 document.querySelectorAll('#waveBtnBank .wave-btn').forEach(b => b.classList.remove('wave-active'));
                 const squareWaveBtn = document.querySelector('#waveBtnBank .wave-btn[data-wave="1"]');
                 if(squareWaveBtn) squareWaveBtn.classList.add('wave-active'); 
-                activeWaveform = 'square'; if(synthOsc) synthOsc.type = activeWaveform;
-
-                const route2A = document.getElementById('route2A'); if(route2A) route2A.value = 'filter'; seq2Routing.A = 'filter';
-                const route2B = document.getElementById('route2B'); if(route2B) route2B.value = 'decay'; seq2Routing.B = 'decay';
-                const route2C = document.getElementById('route2C'); if(route2C) route2C.value = 'pitch'; seq2Routing.C = 'pitch';
+                activeWaveform = 'square'; 
+                if(synthOsc1) synthOsc1.type = activeWaveform;
+                if(synthOsc2) synthOsc2.type = activeWaveform;
 
                 const clk1 = document.getElementById('clk1'); if(clk1) clk1.value = 'int'; seq1.clock = 'int';
                 const rate1 = document.getElementById('rate1'); if(rate1) rate1.value = '0.25'; seq1.rate = 0.25;
@@ -858,15 +974,17 @@
                 const rate2 = document.getElementById('rate2'); if(rate2) rate2.value = '0.25'; seq2.rate = 0.25;
                 const trig2 = document.getElementById('trigAssign2'); if(trig2) trig2.value = 'reset2'; seq2.trigAssign = 'reset2';
 
-                // 24-step melody across Row A (Steps 1-12) & Row B (Steps 13-24)
-                const s1A = [0.0, 0.0, 0.25, 0.416, 0.0, 0.583, 0.25, 0.0, 0.416, 0.0, 0.25, 0.0];
-                const s1B = [0.5, 0.5, 0.75, 0.916, 0.5, 1.083, 0.75, 0.5, 0.916, 0.5, 0.75, 0.25];
-                const s1C = [0.0, 2.0, 0.0, 4.0, 0.0, 1.0, 0.0, 3.0, 0.0, 5.0, 0.0, 2.0];
+                // Duophonic Sequence:
+                // S1 = Bassline (C minor pulse)
+                const s1A = [0.0, 0.0, 0.0, 0.25, 0.0, 0.0, 0.0, -0.166, 0.0, 0.0, 0.0, 0.166];
+                const s1B = [0.5, 0.2, 0.1, 0.3, 0.5, 0.2, 0.1, 0.4, 0.5, 0.2, 0.1, 0.3];
+                const s1C = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
                 
-                // Seq 2 modulation driving Filter Cutoff, Decay Time & Micro-pitch shifts
-                const s2A = [0.0, 0.5, 1.5, 0.0, -0.5, 2.0, 0.5, 0.0, 1.0, -0.5, 2.5, 0.0];
-                const s2B = [0.0, 2.0, -1.0, 0.5, 3.0, 0.0, -0.5, 1.5, 2.5, 0.0, -1.0, 0.5];
-                const s2C = [0.0, 0.0, 0.166, 0.0, -0.166, 0.0, 0.25, 0.0, 0.0, -0.25, 0.0, 0.166];
+                // S2 = High Counter-Melody
+                // Driven by S1 step 12 Trigger (Progresses one note per bar)
+                const s2A = [1.0, 1.25, 1.583, 1.25, 1.0, 0.833, 0.5, 0.833, 1.0, 0.0, 0.0, 0.0];
+                const s2B = [0.2, 0.3, 0.4, 0.5, 0.4, 0.3, 0.2, 0.3, 0.4, 0.0, 0.0, 0.0];
+                const s2C = [2.0, 2.5, 3.0, 2.5, 2.0, 1.5, 1.0, 1.5, 2.0, 0.0, 0.0, 0.0]; // Long Decays
                 const s2Trigs = [false, false, false, false, false, false, false, false, true, false, false, false];
 
                 for(let i=0; i<12; i++) {
@@ -883,15 +1001,14 @@
                     let k2C = document.querySelector(`.knob[data-seq="2"][data-ch="C"][data-step="${i}"]`); if(k2C) { k2C.dataset.val = s2C[i]; updateKnobVisual(k2C, s2C[i]); }
                 }
 
-                // Patch Step 18 (Step 6 of Row B) as a Red Trigger Reset (24-step Series Patching feature)
-                seq1.resetStep = 18;
+                // Loop Seq 1 normally
+                seq1.resetStep = null;
                 document.querySelectorAll('#trigRow1 .patch-point').forEach(el => el.classList.remove('patched', 'patched-red'));
-                const patch6 = document.querySelector('#trigRow1 .patch-point[data-step="5"]');
-                if(patch6) patch6.classList.add('patched-red');
+                // Put a reset patch on step 11 to trigger EXT S2
+                seq1.resetStep = 11;
+                const patch11 = document.querySelector('#trigRow1 .patch-point[data-step="11"]');
+                if(patch11) patch11.classList.add('patched');
                 
-                const resetStatus = document.getElementById('resetStatus');
-                if(resetStatus) resetStatus.innerText = `TRIG: STEP 18`;
-
                 renderTrig2Colors();
                 setTimeout(() => { if(startStopBtn) startStopBtn.click(); }, 150);
             });
