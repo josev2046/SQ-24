@@ -1,4 +1,4 @@
-# SQ-24 Dual Analog Sequencer 
+# SQ-24 Dual Analog Sequencer [WORK IN PROGRESS]
 
 <img width="1990" height="275" alt="01_header" src="https://github.com/user-attachments/assets/93192a2f-ea73-4f18-a259-dcf6a7d5b081" />
 
