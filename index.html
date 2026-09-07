@@ -1,4 +1,10 @@
 <!DOCTYPE html>
+<!-- 
+    SQ-24 DUAL Analog Sequencer (Duophonic 2-Voice Studio)
+    Created & Developed by Jose Velazquez MA
+    Voltage & Wave (https://voltageandwave.co.uk/)
+    Updated: Independent 12/24 Chaining Per Voice & Scrubbed Event Listeners
+-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -27,7 +33,7 @@
         @keyframes blink-led { 0%, 100% { opacity: 1; filter: brightness(1); } 50% { opacity: 0.4; filter: brightness(0.6); } }
 
         .panel-outline { border: 1.5px solid #38342e; border-radius: 6px; background: rgba(0, 0, 0, 0.025); box-shadow: inset 0 1px 2px rgba(0,0,0,0.05), 0 1px 0 rgba(255,255,255,0.7); width: 100%; box-sizing: border-box; }
-        .panel-divider { width: 1.5px; height: 60px; background: linear-gradient(180deg, transparent 0%, rgba(56, 52, 46, 0.15) 15%, rgba(56, 52, 46, 0.15) 85%, transparent 100%); border-right: 1px solid rgba(255,255,255,0.3); flex-shrink: 0; }
+        .panel-divider { width: 1.5px; align-self: stretch; background: linear-gradient(180deg, transparent 0%, rgba(56, 52, 46, 0.15) 15%, rgba(56, 52, 46, 0.15) 85%, transparent 100%); border-right: 1px solid rgba(255,255,255,0.3); flex-shrink: 0; margin: 0 8px; }
 
         .led { width: 14px; height: 12px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #5a1212 0%, #200303 70%); border: 2px solid #111; box-shadow: inset 0 1px 2px rgba(255,255,255,0.2), 0 2px 4px rgba(0,0,0,0.3); margin: 0 auto; }
         .active .led { background: radial-gradient(circle at 35% 35%, #ff7777 0%, #ff1111 60%, #990000 100%); box-shadow: 0 0 14px #ff2a2a, 0 0 4px #ff8888, inset 0 1px 2px rgba(255,255,255,0.8); }
@@ -36,7 +42,6 @@
 
         .patch-point { width: 24px; height: 24px; border-radius: 50%; background: radial-gradient(circle, #080808 40%, #1a1a1a 50%, #8a6f27 85%, #d4af37 100%); border: 2px solid #111; box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 1px 2px rgba(255,255,255,0.6); margin: 0 auto; cursor: pointer; transition: all 0.2s; }
         .patch-point:hover { filter: brightness(1.2); }
-        
         .patch-point.patched { background: radial-gradient(circle, #ffea78 20%, #dca824 60%, #523b00 100%); box-shadow: 0 0 14px #dca824; }
         .patch-point.patched-red { background: radial-gradient(circle, #ff7878 20%, #dc2424 60%, #520000 100%); box-shadow: 0 0 14px #dc2424; }
         .patch-point.patched-yellow { background: radial-gradient(circle, #ffea78 20%, #dca824 60%, #523b00 100%); box-shadow: 0 0 14px #dca824; }
@@ -45,7 +50,6 @@
         
         .knob-wrapper { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; width: 56px; }
         .tick-container { position: relative; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; }
-        
         .tick-ring { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; -webkit-mask: radial-gradient(circle, transparent 22px, #000 23px, #000 28px, transparent 28px); mask: radial-gradient(circle, transparent 22px, #000 23px, #000 28px, transparent 28px); background: conic-gradient(from -135deg, #221e1a 0deg 1.5deg, transparent 1.5deg 27deg, #221e1a 27deg 28.5deg, transparent 28.5deg 54deg, #221e1a 54deg 55.5deg, transparent 55.5deg 81deg, #221e1a 81deg 82.5deg, transparent 82.5deg 108deg, #221e1a 108deg 109.5deg, transparent 109.5deg 135deg, #221e1a 135deg 136.5deg, transparent 136.5deg 162deg, #221e1a 162deg 163.5deg, transparent 163.5deg 189deg, #221e1a 189deg 190.5deg, transparent 190.5deg 216deg, #221e1a 216deg 217.5deg, transparent 217.5deg 243deg, #221e1a 243deg 244.5deg, transparent 244.5deg 270deg, #221e1a 270deg 271.5deg, transparent 271.5deg 360deg); }
         .tick-label { position: absolute; font-size: 8px; font-weight: bold; color: #221e1a; line-height: 1; pointer-events: none; }
         .label-top { top: -2px; left: 50%; transform: translateX(-50%); } .label-left { bottom: 2px; left: 2px; } .label-right { bottom: 2px; right: 2px; }
@@ -53,7 +57,7 @@
         .knob { width: 42px; height: 40px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #2d3036 0%, #15171a 70%, #050608 100%); border: 2px solid #000; cursor: ns-resize; position: relative; z-index: 2; box-shadow: inset 0 1px 2px rgba(255,255,255,0.3), 0 4px 7px rgba(0,0,0,0.35); transform: rotate(-135deg); touch-action: none; }
         .knob::after { content: ''; position: absolute; top: 3px; left: 18px; width: 2px; height: 13px; background: #fff; border-radius: 1px; box-shadow: 0 0 2px rgba(255,255,255,0.9); }
         
-        .row-label { width: 65px; font-weight: bold; font-size: 11px; text-align: right; color: #1f1a14; margin-right: 12px; display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 4px; line-height: 1.1; flex-shrink: 0; }
+        .row-label { width: 75px; font-weight: bold; font-size: 11px; text-align: right; color: #1f1a14; margin-right: 12px; display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 4px; line-height: 1.1; flex-shrink: 0; }
         
         .crt-screen { background: #041004; border: 4px solid #2a2722; border-radius: 8px; box-shadow: inset 0 0 20px rgba(0, 255, 0, 0.25), inset 0 0 12px #000, 0 3px 6px rgba(0,0,0,0.4); position: relative; overflow: hidden; box-sizing: border-box; }
         .crt-screen::before { content: " "; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03)); z-index: 5; background-size: 100% 3px, 6px 100%; pointer-events: none; }
@@ -84,15 +88,20 @@
         .grid-scroll::-webkit-scrollbar-thumb { background: #38342e; border-radius: 4px; }
         
         .mod-select { font-family: monospace; font-size: 9px; font-weight: bold; background: transparent; border: 1px solid #38342e; border-radius: 3px; color: #1f1a14; outline: none; padding: 2px; cursor: pointer; text-align: right; }
+
+        /* Oberheim SEM Style Dashed Fieldsets */
+        .sem-fieldset { border: 1.5px dashed #5a544a; border-radius: 4px; padding: 0 10px 10px 10px; margin: 0; display: flex; }
+        .sem-legend { font-size: 9px; font-weight: 800; color: #5a544a; padding: 0 6px; text-align: center; letter-spacing: 1px; margin: 0 auto; }
     </style>
 </head>
 <body class="min-h-screen flex justify-center items-start">
-    <div class="synth-enclosure w-full max-w-6xl">
+    <div class="synth-enclosure w-full max-w-[1450px]">
         <div class="wooden-ear wooden-ear-left"></div>
 
         <div class="chassis w-full">
             <div class="rack-bolt bolt-tl"></div><div class="rack-bolt bolt-tr"></div><div class="rack-bolt bolt-bl"></div><div class="rack-bolt bolt-br"></div>
             
+            <!-- HEADER -->
             <div class="flex items-center justify-between w-full mb-6 pb-4 border-b-2 border-[#38342e]/30">
                 <div class="flex flex-col gap-1.5">
                     <div class="flex items-center gap-1.5 select-none">
@@ -118,101 +127,52 @@
                 </div>
             </div>
 
-            <div class="panel-outline w-full overflow-x-auto grid-scroll mb-8">
-                <div class="flex flex-nowrap items-center justify-between min-w-max gap-6 px-4 pt-8 pb-5 mx-auto h-full">
-                    
-                    <div class="flex items-center gap-4 relative">
-                        <span class="absolute -top-6 left-1/2 -translate-x-1/2 text-[8px] font-bold tracking-widest text-[#82796e] whitespace-nowrap">MASTER CLOCK</span>
-                        <div class="flex flex-col gap-2 justify-center w-[110px]">
-                            <button id="startStop" class="rocker-button text-white px-3 py-1.5 font-black rounded-sm flex items-center justify-center gap-2 w-full"><span class="w-1.5 h-1.5 rounded-full bg-red-400 opacity-60" id="rockerLed"></span>PLAY</button>
-                            <div class="flex gap-1.5 w-full mt-2">
-                                <button id="stepRev" class="tactile-button py-1 flex items-center justify-center rounded-sm flex-1"><svg width="12" height="12" viewBox="0 0 14 14" fill="currentColor"><rect x="1" y="2" width="2" height="10" /><polygon points="13,1 4,7 13,13" /></svg></button>
-                                <button id="stepAdv" class="tactile-button py-1 flex items-center justify-center rounded-sm flex-1"><svg width="12" height="12" viewBox="0 0 14 14" fill="currentColor"><polygon points="1,1 10,7 1,13" /><rect x="11" y="2" width="2" height="10" /></svg></button>
-                            </div>
-                        </div>
-                        <div class="flex gap-3">
-                            <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="clockSpeed" data-val="40"></div></div><span class="text-[9px] font-bold text-[#1f1a14]">SPEED</span></div>
-                            <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="portamento" data-val="0"></div></div><span class="text-[9px] font-bold text-[#1f1a14]">PORTA</span></div>
+            <!-- STREAMLINED MASTER CONTROL ROW -->
+            <div class="panel-outline w-full mb-8 py-4 px-8 flex justify-center gap-16 items-center bg-[rgba(0,0,0,0.04)]">
+                <div class="flex items-center gap-6">
+                    <div class="flex flex-col gap-2 justify-center w-[120px]">
+                        <button id="startStop" class="rocker-button text-white px-3 py-2 font-black rounded-sm flex items-center justify-center gap-2 w-full text-sm"><span class="w-2 h-2 rounded-full bg-red-400 opacity-60" id="rockerLed"></span>PLAY</button>
+                        <div class="flex gap-1.5 w-full mt-1">
+                            <button id="stepRev" class="tactile-button py-1.5 flex items-center justify-center rounded-sm flex-1"><svg width="12" height="12" viewBox="0 0 14 14" fill="currentColor"><rect x="1" y="2" width="2" height="10" /><polygon points="13,1 4,7 13,13" /></svg></button>
+                            <button id="stepAdv" class="tactile-button py-1.5 flex items-center justify-center rounded-sm flex-1"><svg width="12" height="12" viewBox="0 0 14 14" fill="currentColor"><polygon points="1,1 10,7 1,13" /><rect x="11" y="2" width="2" height="10" /></svg></button>
                         </div>
                     </div>
+                    <div class="panel-divider h-16"></div>
+                    <div class="flex gap-4">
+                        <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="clockSpeed" data-val="40"></div></div><span class="text-[9px] font-bold text-[#1f1a14]">CLOCK SPEED</span></div>
+                        <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="portamento" data-val="0"></div></div><span class="text-[9px] font-bold text-[#1f1a14]">GLIDE TIME</span></div>
+                    </div>
+                </div>
 
-                    <div class="panel-divider"></div>
-
-                    <div class="flex items-center gap-5 relative">
-                        <span class="absolute -top-6 left-1/2 -translate-x-1/2 text-[8px] font-bold tracking-widest text-[#82796e] whitespace-nowrap">MAIN ROUTING</span>
-                        
-                        <div class="flex flex-col items-center gap-1">
-                            <span class="text-[7px] font-bold text-[#1f1a14]">12</span>
-                            <div class="volt-rocker volt-toggle-top" id="lengthRockerBtn"><div class="volt-rocker-cap"></div></div>
-                            <span class="text-[7px] font-bold text-[#1f1a14]">24</span>
-                            <span class="text-[8px] font-bold text-[#1f1a14] mt-0.5">STEPS</span>
+                <div class="flex items-center gap-6">
+                    <div class="flex flex-col items-center justify-center h-full">
+                        <div class="flex gap-1" id="playModeBank">
+                            <button class="mode-btn" data-play="step">STEP</button>
+                            <button class="mode-btn mode-active" data-play="cont">CONT</button>
+                            <button class="mode-btn" data-play="one">ONCE</button>
                         </div>
-
-                        <div class="flex flex-col items-center gap-1 ml-2">
-                            <span class="text-[7px] font-bold text-[#1f1a14]">SUM</span>
-                            <div class="volt-rocker volt-toggle-top" id="voiceModeBtn"><div class="volt-rocker-cap"></div></div>
-                            <span class="text-[7px] font-bold text-[#1f1a14]">DUO</span>
-                            <span class="text-[8px] font-bold text-[#1f1a14] mt-0.5">VOICE</span>
-                        </div>
-
-                        <div class="flex flex-col items-center justify-center h-full ml-1">
-                            <div class="flex flex-col gap-1" id="playModeBank">
-                                <button class="mode-btn" data-play="step">STEP</button>
-                                <button class="mode-btn mode-active" data-play="cont">CONT</button>
-                                <button class="mode-btn" data-play="one">ONCE</button>
-                            </div>
-                            <span class="text-[8px] font-bold text-[#1f1a14] mt-1.5">MODE</span>
-                        </div>
-
-                        <div class="flex flex-col items-center gap-1 ml-2">
-                            <span class="text-[7px] font-bold text-[#1f1a14]">&plusmn;5V</span>
-                            <div class="volt-rocker volt-toggle-top" id="voltRockerBtn"><div class="volt-rocker-cap"></div></div>
-                            <span class="text-[7px] font-bold text-[#1f1a14]">&plusmn;1V</span>
-                            <span class="text-[8px] font-bold text-[#1f1a14] mt-0.5">RANGE</span>
-                        </div>
-
-                        <div class="flex flex-col items-center justify-center h-full ml-2">
-                            <div class="flex flex-col gap-1" id="chCDestBank">
-                                <button class="dest-btn dest-active" data-dest="filter">VCF</button>
-                                <button class="dest-btn" data-dest="volume">VCA</button>
-                            </div>
-                            <span class="text-[8px] font-bold text-[#1f1a14] mt-1.5">S1 ROW C DEST</span>
-                        </div>
+                        <span class="text-[8px] font-bold text-[#1f1a14] mt-2">PLAYBACK MODE</span>
                     </div>
 
-                    <div class="panel-divider"></div>
+                    <div class="panel-divider h-16"></div>
 
-                    <div class="flex items-center gap-4 relative">
-                        <span class="absolute -top-6 left-1/2 -translate-x-1/2 text-[8px] font-bold tracking-widest text-[#82796e] whitespace-nowrap">OSCILLATORS (VCO 1 & 2)</span>
-                        <div class="flex flex-col items-center justify-center h-full">
-                            <div class="grid grid-cols-2 gap-1 mb-1.5" id="waveBtnBank">
-                                <button class="wave-btn wave-active" data-wave="0"><svg width="16" height="12" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"><path d="M4 14 L12 2 V14 L20 2 V14" /></svg></button>
-                                <button class="wave-btn" data-wave="1"><svg width="16" height="12" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"><path d="M3 14 V4 h8 v10 h8 v-10" /></svg></button>
-                            </div>
-                            <span class="text-[8px] font-bold text-[#1f1a14]">WAVE</span>
-                        </div>
-                        <div class="flex flex-col items-center justify-center h-full">
-                            <div class="grid grid-cols-2 gap-1 mb-1.5" id="octaveBtnBank">
-                                <button class="oct-btn" data-oct="0">32'</button><button class="oct-btn oct-active" data-oct="1">16'</button>
-                                <button class="oct-btn" data-oct="2">8'</button><button class="oct-btn" data-oct="3">4'</button>
-                            </div>
-                            <span class="text-[8px] font-bold text-[#1f1a14]">SCALE</span>
-                        </div>
-                        <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="pitchTuneKnob" data-val="50"></div></div><span class="text-[9px] font-bold text-[#1f1a14]">PITCH</span></div>
+                    <div class="flex flex-col items-center gap-1">
+                        <span class="text-[7px] font-bold text-[#1f1a14]">&plusmn;5V</span>
+                        <div class="volt-rocker volt-toggle-top" id="voltRockerBtn"><div class="volt-rocker-cap"></div></div>
+                        <span class="text-[7px] font-bold text-[#1f1a14]">&plusmn;1V</span>
+                        <span class="text-[8px] font-bold text-[#1f1a14] mt-0.5">CV RANGE</span>
                     </div>
 
-                    <div class="panel-divider"></div>
-
-                    <div class="flex items-center gap-3 relative">
-                        <span class="absolute -top-6 left-1/2 -translate-x-1/2 text-[8px] font-bold tracking-widest text-[#82796e] whitespace-nowrap">ENVELOPE (ADSR)</span>
-                        <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="envAttack" data-val="5"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">ATK</span></div>
-                        <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="envDecay" data-val="30"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">DEC</span></div>
-                        <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="envSustain" data-val="20"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">SUS</span></div>
-                        <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="envRelease" data-val="25"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">REL</span></div>
+                    <div class="flex flex-col items-center gap-1">
+                        <span class="text-[7px] font-bold text-[#1f1a14]">SUM</span>
+                        <div class="volt-rocker volt-toggle-top" id="voiceModeBtn"><div class="volt-rocker-cap"></div></div>
+                        <span class="text-[7px] font-bold text-[#1f1a14]">DUO</span>
+                        <span class="text-[8px] font-bold text-[#1f1a14] mt-0.5">VOICE MODE</span>
                     </div>
                 </div>
             </div>
 
+            <!-- SEQUENCER 1 GRID & VOICE 1 -->
             <div class="w-full flex justify-between items-end px-2 mb-1">
                 <span class="text-[#82796e] font-bold text-[11px] tracking-widest" id="seq1Title">SEQ 1 (PRIMARY CV)</span>
                 <div class="flex gap-4 text-[10px] font-bold text-[#1f1a14]">
@@ -221,15 +181,57 @@
                 </div>
             </div>
             <div class="panel-outline w-full overflow-x-auto grid-scroll mb-6 !py-6 !px-4">
-                <div class="flex flex-col gap-5 min-w-max mx-auto px-2">
-                    <div class="flex"><div class="row-label"></div><div class="flex gap-4 flex-1" id="ledRow1"></div></div>
-                    <div class="flex"><div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot1A" class="pilot pilot-active"></div>ROW A</div><span class="text-[9px] font-bold mt-1" id="label1A">PITCH</span></div><div class="flex gap-4 flex-1" id="row1A"></div></div>
-                    <div class="flex"><div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot1B" class="pilot pilot-active"></div>ROW B</div><span class="text-[9px] font-bold mt-1" id="label1B">FILTER</span></div><div class="flex gap-4 flex-1" id="row1B"></div></div>
-                    <div class="flex"><div class="row-label text-[#1f1a14]">ROW C<span class="text-[9px] font-bold mt-1">MOD</span></div><div class="flex gap-4 flex-1" id="row1C"></div></div>
-                    <div class="flex mt-2"><div class="row-label text-[#1f1a14] text-[10px] items-center justify-end">TRIG<br>OUT</div><div class="flex gap-4 flex-1" id="trigRow1"></div></div>
+                <div class="flex flex-nowrap min-w-max mx-auto px-2 items-center">
+                    
+                    <!-- Seq 1 Matrix -->
+                    <div class="flex flex-col gap-5 pr-4">
+                        <div class="flex"><div class="row-label"></div><div class="flex gap-4 flex-1" id="ledRow1"></div></div>
+                        <div class="flex"><div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot1A" class="pilot pilot-active"></div>ROW A</div><span class="text-[9px] font-bold mt-1" id="label1A">PITCH</span></div><div class="flex gap-4 flex-1" id="row1A"></div></div>
+                        <div class="flex"><div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot1B" class="pilot pilot-active"></div>ROW B</div><span class="text-[9px] font-bold mt-1" id="label1B">FILTER</span></div><div class="flex gap-4 flex-1" id="row1B"></div></div>
+                        <div class="flex"><div class="row-label text-[#1f1a14]">ROW C<select id="route1C" class="mod-select mt-1 w-full"><option value="filter">VCF MOD</option><option value="volume">VCA MOD</option></select></div><div class="flex gap-4 flex-1" id="row1C"></div></div>
+                        <div class="flex mt-2"><div class="row-label text-[#1f1a14] text-[10px] items-center justify-end">TRIG<br>OUT</div><div class="flex gap-4 flex-1" id="trigRow1"></div></div>
+                    </div>
+
+                    <div class="panel-divider self-stretch"></div>
+
+                    <!-- Voice 1 Controls (SEM Style) -->
+                    <div class="pl-4 flex flex-col justify-center gap-4">
+                        <div class="text-[10px] font-black text-[#1f1a14] tracking-widest text-center border-b border-[#38342e]/30 pb-1 mb-1">EXPANDER MODULE 1</div>
+                        <div class="flex gap-4">
+                            
+                            <fieldset class="sem-fieldset flex-col items-center gap-2">
+                                <legend class="sem-legend">SEQ</legend>
+                                <div class="flex flex-col items-center gap-1 mt-1">
+                                    <span class="text-[7px] font-bold text-[#1f1a14]">12</span>
+                                    <div class="volt-rocker volt-toggle-top seq-length-btn" data-seq="1"><div class="volt-rocker-cap"></div></div>
+                                    <span class="text-[7px] font-bold text-[#1f1a14]">24</span>
+                                </div>
+                            </fieldset>
+
+                            <fieldset class="sem-fieldset flex-col items-center gap-3">
+                                <legend class="sem-legend">VCO 1</legend>
+                                <div class="flex gap-3">
+                                    <div class="flex flex-col gap-2 justify-center">
+                                        <div class="grid grid-cols-2 gap-1 wave-bank" id="waveBtnBank1"><button class="wave-btn wave-active" data-voice="1" data-wave="0"><svg width="12" height="10" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="2.5" class="pointer-events-none"><path d="M4 14 L12 2 V14 L20 2 V14" /></svg></button><button class="wave-btn" data-voice="1" data-wave="1"><svg width="12" height="10" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="2.5" class="pointer-events-none"><path d="M3 14 V4 h8 v10 h8 v-10" /></svg></button></div>
+                                        <div class="grid grid-cols-2 gap-1 oct-bank" id="octaveBtnBank1"><button class="oct-btn" data-voice="1" data-oct="0">32'</button><button class="oct-btn oct-active" data-voice="1" data-oct="1">16'</button><button class="oct-btn" data-voice="1" data-oct="2">8'</button><button class="oct-btn" data-voice="1" data-oct="3">4'</button></div>
+                                    </div>
+                                    <div class="knob-wrapper mt-1"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v1Tune" data-val="50"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">FREQUENCY</span></div>
+                                </div>
+                            </fieldset>
+
+                            <fieldset class="sem-fieldset gap-4 items-end">
+                                <legend class="sem-legend">ENV 1 (VCF / VCA)</legend>
+                                <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v1Atk" data-val="5"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">ATTACK</span></div>
+                                <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v1Dec" data-val="30"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">DECAY</span></div>
+                                <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v1Sus" data-val="20"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">SUSTAIN</span></div>
+                                <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v1Rel" data-val="25"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">RELEASE</span></div>
+                            </fieldset>
+                        </div>
+                    </div>
                 </div>
             </div>
 
+            <!-- SEQUENCER 2 GRID & VOICE 2 -->
             <div class="w-full flex justify-between items-end px-2 mb-1 mt-2">
                 <span class="text-[#82796e] font-bold text-[11px] tracking-widest transition-all" id="seq2Title">SEQ 2 (MODULAR ASSIGN)</span>
                 <div class="flex gap-4 text-[10px] font-bold text-[#1f1a14]">
@@ -243,34 +245,77 @@
                     </select></label>
                 </div>
             </div>
-            <div class="panel-outline w-full overflow-x-auto grid-scroll mb-6 !py-6 !px-4">
-                <div class="flex flex-col gap-5 min-w-max mx-auto px-2">
-                    <div class="flex"><div class="row-label"></div><div class="flex gap-4 flex-1" id="ledRow2"></div></div>
-                    <div class="flex">
-                        <div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot2A" class="pilot pilot-active"></div>ROW A</div>
-                            <select id="route2A" class="mod-select mt-1"><option value="pitch">+ PITCH</option><option value="filter">+ FILTER</option><option value="mod">+ MOD</option><option value="decay">DECAY TIME</option><option value="porta">GLIDE TIME</option></select>
-                            <span class="text-[9px] font-bold mt-1 hidden text-center" id="label2A">V2 PITCH</span>
+            <div class="panel-outline w-full overflow-x-auto grid-scroll mb-6 !py-6 !px-4 transition-all" id="seq2Container">
+                <div class="flex flex-nowrap min-w-max mx-auto px-2 items-center">
+                    
+                    <!-- Seq 2 Matrix -->
+                    <div class="flex flex-col gap-5 pr-4">
+                        <div class="flex"><div class="row-label"></div><div class="flex gap-4 flex-1" id="ledRow2"></div></div>
+                        <div class="flex">
+                            <div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot2A" class="pilot pilot-active"></div>ROW A</div>
+                                <select id="route2A" class="mod-select mt-1"><option value="pitch">+ PITCH</option><option value="filter">+ FILTER</option><option value="mod">+ MOD</option><option value="decay">DECAY TIME</option><option value="porta">GLIDE TIME</option></select>
+                                <span class="text-[9px] font-bold mt-1 hidden text-center" id="label2A">V2 PITCH</span>
+                            </div>
+                            <div class="flex gap-4 flex-1" id="row2A"></div>
                         </div>
-                        <div class="flex gap-4 flex-1" id="row2A"></div>
-                    </div>
-                    <div class="flex">
-                        <div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot2B" class="pilot pilot-active"></div>ROW B</div>
-                            <select id="route2B" class="mod-select mt-1"><option value="filter">+ FILTER</option><option value="pitch">+ PITCH</option><option value="mod">+ MOD</option><option value="decay">DECAY TIME</option><option value="porta">GLIDE TIME</option></select>
-                            <span class="text-[9px] font-bold mt-1 hidden text-center" id="label2B">V2 FILTER</span>
+                        <div class="flex">
+                            <div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot2B" class="pilot pilot-active"></div>ROW B</div>
+                                <select id="route2B" class="mod-select mt-1"><option value="filter">+ FILTER</option><option value="pitch">+ PITCH</option><option value="mod">+ MOD</option><option value="decay">DECAY TIME</option><option value="porta">GLIDE TIME</option></select>
+                                <span class="text-[9px] font-bold mt-1 hidden text-center" id="label2B">V2 FILTER</span>
+                            </div>
+                            <div class="flex gap-4 flex-1" id="row2B"></div>
                         </div>
-                        <div class="flex gap-4 flex-1" id="row2B"></div>
-                    </div>
-                    <div class="flex">
-                        <div class="row-label text-[#1f1a14]">ROW C
-                            <select id="route2C" class="mod-select mt-1"><option value="decay">DECAY TIME</option><option value="pitch">+ PITCH</option><option value="filter">+ FILTER</option><option value="mod">+ MOD</option><option value="porta">GLIDE TIME</option></select>
-                            <span class="text-[9px] font-bold mt-1 hidden text-center" id="label2C">V2 DECAY</span>
+                        <div class="flex">
+                            <div class="row-label text-[#1f1a14]">ROW C
+                                <select id="route2C" class="mod-select mt-1"><option value="decay">DECAY TIME</option><option value="pitch">+ PITCH</option><option value="filter">+ FILTER</option><option value="mod">+ MOD</option><option value="porta">GLIDE TIME</option></select>
+                                <span class="text-[9px] font-bold mt-1 hidden text-center" id="label2C">V2 DECAY</span>
+                            </div>
+                            <div class="flex gap-4 flex-1" id="row2C"></div>
                         </div>
-                        <div class="flex gap-4 flex-1" id="row2C"></div>
+                        <div class="flex mt-2"><div class="row-label text-[#1f1a14] text-[10px] items-center justify-end">TRIG<br>OUT</div><div class="flex gap-4 flex-1" id="trigRow2"></div></div>
                     </div>
-                    <div class="flex mt-2"><div class="row-label text-[#1f1a14] text-[10px] items-center justify-end">TRIG<br>OUT</div><div class="flex gap-4 flex-1" id="trigRow2"></div></div>
+
+                    <div class="panel-divider self-stretch opacity-30 transition-opacity" id="v2Divider"></div>
+
+                    <!-- Voice 2 Controls (SEM Style) -->
+                    <div class="pl-4 flex flex-col justify-center gap-4 opacity-30 pointer-events-none transition-opacity" id="v2Controls">
+                        <div class="text-[10px] font-black text-[#1f1a14] tracking-widest text-center border-b border-[#38342e]/30 pb-1 mb-1">EXPANDER MODULE 2</div>
+                        <div class="flex gap-4">
+                            
+                            <fieldset class="sem-fieldset flex-col items-center gap-2">
+                                <legend class="sem-legend">SEQ</legend>
+                                <div class="flex flex-col items-center gap-1 mt-1">
+                                    <span class="text-[7px] font-bold text-[#1f1a14]">12</span>
+                                    <div class="volt-rocker volt-toggle-top seq-length-btn" data-seq="2"><div class="volt-rocker-cap"></div></div>
+                                    <span class="text-[7px] font-bold text-[#1f1a14]">24</span>
+                                </div>
+                            </fieldset>
+
+                            <fieldset class="sem-fieldset flex-col items-center gap-3">
+                                <legend class="sem-legend">VCO 2</legend>
+                                <div class="flex gap-3">
+                                    <div class="flex flex-col gap-2 justify-center">
+                                        <div class="grid grid-cols-2 gap-1 wave-bank" id="waveBtnBank2"><button class="wave-btn" data-voice="2" data-wave="0"><svg width="12" height="10" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="2.5" class="pointer-events-none"><path d="M4 14 L12 2 V14 L20 2 V14" /></svg></button><button class="wave-btn wave-active" data-voice="2" data-wave="1"><svg width="12" height="10" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="2.5" class="pointer-events-none"><path d="M3 14 V4 h8 v10 h8 v-10" /></svg></button></div>
+                                        <div class="grid grid-cols-2 gap-1 oct-bank" id="octaveBtnBank2"><button class="oct-btn" data-voice="2" data-oct="0">32'</button><button class="oct-btn oct-active" data-voice="2" data-oct="1">16'</button><button class="oct-btn" data-voice="2" data-oct="2">8'</button><button class="oct-btn" data-voice="2" data-oct="3">4'</button></div>
+                                    </div>
+                                    <div class="knob-wrapper mt-1"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v2Tune" data-val="50"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">FREQUENCY</span></div>
+                                </div>
+                            </fieldset>
+
+                            <fieldset class="sem-fieldset gap-4 items-end">
+                                <legend class="sem-legend">ENV 2 (VCF / VCA)</legend>
+                                <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v2Atk" data-val="10"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">ATTACK</span></div>
+                                <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v2Dec" data-val="40"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">DECAY</span></div>
+                                <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v2Sus" data-val="40"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">SUSTAIN</span></div>
+                                <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v2Rel" data-val="35"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">RELEASE</span></div>
+                            </fieldset>
+                        </div>
+                    </div>
+
                 </div>
             </div>
             
+            <!-- Footer -->
             <div class="flex flex-wrap items-center justify-between gap-6 w-full pt-4 border-t-2 border-[#38342e]/30">
                 <div class="flex flex-col gap-1">
                     <span class="text-[10px] font-bold text-[#1f1a14]">KEYBOARD TRANSPOSE / PREVIEW</span>
@@ -294,22 +339,17 @@
         let isPlaying = false, isPreviewing = false;
         let timerId;
         
-        // Dual Audio Architecture
-        let audioCtx;
-        let synthOsc1, synthVcf1, synthVca1;
-        let synthOsc2, synthVcf2, synthVca2;
-        let analyser;
+        let audioCtx, synthOsc1, synthVcf1, synthVca1, synthOsc2, synthVcf2, synthVca2, analyser;
         
-        let bpm = 120, portamentoTime = 0.01, transposeSemitones = 0, voltageRangeMultiplier = 1, activeChCDest = 'filter', playMode = 'cont';
-        let seq1Length = 12; 
-        let voiceMode = 'sum'; // 'sum' or 'duo'
+        let bpm = 120, portamentoTime = 0.01, transposeSemitones = 0, voltageRangeMultiplier = 1, playMode = 'cont';
+        let voiceMode = 'sum'; 
 
-        const waveforms = ['sawtooth', 'square']; let activeWaveform = 'sawtooth';
-        let octaveOffsetSemitones = 0, finePitchTuneSemitones = 0; 
-        let attackTime = 0.01, decayTime = 0.15, sustainLevel = 0.2, releaseTime = 0.2;   
+        const waveforms = ['sawtooth', 'square'];
+        const v1State = { wave: 'sawtooth', oct: 0, tune: 0, atk: 0.01, dec: 0.15, sus: 0.2, rel: 0.2, dest: 'filter' };
+        const v2State = { wave: 'square', oct: 0, tune: 0, atk: 0.02, dec: 0.2, sus: 0.4, rel: 0.3 };
 
-        const seq1 = { id: 1, step: -1, nextTime: 0, clock: 'int', rate: 0.25, resetStep: null, tracks: { A: new Array(12).fill(0), B: new Array(12).fill(0), C: new Array(12).fill(0) }};
-        const seq2 = { id: 2, step: -1, nextTime: 0, clock: 'int', rate: 0.25, trigAssign: 'reset2', activeTrigs: new Array(12).fill(false), tracks: { A: new Array(12).fill(0), B: new Array(12).fill(0), C: new Array(12).fill(0) }};
+        const seq1 = { id: 1, step: -1, nextTime: 0, clock: 'int', rate: 0.25, resetStep: null, length: 12, tracks: { A: new Array(12).fill(0), B: new Array(12).fill(0), C: new Array(12).fill(0) }};
+        const seq2 = { id: 2, step: -1, nextTime: 0, clock: 'int', rate: 0.25, trigAssign: 'reset2', length: 12, activeTrigs: new Array(24).fill(false), tracks: { A: new Array(12).fill(0), B: new Array(12).fill(0), C: new Array(12).fill(0) }};
         const seq2Routing = { A: 'pitch', B: 'filter', C: 'decay' };
         const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
@@ -318,26 +358,18 @@
                 const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
                 audioCtx = new AudioCtxClass();
                 
-                // Voice 1 Setup
                 synthOsc1 = audioCtx.createOscillator(); synthVcf1 = audioCtx.createBiquadFilter(); synthVca1 = audioCtx.createGain(); 
-                synthOsc1.type = activeWaveform; synthVcf1.type = 'lowpass'; synthVcf1.Q.value = 12; synthVca1.gain.value = 0.0001; 
+                synthOsc1.type = v1State.wave; synthVcf1.type = 'lowpass'; synthVcf1.Q.value = 12; synthVca1.gain.value = 0.0001; 
                 synthOsc1.connect(synthVcf1); synthVcf1.connect(synthVca1);
                 
-                // Voice 2 Setup
                 synthOsc2 = audioCtx.createOscillator(); synthVcf2 = audioCtx.createBiquadFilter(); synthVca2 = audioCtx.createGain(); 
-                synthOsc2.type = activeWaveform; synthVcf2.type = 'lowpass'; synthVcf2.Q.value = 12; synthVca2.gain.value = 0.0001; 
+                synthOsc2.type = v2State.wave; synthVcf2.type = 'lowpass'; synthVcf2.Q.value = 12; synthVca2.gain.value = 0.0001; 
                 synthOsc2.connect(synthVcf2); synthVcf2.connect(synthVca2);
 
-                analyser = audioCtx.createAnalyser();
-                analyser.fftSize = 256;
+                analyser = audioCtx.createAnalyser(); analyser.fftSize = 256;
+                synthVca1.connect(analyser); synthVca2.connect(analyser); analyser.connect(audioCtx.destination);
                 
-                // Mixdown
-                synthVca1.connect(analyser);
-                synthVca2.connect(analyser);
-                analyser.connect(audioCtx.destination);
-                
-                synthOsc1.start(); synthOsc2.start();
-                drawScope();
+                synthOsc1.start(); synthOsc2.start(); drawScope();
             }
             if(audioCtx.state === 'suspended') await audioCtx.resume();
         }
@@ -366,7 +398,7 @@
             if(stepEl) stepEl.innerText = `STEP: ${step < 0 ? '--' : step + 1}`;
             if(voltEl) voltEl.innerText = `VOLT: ${sumPitch >= 0 ? '+' : ''}${sumPitch.toFixed(2)}`;
             
-            const semitoneOffset = Math.round(sumPitch * 12) + transposeSemitones + octaveOffsetSemitones + Math.round(finePitchTuneSemitones);
+            const semitoneOffset = Math.round(sumPitch * 12) + transposeSemitones + v1State.oct + Math.round(v1State.tune);
             const totalNote = 24 + semitoneOffset; 
             const noteIndex = ((totalNote % 12) + 12) % 12;
             const octave = Math.floor(totalNote / 12);
@@ -406,44 +438,73 @@
             });
         }
 
+        function updateLabelsForLength(sId, length) {
+            const lA = document.getElementById(`label${sId}A`);
+            const lB = document.getElementById(`label${sId}B`);
+            if (!lA || !lB) return;
+            
+            if (length === 24) {
+                if (sId === 1 || voiceMode === 'duo') {
+                    lA.innerText = "PITCH (1-12)"; lB.innerText = "PITCH (13-24)";
+                } else {
+                    const assignText = seq2Routing.A.toUpperCase();
+                    lA.innerText = `+ ${assignText} (1-12)`; lB.innerText = `+ ${assignText} (13-24)`;
+                }
+            } else {
+                if (sId === 1 || voiceMode === 'duo') {
+                    lA.innerText = sId === 1 ? "PITCH" : "V2 PITCH"; 
+                    lB.innerText = sId === 1 ? "FILTER" : "V2 FILTER";
+                } else {
+                    lA.innerText = "V2 PITCH"; lB.innerText = "V2 FILTER"; 
+                }
+            }
+        }
+
+        document.querySelectorAll('.seq-length-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const btnEl = e.currentTarget;
+                const sId = parseInt(btnEl.dataset.seq);
+                const seqObj = sId === 1 ? seq1 : seq2;
+
+                if (btnEl.classList.contains('volt-toggle-top')) { 
+                    btnEl.classList.replace('volt-toggle-top', 'volt-toggle-bottom'); 
+                    seqObj.length = 24;
+                } else { 
+                    btnEl.classList.replace('volt-toggle-bottom', 'volt-toggle-top'); 
+                    seqObj.length = 12; 
+                }
+                updateLabelsForLength(sId, seqObj.length);
+                updateUIForStep(seqObj);
+            });
+        });
+
         function updateVoiceModeUI() {
             const seq2Title = document.getElementById('seq2Title');
             const routeA = document.getElementById('route2A'); const labelA = document.getElementById('label2A');
             const routeB = document.getElementById('route2B'); const labelB = document.getElementById('label2B');
             const routeC = document.getElementById('route2C'); const labelC = document.getElementById('label2C');
+            const v2Controls = document.getElementById('v2Controls');
+            const v2Div = document.getElementById('v2Divider');
+            const seq2Container = document.getElementById('seq2Container');
 
             if (voiceMode === 'duo') {
                 if(seq2Title) seq2Title.innerText = "SEQ 2 (SYNTH VOICE 2)";
                 if(routeA) routeA.classList.add('hidden'); if(labelA) labelA.classList.remove('hidden');
                 if(routeB) routeB.classList.add('hidden'); if(labelB) labelB.classList.remove('hidden');
                 if(routeC) routeC.classList.add('hidden'); if(labelC) labelC.classList.remove('hidden');
+                if(v2Controls) { v2Controls.classList.remove('opacity-30', 'pointer-events-none'); }
+                if(v2Div) { v2Div.classList.remove('opacity-30'); }
+                if(seq2Container) { seq2Container.classList.add('bg-[rgba(0,0,0,0.08)]'); }
             } else {
                 if(seq2Title) seq2Title.innerText = "SEQ 2 (MODULAR ASSIGN)";
                 if(routeA) routeA.classList.remove('hidden'); if(labelA) labelA.classList.add('hidden');
                 if(routeB) routeB.classList.remove('hidden'); if(labelB) labelB.classList.add('hidden');
                 if(routeC) routeC.classList.remove('hidden'); if(labelC) labelC.classList.add('hidden');
+                if(v2Controls) { v2Controls.classList.add('opacity-30', 'pointer-events-none'); }
+                if(v2Div) { v2Div.classList.add('opacity-30'); }
+                if(seq2Container) { seq2Container.classList.remove('bg-[rgba(0,0,0,0.08)]'); }
             }
-        }
-
-        const lengthRockerBtn = document.getElementById('lengthRockerBtn');
-        if(lengthRockerBtn) {
-            lengthRockerBtn.addEventListener('click', (e) => {
-                const btn = e.currentTarget;
-                const lA = document.getElementById('label1A');
-                const lB = document.getElementById('label1B');
-                if (btn.classList.contains('volt-toggle-top')) { 
-                    btn.classList.replace('volt-toggle-top', 'volt-toggle-bottom'); 
-                    seq1Length = 24; 
-                    if(lA) lA.innerText = "PITCH (1-12)";
-                    if(lB) lB.innerText = "PITCH (13-24)";
-                } else { 
-                    btn.classList.replace('volt-toggle-bottom', 'volt-toggle-top'); 
-                    seq1Length = 12; 
-                    if(lA) lA.innerText = "PITCH";
-                    if(lB) lB.innerText = "FILTER";
-                }
-                updateUIForStep(seq1);
-            });
+            updateLabelsForLength(2, seq2.length);
         }
 
         document.querySelectorAll('#playModeBank .mode-btn').forEach(btn => {
@@ -453,55 +514,101 @@
             });
         });
 
-        document.querySelectorAll('#chCDestBank .dest-btn').forEach(btn => btn.addEventListener('click', (e) => {
-            activeChCDest = e.target.dataset.dest;
-            document.querySelectorAll('#chCDestBank .dest-btn').forEach(b => b.classList.toggle('dest-active', b.dataset.dest === activeChCDest));
-        }));
-        document.querySelectorAll('#waveBtnBank .wave-btn').forEach(btn => btn.addEventListener('click', (e) => {
-            const idx = parseInt(e.currentTarget.dataset.wave); activeWaveform = waveforms[idx];
-            if(synthOsc1) synthOsc1.type = activeWaveform;
-            if(synthOsc2) synthOsc2.type = activeWaveform;
-            document.querySelectorAll('#waveBtnBank .wave-btn').forEach(b => b.classList.toggle('wave-active', parseInt(b.dataset.wave) === idx));
-        }));
-        document.querySelectorAll('#octaveBtnBank .oct-btn').forEach(btn => btn.addEventListener('click', (e) => {
-            const octIdx = parseInt(e.target.dataset.oct); octaveOffsetSemitones = (octIdx - 1) * 12;
-            document.querySelectorAll('#octaveBtnBank .oct-btn').forEach(b => b.classList.toggle('oct-active', parseInt(b.dataset.oct) === octIdx));
-        }));
+        document.getElementById('route1C').addEventListener('change', e => v1State.dest = e.target.value);
+
+        // Safely sandboxed waveform selection
+        document.querySelectorAll('.wave-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                await initAudio();
+                const btnEl = e.currentTarget; 
+                const vId = btnEl.dataset.voice; 
+                const idx = parseInt(btnEl.dataset.wave);
+                
+                if (vId === '1') {
+                    v1State.wave = waveforms[idx]; 
+                    if(synthOsc1) synthOsc1.type = v1State.wave;
+                    document.querySelectorAll('#waveBtnBank1 .wave-btn').forEach(b => b.classList.toggle('wave-active', parseInt(b.dataset.wave) === idx));
+                } else if (vId === '2') {
+                    v2State.wave = waveforms[idx]; 
+                    if(synthOsc2) synthOsc2.type = v2State.wave;
+                    document.querySelectorAll('#waveBtnBank2 .wave-btn').forEach(b => b.classList.toggle('wave-active', parseInt(b.dataset.wave) === idx));
+                }
+            });
+        });
+
+        document.querySelectorAll('.oct-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                await initAudio();
+                const btnEl = e.currentTarget; 
+                const vId = btnEl.dataset.voice; 
+                const octIdx = parseInt(btnEl.dataset.oct);
+                
+                if (vId === '1') {
+                    v1State.oct = (octIdx - 1) * 12;
+                    document.querySelectorAll('#octaveBtnBank1 .oct-btn').forEach(b => b.classList.toggle('oct-active', parseInt(b.dataset.oct) === octIdx));
+                } else if (vId === '2') {
+                    v2State.oct = (octIdx - 1) * 12;
+                    document.querySelectorAll('#octaveBtnBank2 .oct-btn').forEach(b => b.classList.toggle('oct-active', parseInt(b.dataset.oct) === octIdx));
+                }
+            });
+        });
 
         ['1', '2'].forEach(id => {
-            const clkEl = document.getElementById(`clk${id}`);
-            const rateEl = document.getElementById(`rate${id}`);
+            const clkEl = document.getElementById(`clk${id}`); const rateEl = document.getElementById(`rate${id}`);
             if(clkEl) clkEl.addEventListener('change', e => { if(id==='1') seq1.clock = e.target.value; else seq2.clock = e.target.value; });
             if(rateEl) rateEl.addEventListener('change', e => { if(id==='1') seq1.rate = parseFloat(e.target.value); else seq2.rate = parseFloat(e.target.value); });
         });
 
         ['A', 'B', 'C'].forEach(ch => { 
             const routeEl = document.getElementById(`route2${ch}`);
-            if(routeEl) routeEl.addEventListener('change', e => seq2Routing[ch] = e.target.value); 
+            if(routeEl) routeEl.addEventListener('change', e => {
+                seq2Routing[ch] = e.target.value;
+                if(seq2.length === 24) updateLabelsForLength(2, 24);
+            }); 
         });
         
         const trigAssign2 = document.getElementById('trigAssign2');
         if(trigAssign2) {
-            trigAssign2.addEventListener('change', e => {
-                seq2.trigAssign = e.target.value; renderTrig2Colors();
-            });
+            trigAssign2.addEventListener('change', e => { seq2.trigAssign = e.target.value; renderTrig2Colors(); });
         }
 
         function getRoutingModifiers(s2Step) {
             let modPitch = 0, modFilter = 0, modDest = 0, modDecay = 0, modPorta = 0;
             if (s2Step >= 0 && voiceMode === 'sum') {
-                ['A', 'B', 'C'].forEach(ch => {
-                    const val = seq2.tracks[ch][s2Step]; const route = seq2Routing[ch];
-                    if (route === 'pitch') modPitch += val; if (route === 'filter') modFilter += val; if (route === 'mod') modDest += val;
-                    if (route === 'decay') modDecay += val; if (route === 'porta') modPorta += val;
-                });
+                
+                let s2_A_val, s2_B_val, s2_C_val;
+                let uiStep2 = s2Step % 12;
+
+                if (seq2.length === 24) {
+                    s2_A_val = (s2Step < 12) ? seq2.tracks.A[uiStep2] : seq2.tracks.B[uiStep2];
+                    s2_B_val = 0; 
+                    s2_C_val = seq2.tracks.C[uiStep2];
+                } else {
+                    s2_A_val = seq2.tracks.A[uiStep2]; s2_B_val = seq2.tracks.B[uiStep2]; s2_C_val = seq2.tracks.C[uiStep2];
+                }
+
+                // If Seq 2 is in 24 mode, Row B acts as Row A's continuation. So we only apply Row A's route to it.
+                if (seq2.length === 24) {
+                    if (seq2Routing.A === 'pitch') modPitch += s2_A_val; if (seq2Routing.A === 'filter') modFilter += s2_A_val; if (seq2Routing.A === 'mod') modDest += s2_A_val;
+                    if (seq2Routing.A === 'decay') modDecay += s2_A_val; if (seq2Routing.A === 'porta') modPorta += s2_A_val;
+
+                    if (seq2Routing.C === 'pitch') modPitch += s2_C_val; if (seq2Routing.C === 'filter') modFilter += s2_C_val; if (seq2Routing.C === 'mod') modDest += s2_C_val;
+                    if (seq2Routing.C === 'decay') modDecay += s2_C_val; if (seq2Routing.C === 'porta') modPorta += s2_C_val;
+                } else {
+                    const tracks = { A: s2_A_val, B: s2_B_val, C: s2_C_val };
+                    ['A', 'B', 'C'].forEach(ch => {
+                        const val = tracks[ch]; const route = seq2Routing[ch];
+                        if (route === 'pitch') modPitch += val; if (route === 'filter') modFilter += val; if (route === 'mod') modDest += val;
+                        if (route === 'decay') modDecay += val; if (route === 'porta') modPorta += val;
+                    });
+                }
             }
             return { modPitch, modFilter, modDest, modDecay, modPorta };
         }
 
-        function triggerVoice(osc, vcf, vca, time, pitchVal, filterVal, modVal, dynDecay, dynPorta, isAccent, isNewPress) {
+        function triggerVoice(osc, vcf, vca, time, pitchVal, filterVal, modVal, dynDecay, dynPorta, isAccent, isNewPress, vState) {
             if(!osc) return;
-            const semitone = (pitchVal * 12) + transposeSemitones + octaveOffsetSemitones + finePitchTuneSemitones; 
+            const semitone = (pitchVal * 12) + transposeSemitones + vState.oct + vState.tune; 
             const freq = 65.41 * Math.pow(2, semitone / 12); 
             osc.frequency.setTargetAtTime(freq, time, dynPorta);
 
@@ -510,33 +617,33 @@
             if (isAccent) { baseCutoff += 3000; peakVolume = 1.0; }
             
             const normalizedC = Math.max(0, Math.min(1, modVal / 5)); 
-            if (activeChCDest === 'filter') baseCutoff = 100 + (normalizedC * 3000);
-            else if (activeChCDest === 'volume') peakVolume = 0.1 + (normalizedC * 0.9); 
+            if (vState.dest === 'filter' || !vState.dest) baseCutoff = 100 + (normalizedC * 3000);
+            else if (vState.dest === 'volume') peakVolume = 0.1 + (normalizedC * 0.9); 
             baseCutoff = Math.max(20, Math.min(20000, baseCutoff)); 
 
             const t0 = time;
-            const t1_atk = t0 + Math.max(0.005, attackTime);
+            const t1_atk = t0 + Math.max(0.005, vState.atk);
             const t2_dec = t1_atk + dynDecay;
 
             if (isNewPress || !isPreviewing) {
                 vcf.frequency.cancelScheduledValues(t0); 
                 vcf.frequency.setValueAtTime(Math.max(20, baseCutoff), t0); 
                 vcf.frequency.linearRampToValueAtTime(Math.max(20, Math.min(20000, baseCutoff + 5000)), t1_atk);
-                vcf.frequency.exponentialRampToValueAtTime(Math.max(20, Math.min(20000, baseCutoff + (5000 * sustainLevel))), t2_dec);
+                vcf.frequency.exponentialRampToValueAtTime(Math.max(20, Math.min(20000, baseCutoff + (5000 * vState.sus))), t2_dec);
 
                 vca.gain.cancelScheduledValues(t0); 
                 vca.gain.setValueAtTime(0.0001, t0);
                 vca.gain.linearRampToValueAtTime(Math.max(0.0001, peakVolume), t1_atk);
-                vca.gain.linearRampToValueAtTime(Math.max(0.0001, peakVolume * sustainLevel), t2_dec);
+                vca.gain.linearRampToValueAtTime(Math.max(0.0001, peakVolume * vState.sus), t2_dec);
             } else {
-                vcf.frequency.setTargetAtTime(Math.max(20, Math.min(20000, baseCutoff + (5000 * sustainLevel))), t0, 0.05);
-                vca.gain.setTargetAtTime(Math.max(0.0001, peakVolume * sustainLevel), t0, 0.05);
+                vcf.frequency.setTargetAtTime(Math.max(20, Math.min(20000, baseCutoff + (5000 * vState.sus))), t0, 0.05);
+                vca.gain.setTargetAtTime(Math.max(0.0001, peakVolume * vState.sus), t0, 0.05);
             }
         }
 
-        function triggerVoiceStep(osc, vcf, vca, time, pitchVal, filterVal, modVal, dynDecay, dynPorta, isAccent, stepRate) {
+        function triggerVoiceStep(osc, vcf, vca, time, pitchVal, filterVal, modVal, dynDecay, dynPorta, isAccent, stepRate, vState) {
             if(!osc) return;
-            const semitone = (pitchVal * 12) + transposeSemitones + octaveOffsetSemitones + finePitchTuneSemitones; 
+            const semitone = (pitchVal * 12) + transposeSemitones + vState.oct + vState.tune; 
             const freq = 65.41 * Math.pow(2, semitone / 12); 
             osc.frequency.setTargetAtTime(freq, time, dynPorta);
 
@@ -545,29 +652,29 @@
             if (isAccent) { baseCutoff += 3000; peakVolume = 1.0; }
             
             const normalizedC = Math.max(0, Math.min(1, modVal / 5)); 
-            if (activeChCDest === 'filter') baseCutoff = 100 + (normalizedC * 3000);
-            else if (activeChCDest === 'volume') peakVolume = 0.1 + (normalizedC * 0.9); 
+            if (vState.dest === 'filter' || !vState.dest) baseCutoff = 100 + (normalizedC * 3000);
+            else if (vState.dest === 'volume') peakVolume = 0.1 + (normalizedC * 0.9); 
             baseCutoff = Math.max(20, Math.min(20000, baseCutoff)); 
 
             const t0 = time;
-            const t1_atk = t0 + Math.max(0.005, attackTime);
+            const t1_atk = t0 + Math.max(0.005, vState.atk);
             const t2_dec = t1_atk + dynDecay;
             const stepGateTime = Math.max(0.05, (60.0 / bpm) * stepRate * 4);
             const t3_gateOff = Math.max(t2_dec + 0.005, t0 + stepGateTime); 
-            const t4_rel = t3_gateOff + Math.max(0.005, releaseTime);
+            const t4_rel = t3_gateOff + Math.max(0.005, vState.rel);
 
             vcf.frequency.cancelScheduledValues(t0); 
             vcf.frequency.setValueAtTime(Math.max(20, baseCutoff), t0); 
             vcf.frequency.linearRampToValueAtTime(Math.max(20, Math.min(20000, baseCutoff + 5000)), t1_atk);
-            vcf.frequency.exponentialRampToValueAtTime(Math.max(20, Math.min(20000, baseCutoff + (5000 * sustainLevel))), t2_dec);
-            vcf.frequency.setValueAtTime(Math.max(20, Math.min(20000, baseCutoff + (5000 * sustainLevel))), t3_gateOff);
+            vcf.frequency.exponentialRampToValueAtTime(Math.max(20, Math.min(20000, baseCutoff + (5000 * vState.sus))), t2_dec);
+            vcf.frequency.setValueAtTime(Math.max(20, Math.min(20000, baseCutoff + (5000 * vState.sus))), t3_gateOff);
             vcf.frequency.exponentialRampToValueAtTime(Math.max(20, baseCutoff), t4_rel);
 
             vca.gain.cancelScheduledValues(t0); 
             vca.gain.setValueAtTime(0.0001, t0);
             vca.gain.linearRampToValueAtTime(Math.max(0.0001, peakVolume), t1_atk);
-            vca.gain.linearRampToValueAtTime(Math.max(0.0001, peakVolume * sustainLevel), t2_dec);
-            vca.gain.setValueAtTime(Math.max(0.0001, peakVolume * sustainLevel), t3_gateOff);
+            vca.gain.linearRampToValueAtTime(Math.max(0.0001, peakVolume * vState.sus), t2_dec);
+            vca.gain.setValueAtTime(Math.max(0.0001, peakVolume * vState.sus), t3_gateOff);
             vca.gain.exponentialRampToValueAtTime(0.0001, t4_rel);
         }
 
@@ -575,10 +682,9 @@
             if(!audioCtx) return;
             const now = audioCtx.currentTime;
             
-            // Collect S1 Base
             let uiStep1 = s1Step % 12;
-            let s1A = (seq1Length === 24 && s1Step >= 12) ? seq1.tracks.B[uiStep1] : seq1.tracks.A[uiStep1];
-            let s1B = (seq1Length === 24) ? 0 : seq1.tracks.B[uiStep1];
+            let s1A = (seq1.length === 24 && s1Step >= 12) ? seq1.tracks.B[uiStep1] : seq1.tracks.A[uiStep1];
+            let s1B = (seq1.length === 24) ? 0 : seq1.tracks.B[uiStep1];
             let s1C = seq1.tracks.C[uiStep1];
 
             if (voiceMode === 'sum') {
@@ -587,20 +693,24 @@
                 const sumFilter = s1B + mods.modFilter;
                 const sumMod = s1C + mods.modDest;
                 const dynPorta = Math.max(0.001, portamentoTime + (mods.modPorta * 0.05));
-                const dynDecay = Math.max(0.005, decayTime + (mods.modDecay * 0.1));
+                const dynDecay = Math.max(0.005, v1State.dec + (mods.modDecay * 0.1));
                 
-                triggerVoice(synthOsc1, synthVcf1, synthVca1, now, sumPitch * voltageRangeMultiplier, sumFilter * voltageRangeMultiplier, sumMod, dynDecay, dynPorta, false, isNewPress);
+                triggerVoice(synthOsc1, synthVcf1, synthVca1, now, sumPitch * voltageRangeMultiplier, sumFilter * voltageRangeMultiplier, sumMod, dynDecay, dynPorta, false, isNewPress, v1State);
                 updateDisplay(s1Step, sumPitch * voltageRangeMultiplier);
                 
-                // Ensure Voice 2 is silent
-                synthVca2.gain.cancelScheduledValues(now); synthVca2.gain.setValueAtTime(0.0001, now);
+                if(synthVca2) { synthVca2.gain.cancelScheduledValues(now); synthVca2.gain.setValueAtTime(0.0001, now); }
             } else {
-                // DUO Mode
                 const p1 = s1A * voltageRangeMultiplier; const f1 = s1B * voltageRangeMultiplier; const m1 = s1C;
-                const p2 = seq2.tracks.A[s2Step % 12] * voltageRangeMultiplier; const f2 = seq2.tracks.B[s2Step % 12] * voltageRangeMultiplier; const m2 = seq2.tracks.C[s2Step % 12];
                 
-                triggerVoice(synthOsc1, synthVcf1, synthVca1, now, p1, f1, m1, Math.max(0.005, decayTime), Math.max(0.001, portamentoTime), false, isNewPress);
-                triggerVoice(synthOsc2, synthVcf2, synthVca2, now, p2, f2, m2, Math.max(0.005, m2/5), Math.max(0.001, portamentoTime), false, isNewPress);
+                let uiStep2 = Math.max(0, s2Step) % 12;
+                let s2A = (seq2.length === 24 && s2Step >= 12) ? seq2.tracks.B[uiStep2] : seq2.tracks.A[uiStep2];
+                let s2B = (seq2.length === 24) ? 0 : seq2.tracks.B[uiStep2];
+                let s2C = seq2.tracks.C[uiStep2];
+
+                const p2 = s2A * voltageRangeMultiplier; const f2 = s2B * voltageRangeMultiplier; const m2 = s2C;
+                
+                triggerVoice(synthOsc1, synthVcf1, synthVca1, now, p1, f1, m1, Math.max(0.005, v1State.dec), Math.max(0.001, portamentoTime), false, isNewPress, v1State);
+                triggerVoice(synthOsc2, synthVcf2, synthVca2, now, p2, f2, m2, Math.max(0.005, v2State.dec), Math.max(0.001, portamentoTime), false, isNewPress, v2State);
                 updateDisplay(s1Step, p1);
             }
             isPreviewing = true;
@@ -609,14 +719,8 @@
         function stopPreview() {
             if (isPreviewing && audioCtx) {
                 const now = audioCtx.currentTime;
-                [synthVca1, synthVca2].forEach(vca => {
-                    if(vca) {
-                        vca.gain.cancelScheduledValues(now); 
-                        const currentGain = Math.max(0.0001, vca.gain.value);
-                        vca.gain.setValueAtTime(currentGain, now); 
-                        vca.gain.exponentialRampToValueAtTime(0.0001, now + Math.max(0.01, releaseTime));
-                    }
-                });
+                if(synthVca1) { synthVca1.gain.cancelScheduledValues(now); synthVca1.gain.setValueAtTime(Math.max(0.0001, synthVca1.gain.value), now); synthVca1.gain.exponentialRampToValueAtTime(0.0001, now + Math.max(0.01, v1State.rel)); }
+                if(synthVca2) { synthVca2.gain.cancelScheduledValues(now); synthVca2.gain.setValueAtTime(Math.max(0.0001, synthVca2.gain.value), now); synthVca2.gain.exponentialRampToValueAtTime(0.0001, now + Math.max(0.01, v2State.rel)); }
                 isPreviewing = false;
             }
         }
@@ -630,11 +734,15 @@
                 if (activeKnob.dataset.ch && !isPlaying) {
                     const stepIdx = parseInt(activeKnob.dataset.step);
                     let s1Step = Math.max(0, seq1.step);
+                    let s2Step = Math.max(0, seq2.step);
+
                     if (activeKnob.dataset.seq === '1') {
-                        if (seq1Length === 24 && activeKnob.dataset.ch === 'B') s1Step = stepIdx + 12;
+                        if (seq1.length === 24 && activeKnob.dataset.ch === 'B') s1Step = stepIdx + 12;
                         else s1Step = stepIdx;
+                    } else if (activeKnob.dataset.seq === '2') {
+                        if (seq2.length === 24 && activeKnob.dataset.ch === 'B') s2Step = stepIdx + 12;
+                        else s2Step = stepIdx;
                     }
-                    const s2Step = activeKnob.dataset.seq === '2' ? stepIdx : Math.max(0, seq2.step);
                     previewSynth(s1Step, s2Step, true); 
                 }
             }
@@ -651,22 +759,33 @@
                     if (!isPlaying && isPreviewing) {
                         const stepIdx = parseInt(activeKnob.dataset.step);
                         let s1Step = Math.max(0, seq1.step);
+                        let s2Step = Math.max(0, seq2.step);
+
                         if (sId === '1') {
-                            if (seq1Length === 24 && ch === 'B') s1Step = stepIdx + 12;
+                            if (seq1.length === 24 && ch === 'B') s1Step = stepIdx + 12;
                             else s1Step = stepIdx;
+                        } else if (sId === '2') {
+                            if (seq2.length === 24 && ch === 'B') s2Step = stepIdx + 12;
+                            else s2Step = stepIdx;
                         }
-                        const s2Step = (sId === '2') ? stepIdx : Math.max(0, seq2.step);
                         previewSynth(s1Step, s2Step, false); 
                     }
                 } else {
                     let newVal = Math.max(0, Math.min(100, startVal + (startY - e.clientY)));
-                    if(activeKnob.id === 'clockSpeed') bpm = 40 + (newVal / 100) * 200;
-                    else if(activeKnob.id === 'portamento') portamentoTime = 0.01 + (newVal / 100) * 0.3;
-                    else if(activeKnob.id === 'pitchTuneKnob') finePitchTuneSemitones = -12 + (newVal / 100) * 24;
-                    else if(activeKnob.id === 'envAttack') attackTime = 0.005 + (newVal / 100) * 0.5;
-                    else if(activeKnob.id === 'envDecay') decayTime = 0.02 + (newVal / 100) * 0.8;
-                    else if(activeKnob.id === 'envSustain') sustainLevel = newVal / 100;
-                    else if(activeKnob.id === 'envRelease') releaseTime = 0.02 + (newVal / 100) * 1.5;
+                    const id = activeKnob.id;
+                    if(id === 'clockSpeed') bpm = 40 + (newVal / 100) * 200;
+                    else if(id === 'portamento') portamentoTime = 0.01 + (newVal / 100) * 0.3;
+                    else if(id === 'v1Tune') v1State.tune = -12 + (newVal / 100) * 24;
+                    else if(id === 'v1Atk') v1State.atk = 0.005 + (newVal / 100) * 0.5;
+                    else if(id === 'v1Dec') v1State.dec = 0.02 + (newVal / 100) * 0.8;
+                    else if(id === 'v1Sus') v1State.sus = newVal / 100;
+                    else if(id === 'v1Rel') v1State.rel = 0.02 + (newVal / 100) * 1.5;
+                    else if(id === 'v2Tune') v2State.tune = -12 + (newVal / 100) * 24;
+                    else if(id === 'v2Atk') v2State.atk = 0.005 + (newVal / 100) * 0.5;
+                    else if(id === 'v2Dec') v2State.dec = 0.02 + (newVal / 100) * 0.8;
+                    else if(id === 'v2Sus') v2State.sus = newVal / 100;
+                    else if(id === 'v2Rel') v2State.rel = 0.02 + (newVal / 100) * 1.5;
+                    
                     activeKnob.dataset.val = newVal; updateKnobVisual(activeKnob, newVal);
                 }
             }
@@ -689,11 +808,11 @@
             if (voiceMode === 'sum') {
                 if (triggerS1 || triggerS2) {
                     const mods = getRoutingModifiers(triggerS2 ? seq2.step : -1);
-                    const s2Accent = seq2.step >= 0 && seq2.activeTrigs[uiStep2] && seq2.trigAssign === 'accent';
-                    const s2Glide = seq2.step >= 0 && seq2.activeTrigs[uiStep2] && seq2.trigAssign === 'glide';
+                    const s2Accent = seq2.step >= 0 && seq2.activeTrigs[seq2.step] && seq2.trigAssign === 'accent';
+                    const s2Glide = seq2.step >= 0 && seq2.activeTrigs[seq2.step] && seq2.trigAssign === 'glide';
 
                     let s1_A_val, s1_B_val, s1_C_val;
-                    if (seq1Length === 24) {
+                    if (seq1.length === 24) {
                         s1_A_val = (seq1.step < 12) ? seq1.tracks.A[uiStep1] : seq1.tracks.B[uiStep1];
                         s1_B_val = 0; s1_C_val = seq1.tracks.C[uiStep1];
                     } else {
@@ -706,35 +825,42 @@
                     
                     let dynPorta = Math.max(0.001, portamentoTime + (mods.modPorta * 0.05));
                     if (s2Glide) dynPorta += 0.15;
-                    let dynDecay = Math.max(0.005, decayTime + (mods.modDecay * 0.1));
+                    let dynDecay = Math.max(0.005, v1State.dec + (mods.modDecay * 0.1));
 
-                    triggerVoiceStep(synthOsc1, synthVcf1, synthVca1, time, sumPitch, sumFilter, sumMod, dynDecay, dynPorta, s2Accent, seq1.rate);
+                    triggerVoiceStep(synthOsc1, synthVcf1, synthVca1, time, sumPitch, sumFilter, sumMod, dynDecay, dynPorta, s2Accent, seq1.rate, v1State);
                     updateDisplay(seq1.step, sumPitch);
                 }
             } else {
-                // DUO MODE
                 if (triggerS1) {
                     let s1_A_val, s1_B_val, s1_C_val;
-                    if (seq1Length === 24) {
+                    if (seq1.length === 24) {
                         s1_A_val = (seq1.step < 12) ? seq1.tracks.A[uiStep1] : seq1.tracks.B[uiStep1];
                         s1_B_val = 0; s1_C_val = seq1.tracks.C[uiStep1];
                     } else {
                         s1_A_val = seq1.tracks.A[uiStep1]; s1_B_val = seq1.tracks.B[uiStep1]; s1_C_val = seq1.tracks.C[uiStep1];
                     }
-                    triggerVoiceStep(synthOsc1, synthVcf1, synthVca1, time, s1_A_val * voltageRangeMultiplier, s1_B_val * voltageRangeMultiplier, s1_C_val, Math.max(0.005, decayTime), Math.max(0.001, portamentoTime), false, seq1.rate);
+                    triggerVoiceStep(synthOsc1, synthVcf1, synthVca1, time, s1_A_val * voltageRangeMultiplier, s1_B_val * voltageRangeMultiplier, s1_C_val, Math.max(0.005, v1State.dec), Math.max(0.001, portamentoTime), false, seq1.rate, v1State);
                     updateDisplay(seq1.step, s1_A_val * voltageRangeMultiplier);
                 }
                 
                 if (triggerS2) {
-                    const s2Accent = seq2.activeTrigs[uiStep2] && seq2.trigAssign === 'accent';
-                    const s2Glide = seq2.activeTrigs[uiStep2] && seq2.trigAssign === 'glide';
+                    const s2Accent = seq2.activeTrigs[seq2.step] && seq2.trigAssign === 'accent';
+                    const s2Glide = seq2.activeTrigs[seq2.step] && seq2.trigAssign === 'glide';
                     let dynPorta = Math.max(0.001, portamentoTime); if(s2Glide) dynPorta += 0.15;
                     
-                    const p2 = seq2.tracks.A[uiStep2] * voltageRangeMultiplier;
-                    const f2 = seq2.tracks.B[uiStep2] * voltageRangeMultiplier;
-                    const m2 = seq2.tracks.C[uiStep2]; // Decay
+                    let s2_A_val, s2_B_val, s2_C_val;
+                    if (seq2.length === 24) {
+                        s2_A_val = (seq2.step < 12) ? seq2.tracks.A[uiStep2] : seq2.tracks.B[uiStep2];
+                        s2_B_val = 0; s2_C_val = seq2.tracks.C[uiStep2];
+                    } else {
+                        s2_A_val = seq2.tracks.A[uiStep2]; s2_B_val = seq2.tracks.B[uiStep2]; s2_C_val = seq2.tracks.C[uiStep2];
+                    }
+
+                    const p2 = s2_A_val * voltageRangeMultiplier;
+                    const f2 = s2_B_val * voltageRangeMultiplier;
+                    const m2 = s2_C_val; 
                     
-                    triggerVoiceStep(synthOsc2, synthVcf2, synthVca2, time, p2, f2, m2, Math.max(0.005, m2/5), dynPorta, s2Accent, seq2.rate);
+                    triggerVoiceStep(synthOsc2, synthVcf2, synthVca2, time, p2, f2, m2, Math.max(0.005, v2State.dec), dynPorta, s2Accent, seq2.rate, v2State);
                 }
             }
         }
@@ -746,15 +872,14 @@
                 const stepEl = document.querySelector(`#ledRow${seqObj.id} .step-indicator[data-step="${uiStep}"]`);
                 if(stepEl) stepEl.classList.add('active');
             }
-            if (seqObj.id === 1) {
-                const p1A = document.getElementById('pilot1A');
-                const p1B = document.getElementById('pilot1B');
-                if (seq1Length === 24) {
-                    if (seq1.step < 12) { if(p1A) p1A.classList.add('pilot-active'); if(p1B) p1B.classList.remove('pilot-active'); }
-                    else { if(p1A) p1A.classList.remove('pilot-active'); if(p1B) p1B.classList.add('pilot-active'); }
-                } else {
-                    if(p1A) p1A.classList.add('pilot-active'); if(p1B) p1B.classList.add('pilot-active');
-                }
+            
+            const pA = document.getElementById(`pilot${seqObj.id}A`);
+            const pB = document.getElementById(`pilot${seqObj.id}B`);
+            if (seqObj.length === 24) {
+                if (seqObj.step < 12) { if(pA) pA.classList.add('pilot-active'); if(pB) pB.classList.remove('pilot-active'); }
+                else { if(pA) pA.classList.remove('pilot-active'); if(pB) pB.classList.add('pilot-active'); }
+            } else {
+                if(pA) pA.classList.add('pilot-active'); if(pB) pB.classList.add('pilot-active');
             }
         }
 
@@ -763,20 +888,20 @@
             
             seq1.step += dir;
             if (dir > 0 && seq1.step === seq1.resetStep) seq1.step = 0;
-            if (seq1.step >= seq1Length) seq1.step = 0;
-            if (seq1.step < 0) seq1.step = (seq1.resetStep !== null) ? seq1.resetStep - 1 : seq1Length - 1;
+            if (seq1.step >= seq1.length) seq1.step = 0;
+            if (seq1.step < 0) seq1.step = (seq1.resetStep !== null) ? seq1.resetStep - 1 : seq1.length - 1;
 
             seq2.step += dir;
-            if (dir > 0 && seq2.activeTrigs[seq2.step % 12] && seq2.trigAssign === 'reset2') seq2.step = 0;
-            if (seq2.step >= NUM_STEPS) seq2.step = 0;
+            if (dir > 0 && seq2.activeTrigs[seq2.step] && seq2.trigAssign === 'reset2') seq2.step = 0;
+            if (seq2.step >= seq2.length) seq2.step = 0;
             if (seq2.step < 0) {
-                let resetPoint = NUM_STEPS - 1;
+                let resetPoint = seq2.length - 1;
                 if (seq2.trigAssign === 'reset2') {
-                    for(let i=NUM_STEPS-1; i>=0; i--){
+                    for(let i = seq2.length - 1; i>=0; i--){
                         if(seq2.activeTrigs[i]){ resetPoint = i - 1; break; }
                     }
                 }
-                seq2.step = resetPoint < 0 ? NUM_STEPS - 1 : resetPoint;
+                seq2.step = resetPoint < 0 ? seq2.length - 1 : resetPoint;
             }
 
             updateUIForStep(seq1); updateUIForStep(seq2);
@@ -810,25 +935,25 @@
             if (advanceS1) {
                 seq1.step++;
                 if (seq1.step === seq1.resetStep) { seq1.step = 0; s1TriggerHit = true; }
-                else if (seq1.step >= seq1Length) { seq1.step = 0; s1TriggerHit = true; }
+                else if (seq1.step >= seq1.length) { seq1.step = 0; s1TriggerHit = true; }
             }
 
             if (advanceS2) {
-                seq2.step++; if (seq2.step >= NUM_STEPS) seq2.step = 0;
-                if (seq2.activeTrigs[seq2.step % 12]) {
+                seq2.step++; if (seq2.step >= seq2.length) seq2.step = 0;
+                if (seq2.activeTrigs[seq2.step]) {
                     if (seq2.trigAssign === 'reset2') seq2.step = 0;
                     else if (seq2.trigAssign === 'clock1' && seq1.clock === 'ext') {
                         seq1.step++; 
                         if (seq1.step === seq1.resetStep) { seq1.step = 0; s1TriggerHit = true; } 
-                        else if (seq1.step >= seq1Length) { seq1.step = 0; s1TriggerHit = true; }
+                        else if (seq1.step >= seq1.length) { seq1.step = 0; s1TriggerHit = true; }
                         advanceS1 = true;
                     }
                 }
             }
 
             if (s1TriggerHit && seq2.clock === 'ext') {
-                advanceS2 = true; seq2.step++; if (seq2.step >= NUM_STEPS) seq2.step = 0;
-                if (seq2.activeTrigs[seq2.step % 12] && seq2.trigAssign === 'reset2') seq2.step = 0;
+                advanceS2 = true; seq2.step++; if (seq2.step >= seq2.length) seq2.step = 0;
+                if (seq2.activeTrigs[seq2.step] && seq2.trigAssign === 'reset2') seq2.step = 0;
             }
             
             if (playMode === 'one' && s1TriggerHit) {
@@ -869,37 +994,51 @@
             const resetStatus = document.getElementById('resetStatus');
             
             if (seq1.resetStep === step) {
-                if (seq1Length === 24) {
+                if (seq1.length === 24) {
                     seq1.resetStep = step + 12;
-                    e.target.classList.remove('patched');
-                    e.target.classList.add('patched-red'); 
+                    e.target.classList.remove('patched'); e.target.classList.add('patched-red'); 
                     if(resetStatus) resetStatus.innerText = `TRIG: STEP ${seq1.resetStep + 1}`;
                 } else {
-                    seq1.resetStep = null;
-                    e.target.classList.remove('patched', 'patched-red');
+                    seq1.resetStep = null; e.target.classList.remove('patched', 'patched-red');
                     if(resetStatus) resetStatus.innerText = "PATCH: NONE";
                 }
             } else if (seq1.resetStep === step + 12) {
-                seq1.resetStep = null;
-                e.target.classList.remove('patched-red');
+                seq1.resetStep = null; e.target.classList.remove('patched-red');
                 if(resetStatus) resetStatus.innerText = "PATCH: NONE";
             } else {
                 document.querySelectorAll('#trigRow1 .patch-point').forEach(el => el.classList.remove('patched', 'patched-red'));
-                seq1.resetStep = step;
-                e.target.classList.add('patched');
+                seq1.resetStep = step; e.target.classList.add('patched');
                 if(resetStatus) resetStatus.innerText = `TRIG: STEP ${step + 1}`;
             }
         }
 
         function handlePatch2Click(e) {
-            const step = parseInt(e.target.dataset.step); seq2.activeTrigs[step] = !seq2.activeTrigs[step]; renderTrig2Colors();
+            const step = parseInt(e.target.dataset.step); 
+            if (seq2.length === 24) {
+                if (!seq2.activeTrigs[step] && !seq2.activeTrigs[step+12]) {
+                    seq2.activeTrigs[step] = true;
+                } else if (seq2.activeTrigs[step]) {
+                    seq2.activeTrigs[step] = false; seq2.activeTrigs[step+12] = true;
+                } else {
+                    seq2.activeTrigs[step+12] = false;
+                }
+            } else {
+                seq2.activeTrigs[step] = !seq2.activeTrigs[step];
+                seq2.activeTrigs[step+12] = false; 
+            }
+            renderTrig2Colors();
         }
 
         function renderTrig2Colors() {
             document.querySelectorAll('#trigRow2 .patch-point').forEach(el => {
                 const step = parseInt(el.dataset.step); el.className = 'patch-point'; 
-                if (seq2.activeTrigs[step]) {
-                    if (seq2.trigAssign === 'reset2') el.classList.add('patched-red');
+                let isActive1 = seq2.activeTrigs[step];
+                let isActive2 = seq2.length === 24 && seq2.activeTrigs[step + 12];
+
+                if (isActive2) {
+                    el.classList.add('patched-red');
+                } else if (isActive1) {
+                    if (seq2.trigAssign === 'reset2') el.classList.add('patched-yellow');
                     else if (seq2.trigAssign === 'accent') el.classList.add('patched-yellow');
                     else if (seq2.trigAssign === 'glide') el.classList.add('patched-blue');
                     else if (seq2.trigAssign === 'clock1') el.classList.add('patched-green');
@@ -918,7 +1057,6 @@
                     if(rockerLed) rockerLed.classList.replace('bg-red-200', 'bg-red-400');
                 }
 
-                // Voice Mode -> DUO
                 voiceMode = 'duo';
                 const vModeBtn = document.getElementById('voiceModeBtn');
                 if (vModeBtn) vModeBtn.classList.replace('volt-toggle-top', 'volt-toggle-bottom');
@@ -927,46 +1065,44 @@
                 voltageRangeMultiplier = 1; 
                 const voltBtn = document.getElementById('voltRockerBtn');
                 if(voltBtn) {
-                    voltBtn.classList.remove('volt-toggle-bottom');
-                    voltBtn.classList.add('volt-toggle-top');
+                    voltBtn.classList.remove('volt-toggle-bottom'); voltBtn.classList.add('volt-toggle-top');
                 }
                 
-                const lenBtn = document.getElementById('lengthRockerBtn');
-                if(lenBtn) {
-                    lenBtn.classList.remove('volt-toggle-bottom');
-                    lenBtn.classList.add('volt-toggle-top');
-                }
-                seq1Length = 12;
-                const lA = document.getElementById('label1A'); if(lA) lA.innerText = "PITCH";
-                const lB = document.getElementById('label1B'); if(lB) lB.innerText = "FILTER";
+                const s1LenBtn = document.getElementById('seq1LengthBtn');
+                if(s1LenBtn) { s1LenBtn.classList.remove('volt-toggle-bottom'); s1LenBtn.classList.add('volt-toggle-top'); }
+                seq1.length = 12; updateLabelsForLength(1, 12);
+
+                const s2LenBtn = document.getElementById('seq2LengthBtn');
+                if(s2LenBtn) { s2LenBtn.classList.remove('volt-toggle-bottom'); s2LenBtn.classList.add('volt-toggle-top'); }
+                seq2.length = 12; updateLabelsForLength(2, 12);
                 
                 playMode = 'cont';
                 document.querySelectorAll('#playModeBank .mode-btn').forEach(b => b.classList.toggle('mode-active', b.dataset.play === playMode));
 
-                bpm = 110; updateKnobVisual(document.getElementById('clockSpeed'), 30); 
-                const speedKnob = document.getElementById('clockSpeed'); if(speedKnob) speedKnob.dataset.val = 30;
+                bpm = 110; updateKnobVisual(document.getElementById('clockSpeed'), 30); const speedKnob = document.getElementById('clockSpeed'); if(speedKnob) speedKnob.dataset.val = 30;
+                portamentoTime = 0.01; updateKnobVisual(document.getElementById('portamento'), 0); const portaKnob = document.getElementById('portamento'); if(portaKnob) portaKnob.dataset.val = 0;
+
+                // Voice 1 
+                v1State.atk = 0.01; updateKnobVisual(document.getElementById('v1Atk'), 2); const v1Atk = document.getElementById('v1Atk'); if(v1Atk) v1Atk.dataset.val = 2;
+                v1State.dec = 0.15; updateKnobVisual(document.getElementById('v1Dec'), 20); const v1Dec = document.getElementById('v1Dec'); if(v1Dec) v1Dec.dataset.val = 20;
+                v1State.sus = 0.1; updateKnobVisual(document.getElementById('v1Sus'), 10); const v1Sus = document.getElementById('v1Sus'); if(v1Sus) v1Sus.dataset.val = 10;
+                v1State.rel = 0.1; updateKnobVisual(document.getElementById('v1Rel'), 15); const v1Rel = document.getElementById('v1Rel'); if(v1Rel) v1Rel.dataset.val = 15;
+                v1State.tune = 0; updateKnobVisual(document.getElementById('v1Tune'), 50); const v1Tune = document.getElementById('v1Tune'); if(v1Tune) v1Tune.dataset.val = 50;
                 
-                portamentoTime = 0.01; updateKnobVisual(document.getElementById('portamento'), 0); 
-                const portaKnob = document.getElementById('portamento'); if(portaKnob) portaKnob.dataset.val = 0;
+                document.querySelectorAll('#waveBtnBank1 .wave-btn').forEach(b => b.classList.remove('wave-active'));
+                const w1Btn = document.querySelector('#waveBtnBank1 .wave-btn[data-wave="0"]'); if(w1Btn) w1Btn.classList.add('wave-active'); 
+                v1State.wave = 'sawtooth'; if(synthOsc1) synthOsc1.type = 'sawtooth';
 
-                attackTime = 0.01; updateKnobVisual(document.getElementById('envAttack'), 2); 
-                const atkKnob = document.getElementById('envAttack'); if(atkKnob) atkKnob.dataset.val = 2;
+                // Voice 2 
+                v2State.atk = 0.2; updateKnobVisual(document.getElementById('v2Atk'), 40); const v2Atk = document.getElementById('v2Atk'); if(v2Atk) v2Atk.dataset.val = 40;
+                v2State.dec = 0.5; updateKnobVisual(document.getElementById('v2Dec'), 60); const v2Dec = document.getElementById('v2Dec'); if(v2Dec) v2Dec.dataset.val = 60;
+                v2State.sus = 0.4; updateKnobVisual(document.getElementById('v2Sus'), 40); const v2Sus = document.getElementById('v2Sus'); if(v2Sus) v2Sus.dataset.val = 40;
+                v2State.rel = 0.3; updateKnobVisual(document.getElementById('v2Rel'), 35); const v2Rel = document.getElementById('v2Rel'); if(v2Rel) v2Rel.dataset.val = 35;
+                v2State.tune = 0; updateKnobVisual(document.getElementById('v2Tune'), 50); const v2Tune = document.getElementById('v2Tune'); if(v2Tune) v2Tune.dataset.val = 50;
 
-                decayTime = 0.15; updateKnobVisual(document.getElementById('envDecay'), 20); 
-                const decKnob = document.getElementById('envDecay'); if(decKnob) decKnob.dataset.val = 20;
-
-                sustainLevel = 0.1; updateKnobVisual(document.getElementById('envSustain'), 10); 
-                const susKnob = document.getElementById('envSustain'); if(susKnob) susKnob.dataset.val = 10;
-
-                releaseTime = 0.1; updateKnobVisual(document.getElementById('envRelease'), 15); 
-                const relKnob = document.getElementById('envRelease'); if(relKnob) relKnob.dataset.val = 15;
-                
-                document.querySelectorAll('#waveBtnBank .wave-btn').forEach(b => b.classList.remove('wave-active'));
-                const squareWaveBtn = document.querySelector('#waveBtnBank .wave-btn[data-wave="1"]');
-                if(squareWaveBtn) squareWaveBtn.classList.add('wave-active'); 
-                activeWaveform = 'square'; 
-                if(synthOsc1) synthOsc1.type = activeWaveform;
-                if(synthOsc2) synthOsc2.type = activeWaveform;
+                document.querySelectorAll('#waveBtnBank2 .wave-btn').forEach(b => b.classList.remove('wave-active'));
+                const w2Btn = document.querySelector('#waveBtnBank2 .wave-btn[data-wave="1"]'); if(w2Btn) w2Btn.classList.add('wave-active'); 
+                v2State.wave = 'square'; if(synthOsc2) synthOsc2.type = 'square';
 
                 const clk1 = document.getElementById('clk1'); if(clk1) clk1.value = 'int'; seq1.clock = 'int';
                 const rate1 = document.getElementById('rate1'); if(rate1) rate1.value = '0.25'; seq1.rate = 0.25;
@@ -974,18 +1110,15 @@
                 const rate2 = document.getElementById('rate2'); if(rate2) rate2.value = '0.25'; seq2.rate = 0.25;
                 const trig2 = document.getElementById('trigAssign2'); if(trig2) trig2.value = 'reset2'; seq2.trigAssign = 'reset2';
 
-                // Duophonic Sequence:
-                // S1 = Bassline (C minor pulse)
                 const s1A = [0.0, 0.0, 0.0, 0.25, 0.0, 0.0, 0.0, -0.166, 0.0, 0.0, 0.0, 0.166];
                 const s1B = [0.5, 0.2, 0.1, 0.3, 0.5, 0.2, 0.1, 0.4, 0.5, 0.2, 0.1, 0.3];
                 const s1C = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
                 
-                // S2 = High Counter-Melody
-                // Driven by S1 step 12 Trigger (Progresses one note per bar)
                 const s2A = [1.0, 1.25, 1.583, 1.25, 1.0, 0.833, 0.5, 0.833, 1.0, 0.0, 0.0, 0.0];
                 const s2B = [0.2, 0.3, 0.4, 0.5, 0.4, 0.3, 0.2, 0.3, 0.4, 0.0, 0.0, 0.0];
-                const s2C = [2.0, 2.5, 3.0, 2.5, 2.0, 1.5, 1.0, 1.5, 2.0, 0.0, 0.0, 0.0]; // Long Decays
-                const s2Trigs = [false, false, false, false, false, false, false, false, true, false, false, false];
+                const s2C = [2.0, 2.5, 3.0, 2.5, 2.0, 1.5, 1.0, 1.5, 2.0, 0.0, 0.0, 0.0]; 
+                const s2Trigs = new Array(24).fill(false);
+                s2Trigs[8] = true;
 
                 for(let i=0; i<12; i++) {
                     seq1.tracks.A[i] = s1A[i]; seq1.tracks.B[i] = s1B[i]; seq1.tracks.C[i] = s1C[i];
@@ -1001,10 +1134,8 @@
                     let k2C = document.querySelector(`.knob[data-seq="2"][data-ch="C"][data-step="${i}"]`); if(k2C) { k2C.dataset.val = s2C[i]; updateKnobVisual(k2C, s2C[i]); }
                 }
 
-                // Loop Seq 1 normally
                 seq1.resetStep = null;
                 document.querySelectorAll('#trigRow1 .patch-point').forEach(el => el.classList.remove('patched', 'patched-red'));
-                // Put a reset patch on step 11 to trigger EXT S2
                 seq1.resetStep = 11;
                 const patch11 = document.querySelector('#trigRow1 .patch-point[data-step="11"]');
                 if(patch11) patch11.classList.add('patched');
@@ -1037,10 +1168,17 @@
                 }
             });
             document.querySelectorAll('.knob[data-ch]').forEach(k => updateKnobVisual(k, parseFloat(k.dataset.val)));
-            ['clockSpeed','pitchTuneKnob'].forEach(id => updateKnobVisual(document.getElementById(id), 50));
+            
+            ['v1Tune', 'v2Tune'].forEach(id => updateKnobVisual(document.getElementById(id), 50));
+            updateKnobVisual(document.getElementById('clockSpeed'), 50);
             updateKnobVisual(document.getElementById('portamento'), 0);
-            updateKnobVisual(document.getElementById('envAttack'), 5); updateKnobVisual(document.getElementById('envDecay'), 30);
-            updateKnobVisual(document.getElementById('envSustain'), 20); updateKnobVisual(document.getElementById('envRelease'), 25);
+
+            ['1', '2'].forEach(id => {
+                updateKnobVisual(document.getElementById(`v${id}Atk`), 5); 
+                updateKnobVisual(document.getElementById(`v${id}Dec`), 30);
+                updateKnobVisual(document.getElementById(`v${id}Sus`), 20); 
+                updateKnobVisual(document.getElementById(`v${id}Rel`), 25);
+            });
         }
 
         function renderKeyboard() {
