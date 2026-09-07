@@ -3,7 +3,7 @@
     SQ-24 DUAL Analog Sequencer (Duophonic 2-Voice Studio)
     Created & Developed by Jose Velazquez MA
     Voltage & Wave (https://voltageandwave.co.uk/)
-    Updated: Tempo & Gate Timing Restored (Mojo Fix)
+    Updated: Symmetrical Cross-Clocking, Ext-Deadlock Guards, Gate Timing Fixes
 -->
 <html lang="en">
 <head>
@@ -124,7 +124,7 @@
                         <div id="dispStep" class="mb-0.5">STEP: --</div>
                         <div id="dispVolt" class="mb-0.5">VOLT: 0.00</div>
                         <div id="dispNote" class="mb-1">NOTE: C2</div>
-                        <div id="resetStatus" class="text-[9px] text-[#ffaa00] font-bold tracking-wider mt-1 opacity-90">PATCH: NONE</div>
+                        <div id="resetStatus" class="text-[9px] text-[#ffaa00] font-bold tracking-wider mt-1 opacity-90">S1: NO PATCH</div>
                     </div>
                 </div>
             </div>
@@ -182,13 +182,17 @@
                 <div class="flex gap-4 text-[10px] font-bold text-[#1f1a14] flex-wrap justify-end">
                     <label>CLOCK: <select id="clk1" class="bg-transparent border border-[#38342e] rounded p-1 outline-none"><option value="int">INTERNAL</option><option value="ext">EXT (FROM S2)</option></select></label>
                     <label>RATE: <select id="rate1" class="bg-transparent border border-[#38342e] rounded p-1 outline-none"><option value="0.25">1/16</option><option value="0.375">3/16</option><option value="0.5">1/8</option></select></label>
+                    <label>TRIG ASSIGN: <select id="trigAssign1" class="bg-transparent border border-[#38342e] rounded p-1 outline-none font-bold text-[#c83a2a]">
+                        <option value="reset1">LOOP LENGTH (RED)</option>
+                        <option value="clock2">CLOCK SEQ2 (GRN)</option>
+                    </select></label>
                 </div>
             </div>
             
             <div class="panel-outline w-full mb-6 !py-6 !px-2 sm:!px-4 transition-all">
                 <div class="flex flex-col lg:flex-row gap-8 mx-auto items-center lg:items-stretch w-full">
                     
-                    <!-- Seq 1 Matrix (Scrollable independently on Mobile) -->
+                    <!-- Seq 1 Matrix -->
                     <div class="w-full overflow-x-auto grid-scroll pb-4 lg:pb-0 lg:pr-4">
                         <div class="flex flex-col gap-5 min-w-max">
                             <div class="flex"><div class="row-label"></div><div class="flex gap-4 flex-1" id="ledRow1"></div></div>
@@ -201,7 +205,7 @@
 
                     <div class="panel-divider hidden lg:block self-stretch"></div>
 
-                    <!-- Voice 1 Controls (SEM Vertical Style) -->
+                    <!-- Voice 1 Controls -->
                     <div class="lg:pl-4 flex flex-col justify-center gap-3 w-full max-w-[320px] lg:w-[280px] mx-auto flex-shrink-0">
                         <div class="text-[10px] font-black text-[#1f1a14] tracking-widest text-center border-b border-[#38342e]/30 pb-1 mb-1">EXPANDER MODULE 1</div>
                         
@@ -257,7 +261,7 @@
             <div class="panel-outline w-full mb-6 !py-6 !px-2 sm:!px-4 transition-all" id="seq2Container">
                 <div class="flex flex-col lg:flex-row gap-8 mx-auto items-center lg:items-stretch w-full">
                     
-                    <!-- Seq 2 Matrix (Scrollable) -->
+                    <!-- Seq 2 Matrix -->
                     <div class="w-full overflow-x-auto grid-scroll pb-4 lg:pb-0 lg:pr-4">
                         <div class="flex flex-col gap-5 min-w-max">
                             <div class="flex"><div class="row-label"></div><div class="flex gap-4 flex-1" id="ledRow2"></div></div>
@@ -288,7 +292,7 @@
 
                     <div class="panel-divider hidden lg:block self-stretch opacity-30 transition-opacity" id="v2Divider"></div>
 
-                    <!-- Voice 2 Controls (SEM Vertical Style) -->
+                    <!-- Voice 2 Controls -->
                     <div class="lg:pl-4 flex flex-col justify-center gap-3 w-full max-w-[320px] lg:w-[280px] mx-auto opacity-30 pointer-events-none transition-opacity flex-shrink-0" id="v2Controls">
                         <div class="text-[10px] font-black text-[#1f1a14] tracking-widest text-center border-b border-[#38342e]/30 pb-1 mb-1">EXPANDER MODULE 2</div>
                         
@@ -360,7 +364,7 @@
         const v1State = { wave: 'sawtooth', oct: 0, tune: 0, atk: 0.01, dec: 0.15, sus: 0.2, rel: 0.2, dest: 'filter' };
         const v2State = { wave: 'square', oct: 0, tune: 0, atk: 0.02, dec: 0.2, sus: 0.4, rel: 0.3 };
 
-        const seq1 = { id: 1, step: -1, nextTime: 0, clock: 'int', rate: 0.25, resetStep: null, length: 12, tracks: { A: new Array(12).fill(0), B: new Array(12).fill(0), C: new Array(12).fill(0) }};
+        const seq1 = { id: 1, step: -1, nextTime: 0, clock: 'int', rate: 0.25, trigAssign: 'reset1', length: 12, activeTrigs: new Array(24).fill(false), tracks: { A: new Array(12).fill(0), B: new Array(12).fill(0), C: new Array(12).fill(0) }};
         const seq2 = { id: 2, step: -1, nextTime: 0, clock: 'int', rate: 0.25, trigAssign: 'reset2', length: 12, activeTrigs: new Array(24).fill(false), tracks: { A: new Array(12).fill(0), B: new Array(12).fill(0), C: new Array(12).fill(0) }};
         const seq2Routing = { A: 'pitch', B: 'filter', C: 'decay' };
         const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -484,9 +488,11 @@
                 } else { 
                     btnEl.classList.replace('volt-toggle-bottom', 'volt-toggle-top'); 
                     seqObj.length = 12; 
+                    for(let i=12; i<24; i++) seqObj.activeTrigs[i] = false; // Purge hidden trigs
                 }
                 updateLabelsForLength(sId, seqObj.length);
                 updateUIForStep(seqObj);
+                if (sId === 1) renderTrig1Colors(); else renderTrig2Colors();
             });
         });
 
@@ -526,7 +532,8 @@
             });
         });
 
-        document.getElementById('route1C').addEventListener('change', e => v1State.dest = e.target.value);
+        const route1C = document.getElementById('route1C');
+        if (route1C) route1C.addEventListener('change', e => v1State.dest = e.target.value);
 
         document.querySelectorAll('.wave-btn').forEach(btn => {
             btn.addEventListener('click', async (e) => {
@@ -566,7 +573,21 @@
 
         ['1', '2'].forEach(id => {
             const clkEl = document.getElementById(`clk${id}`); const rateEl = document.getElementById(`rate${id}`);
-            if(clkEl) clkEl.addEventListener('change', e => { if(id==='1') seq1.clock = e.target.value; else seq2.clock = e.target.value; });
+            if(clkEl) clkEl.addEventListener('change', e => { 
+                if(id==='1') {
+                    seq1.clock = e.target.value; 
+                    if(seq1.clock === 'ext' && seq2.clock === 'ext') {
+                        seq2.clock = 'int';
+                        const clk2El = document.getElementById('clk2'); if(clk2El) clk2El.value = 'int';
+                    }
+                } else { 
+                    seq2.clock = e.target.value; 
+                    if(seq2.clock === 'ext' && seq1.clock === 'ext') {
+                        seq1.clock = 'int';
+                        const clk1El = document.getElementById('clk1'); if(clk1El) clk1El.value = 'int';
+                    }
+                }
+            });
             if(rateEl) rateEl.addEventListener('change', e => { if(id==='1') seq1.rate = parseFloat(e.target.value); else seq2.rate = parseFloat(e.target.value); });
         });
 
@@ -578,6 +599,11 @@
             }); 
         });
         
+        const trigAssign1 = document.getElementById('trigAssign1');
+        if(trigAssign1) {
+            trigAssign1.addEventListener('change', e => { seq1.trigAssign = e.target.value; renderTrig1Colors(); });
+        }
+
         const trigAssign2 = document.getElementById('trigAssign2');
         if(trigAssign2) {
             trigAssign2.addEventListener('change', e => { seq2.trigAssign = e.target.value; renderTrig2Colors(); });
@@ -623,7 +649,7 @@
             osc.frequency.setTargetAtTime(freq, time, dynPorta);
 
             let baseCutoff = 400 + (filterVal * 2000); 
-            let peakVolume = 0.5; // Lower peak volume for duophonic headroom
+            let peakVolume = 0.5;
             if (isAccent) { baseCutoff += 3000; peakVolume = 0.7; }
             
             const normalizedC = Math.max(0, Math.min(1, modVal / 5)); 
@@ -658,7 +684,7 @@
             osc.frequency.setTargetAtTime(freq, time, dynPorta);
 
             let baseCutoff = 400 + (filterVal * 2000); 
-            let peakVolume = 0.5; // Lower peak volume for duophonic headroom
+            let peakVolume = 0.5;
             if (isAccent) { baseCutoff += 3000; peakVolume = 0.7; }
             
             const normalizedC = Math.max(0, Math.min(1, modVal / 5)); 
@@ -670,7 +696,6 @@
             const t1_atk = t0 + Math.max(0.005, vState.atk);
             const t2_dec = t1_atk + dynDecay;
             
-            // Adjusted Gate Time Calculation (70% Gate for more Mojo - no x4 multiplier)
             const stepDuration = (60.0 / bpm) * stepRate;
             const stepGateTime = Math.max(0.02, stepDuration * 0.7); 
             
@@ -841,7 +866,9 @@
                     if (s2Glide) dynPorta += 0.15;
                     let dynDecay = Math.max(0.005, v1State.dec + (mods.modDecay * 0.1));
 
-                    triggerVoiceStep(synthOsc1, synthVcf1, synthVca1, time, sumPitch, sumFilter, sumMod, dynDecay, dynPorta, s2Accent, seq1.rate, v1State);
+                    const activeRate = triggerS1 ? seq1.rate : seq2.rate;
+
+                    triggerVoiceStep(synthOsc1, synthVcf1, synthVca1, time, sumPitch, sumFilter, sumMod, dynDecay, dynPorta, s2Accent, activeRate, v1State);
                     updateDisplay(seq1.step, sumPitch);
                 }
             } else {
@@ -901,9 +928,17 @@
             if(!audioCtx) return;
             
             seq1.step += dir;
-            if (dir > 0 && seq1.step === seq1.resetStep) seq1.step = 0;
+            if (dir > 0 && seq1.activeTrigs[seq1.step] && seq1.trigAssign === 'reset1') seq1.step = 0;
             if (seq1.step >= seq1.length) seq1.step = 0;
-            if (seq1.step < 0) seq1.step = (seq1.resetStep !== null) ? seq1.resetStep - 1 : seq1.length - 1;
+            if (seq1.step < 0) {
+                let resetPoint = seq1.length - 1;
+                if (seq1.trigAssign === 'reset1') {
+                    for(let i = seq1.length - 1; i>=0; i--){
+                        if(seq1.activeTrigs[i]){ resetPoint = i - 1; break; }
+                    }
+                }
+                seq1.step = resetPoint < 0 ? seq1.length - 1 : resetPoint;
+            }
 
             seq2.step += dir;
             if (dir > 0 && seq2.activeTrigs[seq2.step] && seq2.trigAssign === 'reset2') seq2.step = 0;
@@ -948,19 +983,32 @@
             let s1TriggerHit = false;
             if (advanceS1) {
                 seq1.step++;
-                if (seq1.step === seq1.resetStep) { seq1.step = 0; s1TriggerHit = true; }
-                else if (seq1.step >= seq1.length) { seq1.step = 0; s1TriggerHit = true; }
+                if (seq1.step >= seq1.length) seq1.step = 0;
+                
+                if (seq1.activeTrigs[seq1.step]) {
+                    if (seq1.trigAssign === 'reset1') { 
+                        seq1.step = 0; s1TriggerHit = true; 
+                    }
+                    else if (seq1.trigAssign === 'clock2' && seq2.clock === 'ext') { 
+                        advanceS2 = true; 
+                    }
+                }
+                if(seq1.step === 0) s1TriggerHit = true; 
             }
 
             if (advanceS2) {
                 seq2.step++; if (seq2.step >= seq2.length) seq2.step = 0;
                 if (seq2.activeTrigs[seq2.step]) {
-                    if (seq2.trigAssign === 'reset2') seq2.step = 0;
+                    if (seq2.trigAssign === 'reset2') {
+                        seq2.step = 0;
+                    }
                     else if (seq2.trigAssign === 'clock1' && seq1.clock === 'ext') {
-                        seq1.step++; 
-                        if (seq1.step === seq1.resetStep) { seq1.step = 0; s1TriggerHit = true; } 
-                        else if (seq1.step >= seq1.length) { seq1.step = 0; s1TriggerHit = true; }
-                        advanceS1 = true;
+                        if(!advanceS1) {
+                            advanceS1 = true;
+                            seq1.step++; 
+                            if (seq1.step >= seq1.length) seq1.step = 0;
+                            if (seq1.activeTrigs[seq1.step] && seq1.trigAssign === 'reset1') seq1.step = 0;
+                        }
                     }
                 }
             }
@@ -970,7 +1018,7 @@
                 if (seq2.activeTrigs[seq2.step] && seq2.trigAssign === 'reset2') seq2.step = 0;
             }
             
-            if (playMode === 'one' && s1TriggerHit) {
+            if (playMode === 'one' && s1TriggerHit && seq1.step === 0 && advanceS1) {
                 const startStopBtn = document.getElementById('startStop');
                 if(startStopBtn) startStopBtn.click();
                 return;
@@ -1004,31 +1052,42 @@
         }
 
         function handlePatch1Click(e) {
-            const step = parseInt(e.target.dataset.step);
-            const resetStatus = document.getElementById('resetStatus');
-            
+            const step = parseInt(e.target.dataset.step); 
             if (seq1.length === 24) {
-                if (seq1.resetStep === step) {
-                    seq1.resetStep = step + 12;
-                    e.target.classList.remove('patched'); e.target.classList.add('patched-red'); 
-                    if(resetStatus) resetStatus.innerText = `TRIG: STEP ${seq1.resetStep + 1}`;
-                } else if (seq1.resetStep === step + 12) {
-                    seq1.resetStep = null; e.target.classList.remove('patched-red');
-                    if(resetStatus) resetStatus.innerText = "PATCH: NONE";
+                if (!seq1.activeTrigs[step] && !seq1.activeTrigs[step+12]) {
+                    seq1.activeTrigs[step] = true;
+                } else if (seq1.activeTrigs[step]) {
+                    seq1.activeTrigs[step] = false; seq1.activeTrigs[step+12] = true;
                 } else {
-                    document.querySelectorAll('#trigRow1 .patch-point').forEach(el => el.classList.remove('patched', 'patched-red'));
-                    seq1.resetStep = step; e.target.classList.add('patched');
-                    if(resetStatus) resetStatus.innerText = `TRIG: STEP ${step + 1}`;
+                    seq1.activeTrigs[step+12] = false;
                 }
             } else {
-                if (seq1.resetStep === step) {
-                    seq1.resetStep = null; e.target.classList.remove('patched');
-                    if(resetStatus) resetStatus.innerText = "PATCH: NONE";
-                } else {
-                    document.querySelectorAll('#trigRow1 .patch-point').forEach(el => el.classList.remove('patched'));
-                    seq1.resetStep = step; e.target.classList.add('patched');
-                    if(resetStatus) resetStatus.innerText = `TRIG: STEP ${step + 1}`;
+                seq1.activeTrigs[step] = !seq1.activeTrigs[step];
+                seq1.activeTrigs[step+12] = false; 
+            }
+            renderTrig1Colors();
+        }
+
+        function renderTrig1Colors() {
+            let latestActive = -1;
+            document.querySelectorAll('#trigRow1 .patch-point').forEach(el => {
+                const step = parseInt(el.dataset.step); el.className = 'patch-point'; 
+                let isActive1 = seq1.activeTrigs[step];
+                let isActive2 = seq1.length === 24 && seq1.activeTrigs[step + 12];
+
+                if (isActive2) {
+                    if (seq1.trigAssign === 'reset1') el.classList.add('patched-red');
+                    else if (seq1.trigAssign === 'clock2') el.classList.add('patched-green');
+                    latestActive = step + 12;
+                } else if (isActive1) {
+                    if (seq1.trigAssign === 'reset1') el.classList.add('patched-red');
+                    else if (seq1.trigAssign === 'clock2') el.classList.add('patched-green');
+                    latestActive = step;
                 }
+            });
+            const resetStatus = document.getElementById('resetStatus');
+            if(resetStatus) {
+                resetStatus.innerText = latestActive >= 0 ? `S1 TRIG: STEP ${latestActive + 1}` : "S1 TRIG: NONE";
             }
         }
 
@@ -1092,7 +1151,6 @@
             demoPopBtn.addEventListener('click', async () => {
                 await initAudio(); resetDemoState();
                 
-                // 12-Step Chaining
                 const s1LenBtn = document.querySelector('.seq-length-btn[data-seq="1"]');
                 if(s1LenBtn) { s1LenBtn.classList.remove('volt-toggle-bottom'); s1LenBtn.classList.add('volt-toggle-top'); }
                 seq1.length = 12; updateLabelsForLength(1, 12);
@@ -1101,11 +1159,9 @@
                 if(s2LenBtn) { s2LenBtn.classList.remove('volt-toggle-bottom'); s2LenBtn.classList.add('volt-toggle-top'); }
                 seq2.length = 12; updateLabelsForLength(2, 12);
 
-                // 120 BPM
                 bpm = 120; updateKnobVisual(document.getElementById('clockSpeed'), 40); const speedKnob = document.getElementById('clockSpeed'); if(speedKnob) speedKnob.dataset.val = 40;
                 portamentoTime = 0.01; updateKnobVisual(document.getElementById('portamento'), 0); const portaKnob = document.getElementById('portamento'); if(portaKnob) portaKnob.dataset.val = 0;
 
-                // Voice 1 (Bassline) 
                 v1State.atk = 0.01; updateKnobVisual(document.getElementById('v1Atk'), 2); const v1Atk = document.getElementById('v1Atk'); if(v1Atk) v1Atk.dataset.val = 2;
                 v1State.dec = 0.15; updateKnobVisual(document.getElementById('v1Dec'), 20); const v1Dec = document.getElementById('v1Dec'); if(v1Dec) v1Dec.dataset.val = 20;
                 v1State.sus = 0.1; updateKnobVisual(document.getElementById('v1Sus'), 10); const v1Sus = document.getElementById('v1Sus'); if(v1Sus) v1Sus.dataset.val = 10;
@@ -1119,7 +1175,6 @@
                 document.querySelectorAll('#octaveBtnBank1 .oct-btn').forEach(b => b.classList.remove('oct-active'));
                 const oct1Btn = document.querySelector('#octaveBtnBank1 .oct-btn[data-oct="1"]'); if(oct1Btn) oct1Btn.classList.add('oct-active'); v1State.oct = 0;
 
-                // Voice 2 (Arp)
                 v2State.atk = 0.01; updateKnobVisual(document.getElementById('v2Atk'), 2); const v2Atk = document.getElementById('v2Atk'); if(v2Atk) v2Atk.dataset.val = 2;
                 v2State.dec = 0.2; updateKnobVisual(document.getElementById('v2Dec'), 25); const v2Dec = document.getElementById('v2Dec'); if(v2Dec) v2Dec.dataset.val = 25;
                 v2State.sus = 0.1; updateKnobVisual(document.getElementById('v2Sus'), 10); const v2Sus = document.getElementById('v2Sus'); if(v2Sus) v2Sus.dataset.val = 10;
@@ -1135,8 +1190,8 @@
 
                 const clk1 = document.getElementById('clk1'); if(clk1) clk1.value = 'int'; seq1.clock = 'int';
                 const rate1 = document.getElementById('rate1'); if(rate1) rate1.value = '0.25'; seq1.rate = 0.25;
+                const trig1 = document.getElementById('trigAssign1'); if(trig1) trig1.value = 'reset1'; seq1.trigAssign = 'reset1';
                 
-                // Seq 2 Polyrhythm Sync
                 const clk2 = document.getElementById('clk2'); if(clk2) clk2.value = 'int'; seq2.clock = 'int';
                 const rate2 = document.getElementById('rate2'); if(rate2) rate2.value = '0.375'; seq2.rate = 0.375;
                 const trig2 = document.getElementById('trigAssign2'); if(trig2) trig2.value = 'accent'; seq2.trigAssign = 'accent';
@@ -1148,13 +1203,15 @@
                 const s2A = [1.0, 1.25, 1.583, 2.0, 1.583, 1.25, 1.0, 1.25, 1.583, 2.0, 1.583, 1.25];
                 const s2B = [0.2, 0.3, 0.4, 0.5, 0.4, 0.3, 0.2, 0.3, 0.4, 0.5, 0.4, 0.3];
                 const s2C = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]; 
+                
+                const s1Trigs = new Array(24).fill(false);
                 const s2Trigs = new Array(24).fill(false);
                 s2Trigs[3] = true; s2Trigs[9] = true;
 
                 for(let i=0; i<12; i++) {
                     seq1.tracks.A[i] = s1A[i]; seq1.tracks.B[i] = s1B[i]; seq1.tracks.C[i] = s1C[i];
                     seq2.tracks.A[i] = s2A[i]; seq2.tracks.B[i] = s2B[i]; seq2.tracks.C[i] = s2C[i];
-                    seq2.activeTrigs[i] = s2Trigs[i];
+                    seq1.activeTrigs[i] = s1Trigs[i]; seq2.activeTrigs[i] = s2Trigs[i];
 
                     let k1A = document.querySelector(`.knob[data-seq="1"][data-ch="A"][data-step="${i}"]`); if(k1A) { k1A.dataset.val = s1A[i]; updateKnobVisual(k1A, s1A[i]); }
                     let k1B = document.querySelector(`.knob[data-seq="1"][data-ch="B"][data-step="${i}"]`); if(k1B) { k1B.dataset.val = s1B[i]; updateKnobVisual(k1B, s1B[i]); }
@@ -1165,9 +1222,7 @@
                     let k2C = document.querySelector(`.knob[data-seq="2"][data-ch="C"][data-step="${i}"]`); if(k2C) { k2C.dataset.val = s2C[i]; updateKnobVisual(k2C, s2C[i]); }
                 }
 
-                seq1.resetStep = null;
-                document.querySelectorAll('#trigRow1 .patch-point').forEach(el => el.classList.remove('patched', 'patched-red'));
-                renderTrig2Colors();
+                renderTrig1Colors(); renderTrig2Colors();
                 setTimeout(() => { if(startStopBtn) startStopBtn.click(); }, 150);
             });
         }
@@ -1177,7 +1232,6 @@
             demoMoroderBtn.addEventListener('click', async () => {
                 await initAudio(); resetDemoState();
                 
-                // 24-Step Chaining for Seq 1
                 const s1LenBtn = document.querySelector('.seq-length-btn[data-seq="1"]');
                 if(s1LenBtn) { s1LenBtn.classList.remove('volt-toggle-top'); s1LenBtn.classList.add('volt-toggle-bottom'); }
                 seq1.length = 24; updateLabelsForLength(1, 24);
@@ -1186,11 +1240,9 @@
                 if(s2LenBtn) { s2LenBtn.classList.remove('volt-toggle-bottom'); s2LenBtn.classList.add('volt-toggle-top'); }
                 seq2.length = 12; updateLabelsForLength(2, 12);
 
-                // 130 BPM
                 bpm = 130; updateKnobVisual(document.getElementById('clockSpeed'), 45); const speedKnob = document.getElementById('clockSpeed'); if(speedKnob) speedKnob.dataset.val = 45;
                 portamentoTime = 0.01; updateKnobVisual(document.getElementById('portamento'), 0); const portaKnob = document.getElementById('portamento'); if(portaKnob) portaKnob.dataset.val = 0;
 
-                // Voice 1 (Bassline) 
                 v1State.atk = 0.01; updateKnobVisual(document.getElementById('v1Atk'), 2); const v1Atk = document.getElementById('v1Atk'); if(v1Atk) v1Atk.dataset.val = 2;
                 v1State.dec = 0.12; updateKnobVisual(document.getElementById('v1Dec'), 15); const v1Dec = document.getElementById('v1Dec'); if(v1Dec) v1Dec.dataset.val = 15;
                 v1State.sus = 0.05; updateKnobVisual(document.getElementById('v1Sus'), 5); const v1Sus = document.getElementById('v1Sus'); if(v1Sus) v1Sus.dataset.val = 5;
@@ -1204,7 +1256,6 @@
                 document.querySelectorAll('#octaveBtnBank1 .oct-btn').forEach(b => b.classList.remove('oct-active'));
                 const oct1Btn = document.querySelector('#octaveBtnBank1 .oct-btn[data-oct="0"]'); if(oct1Btn) oct1Btn.classList.add('oct-active'); v1State.oct = -12;
 
-                // Voice 2 (Arp)
                 v2State.atk = 0.01; updateKnobVisual(document.getElementById('v2Atk'), 2); const v2Atk = document.getElementById('v2Atk'); if(v2Atk) v2Atk.dataset.val = 2;
                 v2State.dec = 0.15; updateKnobVisual(document.getElementById('v2Dec'), 20); const v2Dec = document.getElementById('v2Dec'); if(v2Dec) v2Dec.dataset.val = 20;
                 v2State.sus = 0.05; updateKnobVisual(document.getElementById('v2Sus'), 5); const v2Sus = document.getElementById('v2Sus'); if(v2Sus) v2Sus.dataset.val = 5;
@@ -1220,12 +1271,12 @@
 
                 const clk1 = document.getElementById('clk1'); if(clk1) clk1.value = 'int'; seq1.clock = 'int';
                 const rate1 = document.getElementById('rate1'); if(rate1) rate1.value = '0.25'; seq1.rate = 0.25;
+                const trig1 = document.getElementById('trigAssign1'); if(trig1) trig1.value = 'reset1'; seq1.trigAssign = 'reset1';
                 
                 const clk2 = document.getElementById('clk2'); if(clk2) clk2.value = 'int'; seq2.clock = 'int';
                 const rate2 = document.getElementById('rate2'); if(rate2) rate2.value = '0.25'; seq2.rate = 0.25;
                 const trig2 = document.getElementById('trigAssign2'); if(trig2) trig2.value = 'glide'; seq2.trigAssign = 'glide';
 
-                // 24-step Driving Bass (C, Eb, Bb, F)
                 const s1A = [0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.25, 1.25, 0.25, 0.25, 0.25, 1.25];
                 const s1B = [-0.166, 0.833, -0.166, -0.166, -0.166, 0.833, 0.416, 1.416, 0.416, 0.416, 0.416, 1.416];
                 const s1C = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
@@ -1233,13 +1284,18 @@
                 const s2A = [1.0, 1.25, 1.583, 2.0, 1.583, 1.25, 1.0, 1.25, 1.583, 2.0, 1.583, 1.25];
                 const s2B = [0.2, 0.3, 0.4, 0.5, 0.4, 0.3, 0.2, 0.3, 0.4, 0.5, 0.4, 0.3];
                 const s2C = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]; 
+                
+                const s1Trigs = new Array(24).fill(false);
+                s1Trigs[15] = true; // 16 step loop
+                
                 const s2Trigs = new Array(24).fill(false);
                 s2Trigs[4] = true; s2Trigs[10] = true;
 
                 for(let i=0; i<12; i++) {
                     seq1.tracks.A[i] = s1A[i]; seq1.tracks.B[i] = s1B[i]; seq1.tracks.C[i] = s1C[i];
                     seq2.tracks.A[i] = s2A[i]; seq2.tracks.B[i] = s2B[i]; seq2.tracks.C[i] = s2C[i];
-                    seq2.activeTrigs[i] = s2Trigs[i];
+                    seq1.activeTrigs[i] = s1Trigs[i]; seq1.activeTrigs[i+12] = s1Trigs[i+12];
+                    seq2.activeTrigs[i] = s2Trigs[i]; seq2.activeTrigs[i+12] = s2Trigs[i+12];
 
                     let k1A = document.querySelector(`.knob[data-seq="1"][data-ch="A"][data-step="${i}"]`); if(k1A) { k1A.dataset.val = s1A[i]; updateKnobVisual(k1A, s1A[i]); }
                     let k1B = document.querySelector(`.knob[data-seq="1"][data-ch="B"][data-step="${i}"]`); if(k1B) { k1B.dataset.val = s1B[i]; updateKnobVisual(k1B, s1B[i]); }
@@ -1250,15 +1306,7 @@
                     let k2C = document.querySelector(`.knob[data-seq="2"][data-ch="C"][data-step="${i}"]`); if(k2C) { k2C.dataset.val = s2C[i]; updateKnobVisual(k2C, s2C[i]); }
                 }
 
-                // Patch Step 24 Reset on S1 (Index 11 of Row B)
-                seq1.resetStep = 23;
-                document.querySelectorAll('#trigRow1 .patch-point').forEach(el => el.classList.remove('patched', 'patched-red'));
-                const patch11 = document.querySelector('#trigRow1 .patch-point[data-step="11"]');
-                if(patch11) patch11.classList.add('patched-red');
-                const resetStatus = document.getElementById('resetStatus');
-                if(resetStatus) resetStatus.innerText = `TRIG: STEP 24`;
-                
-                renderTrig2Colors();
+                renderTrig1Colors(); renderTrig2Colors();
                 setTimeout(() => { if(startStopBtn) startStopBtn.click(); }, 150);
             });
         }
