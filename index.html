@@ -3,7 +3,7 @@
     SQ-24 DUAL Analog Sequencer (Duophonic 2-Voice Studio)
     Created & Developed by Jose Velazquez MA
     Voltage & Wave (https://voltageandwave.co.uk/)
-    Updated: Independent 12/24 Chaining Per Voice & Scrubbed Event Listeners
+    Updated: Vertical 2-Tier Expander Module Layout (SEM Style)
 -->
 <html lang="en">
 <head>
@@ -194,11 +194,12 @@
 
                     <div class="panel-divider self-stretch"></div>
 
-                    <!-- Voice 1 Controls (SEM Style) -->
-                    <div class="pl-4 flex flex-col justify-center gap-4">
+                    <!-- Voice 1 Controls (SEM Vertical Style) -->
+                    <div class="pl-4 flex flex-col justify-center gap-3 w-[280px]">
                         <div class="text-[10px] font-black text-[#1f1a14] tracking-widest text-center border-b border-[#38342e]/30 pb-1 mb-1">EXPANDER MODULE 1</div>
-                        <div class="flex gap-4">
-                            
+                        
+                        <!-- Top Row: SEQ & VCO -->
+                        <div class="flex gap-3">
                             <fieldset class="sem-fieldset flex-col items-center gap-2">
                                 <legend class="sem-legend">SEQ</legend>
                                 <div class="flex flex-col items-center gap-1 mt-1">
@@ -208,26 +209,28 @@
                                 </div>
                             </fieldset>
 
-                            <fieldset class="sem-fieldset flex-col items-center gap-3">
+                            <fieldset class="sem-fieldset flex-col items-center gap-2 flex-1">
                                 <legend class="sem-legend">VCO 1</legend>
-                                <div class="flex gap-3">
+                                <div class="flex gap-3 items-center justify-center w-full">
                                     <div class="flex flex-col gap-2 justify-center">
                                         <div class="grid grid-cols-2 gap-1 wave-bank" id="waveBtnBank1"><button class="wave-btn wave-active" data-voice="1" data-wave="0"><svg width="12" height="10" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="2.5" class="pointer-events-none"><path d="M4 14 L12 2 V14 L20 2 V14" /></svg></button><button class="wave-btn" data-voice="1" data-wave="1"><svg width="12" height="10" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="2.5" class="pointer-events-none"><path d="M3 14 V4 h8 v10 h8 v-10" /></svg></button></div>
                                         <div class="grid grid-cols-2 gap-1 oct-bank" id="octaveBtnBank1"><button class="oct-btn" data-voice="1" data-oct="0">32'</button><button class="oct-btn oct-active" data-voice="1" data-oct="1">16'</button><button class="oct-btn" data-voice="1" data-oct="2">8'</button><button class="oct-btn" data-voice="1" data-oct="3">4'</button></div>
                                     </div>
-                                    <div class="knob-wrapper mt-1"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v1Tune" data-val="50"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">FREQUENCY</span></div>
+                                    <div class="knob-wrapper mt-1"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v1Tune" data-val="50"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">FREQ</span></div>
                                 </div>
                             </fieldset>
-
-                            <fieldset class="sem-fieldset gap-4 items-end">
-                                <legend class="sem-legend">ENV 1 (VCF / VCA)</legend>
-                                <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v1Atk" data-val="5"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">ATTACK</span></div>
-                                <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v1Dec" data-val="30"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">DECAY</span></div>
-                                <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v1Sus" data-val="20"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">SUSTAIN</span></div>
-                                <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v1Rel" data-val="25"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">RELEASE</span></div>
-                            </fieldset>
                         </div>
+
+                        <!-- Bottom Row: ADSR -->
+                        <fieldset class="sem-fieldset gap-2 justify-between pt-2">
+                            <legend class="sem-legend">ENV 1 (VCF / VCA)</legend>
+                            <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v1Atk" data-val="5"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">ATTACK</span></div>
+                            <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v1Dec" data-val="30"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">DECAY</span></div>
+                            <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v1Sus" data-val="20"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">SUSTAIN</span></div>
+                            <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v1Rel" data-val="25"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">RELEASE</span></div>
+                        </fieldset>
                     </div>
+
                 </div>
             </div>
 
@@ -277,11 +280,11 @@
 
                     <div class="panel-divider self-stretch opacity-30 transition-opacity" id="v2Divider"></div>
 
-                    <!-- Voice 2 Controls (SEM Style) -->
-                    <div class="pl-4 flex flex-col justify-center gap-4 opacity-30 pointer-events-none transition-opacity" id="v2Controls">
+                    <!-- Voice 2 Controls (SEM Vertical Style) -->
+                    <div class="pl-4 flex flex-col justify-center gap-3 w-[280px] opacity-30 pointer-events-none transition-opacity" id="v2Controls">
                         <div class="text-[10px] font-black text-[#1f1a14] tracking-widest text-center border-b border-[#38342e]/30 pb-1 mb-1">EXPANDER MODULE 2</div>
-                        <div class="flex gap-4">
-                            
+                        
+                        <div class="flex gap-3">
                             <fieldset class="sem-fieldset flex-col items-center gap-2">
                                 <legend class="sem-legend">SEQ</legend>
                                 <div class="flex flex-col items-center gap-1 mt-1">
@@ -291,25 +294,25 @@
                                 </div>
                             </fieldset>
 
-                            <fieldset class="sem-fieldset flex-col items-center gap-3">
+                            <fieldset class="sem-fieldset flex-col items-center gap-2 flex-1">
                                 <legend class="sem-legend">VCO 2</legend>
-                                <div class="flex gap-3">
+                                <div class="flex gap-3 items-center justify-center w-full">
                                     <div class="flex flex-col gap-2 justify-center">
                                         <div class="grid grid-cols-2 gap-1 wave-bank" id="waveBtnBank2"><button class="wave-btn" data-voice="2" data-wave="0"><svg width="12" height="10" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="2.5" class="pointer-events-none"><path d="M4 14 L12 2 V14 L20 2 V14" /></svg></button><button class="wave-btn wave-active" data-voice="2" data-wave="1"><svg width="12" height="10" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="2.5" class="pointer-events-none"><path d="M3 14 V4 h8 v10 h8 v-10" /></svg></button></div>
                                         <div class="grid grid-cols-2 gap-1 oct-bank" id="octaveBtnBank2"><button class="oct-btn" data-voice="2" data-oct="0">32'</button><button class="oct-btn oct-active" data-voice="2" data-oct="1">16'</button><button class="oct-btn" data-voice="2" data-oct="2">8'</button><button class="oct-btn" data-voice="2" data-oct="3">4'</button></div>
                                     </div>
-                                    <div class="knob-wrapper mt-1"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v2Tune" data-val="50"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">FREQUENCY</span></div>
+                                    <div class="knob-wrapper mt-1"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v2Tune" data-val="50"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">FREQ</span></div>
                                 </div>
                             </fieldset>
-
-                            <fieldset class="sem-fieldset gap-4 items-end">
-                                <legend class="sem-legend">ENV 2 (VCF / VCA)</legend>
-                                <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v2Atk" data-val="10"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">ATTACK</span></div>
-                                <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v2Dec" data-val="40"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">DECAY</span></div>
-                                <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v2Sus" data-val="40"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">SUSTAIN</span></div>
-                                <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v2Rel" data-val="35"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">RELEASE</span></div>
-                            </fieldset>
                         </div>
+
+                        <fieldset class="sem-fieldset gap-2 justify-between pt-2">
+                            <legend class="sem-legend">ENV 2 (VCF / VCA)</legend>
+                            <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v2Atk" data-val="10"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">ATTACK</span></div>
+                            <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v2Dec" data-val="40"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">DECAY</span></div>
+                            <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v2Sus" data-val="40"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">SUSTAIN</span></div>
+                            <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v2Rel" data-val="35"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">RELEASE</span></div>
+                        </fieldset>
                     </div>
 
                 </div>
@@ -516,7 +519,6 @@
 
         document.getElementById('route1C').addEventListener('change', e => v1State.dest = e.target.value);
 
-        // Safely sandboxed waveform selection
         document.querySelectorAll('.wave-btn').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 await initAudio();
@@ -587,7 +589,6 @@
                     s2_A_val = seq2.tracks.A[uiStep2]; s2_B_val = seq2.tracks.B[uiStep2]; s2_C_val = seq2.tracks.C[uiStep2];
                 }
 
-                // If Seq 2 is in 24 mode, Row B acts as Row A's continuation. So we only apply Row A's route to it.
                 if (seq2.length === 24) {
                     if (seq2Routing.A === 'pitch') modPitch += s2_A_val; if (seq2Routing.A === 'filter') modFilter += s2_A_val; if (seq2Routing.A === 'mod') modDest += s2_A_val;
                     if (seq2Routing.A === 'decay') modDecay += s2_A_val; if (seq2Routing.A === 'porta') modPorta += s2_A_val;
@@ -1068,11 +1069,11 @@
                     voltBtn.classList.remove('volt-toggle-bottom'); voltBtn.classList.add('volt-toggle-top');
                 }
                 
-                const s1LenBtn = document.getElementById('seq1LengthBtn');
+                const s1LenBtn = document.querySelector('.seq-length-btn[data-seq="1"]');
                 if(s1LenBtn) { s1LenBtn.classList.remove('volt-toggle-bottom'); s1LenBtn.classList.add('volt-toggle-top'); }
                 seq1.length = 12; updateLabelsForLength(1, 12);
 
-                const s2LenBtn = document.getElementById('seq2LengthBtn');
+                const s2LenBtn = document.querySelector('.seq-length-btn[data-seq="2"]');
                 if(s2LenBtn) { s2LenBtn.classList.remove('volt-toggle-bottom'); s2LenBtn.classList.add('volt-toggle-top'); }
                 seq2.length = 12; updateLabelsForLength(2, 12);
                 
