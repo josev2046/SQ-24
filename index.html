@@ -3,7 +3,7 @@
     SQ-24 DUAL Analog Sequencer (Duophonic 2-Voice Studio)
     Created & Developed by Jose Velazquez MA
     Voltage & Wave (https://voltageandwave.co.uk/)
-    Updated: Tempo Mathematics Fixed, Env Gate Tightened & Dual Demos
+    Updated: Tempo & Gate Timing Restored (Mojo Fix)
 -->
 <html lang="en">
 <head>
@@ -12,16 +12,18 @@
     <title>SQ-24 Dual Analog Sequencer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0d0f12; color: #1a1e24; font-family: monospace; text-transform: uppercase; padding: 1.25rem; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #0d0f12; color: #1a1e24; font-family: monospace; text-transform: uppercase; padding: 0.5rem; user-select: none; -webkit-tap-highlight-color: transparent; }
+        @media (min-width: 768px) { body { padding: 1.25rem; } }
         
         .synth-enclosure { position: relative; display: flex; align-items: stretch; border-radius: 10px; box-shadow: 0 25px 60px rgba(0,0,0,0.95), 0 0 40px rgba(0,0,0,0.8); }
 
-        .wooden-ear { width: 26px; background: linear-gradient(90deg, #2b150c 0%, #522815 30%, #3a1b0d 70%, #1c0b05 100%); border-top: 2px solid #733c1d; border-bottom: 3px solid #0f0502; box-shadow: inset 0 2px 4px rgba(255,255,255,0.15), inset 0 -2px 6px rgba(0,0,0,0.9); flex-shrink: 0; }
+        .wooden-ear { width: 16px; background: linear-gradient(90deg, #2b150c 0%, #522815 30%, #3a1b0d 70%, #1c0b05 100%); border-top: 2px solid #733c1d; border-bottom: 3px solid #0f0502; box-shadow: inset 0 2px 4px rgba(255,255,255,0.15), inset 0 -2px 6px rgba(0,0,0,0.9); flex-shrink: 0; }
+        @media (min-width: 768px) { .wooden-ear { width: 26px; } }
         .wooden-ear-left { border-top-left-radius: 10px; border-bottom-left-radius: 10px; border-right: 2px solid #111; }
         .wooden-ear-right { border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-left: 2px solid #111; }
 
-        .chassis { background: radial-gradient(circle at 50% 20%, #f0ebd8 0%, #e2dbc8 60%, #cebba8 100%); border-top: 3px solid #f7f4e9; border-bottom: 4px solid #82796e; padding: 24px 28px; flex-grow: 1; position: relative; display: flex; flex-direction: column; align-items: center; box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.8), inset 0 -2px 5px rgba(0,0,0,0.3); }
-        @media (min-width: 768px) { .chassis { padding: 32px 36px; } }
+        .chassis { background: radial-gradient(circle at 50% 20%, #f0ebd8 0%, #e2dbc8 60%, #cebba8 100%); border-top: 3px solid #f7f4e9; border-bottom: 4px solid #82796e; padding: 16px 12px; flex-grow: 1; position: relative; display: flex; flex-direction: column; align-items: center; box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.8), inset 0 -2px 5px rgba(0,0,0,0.3); overflow: hidden; }
+        @media (min-width: 768px) { .chassis { padding: 32px 36px; overflow: visible; } }
 
         .rack-bolt { width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #a39c8e 0%, #3a362f 80%); border: 1px solid #1a1815; box-shadow: inset 0 1px 1px rgba(255,255,255,0.6), 0 2px 4px rgba(0,0,0,0.3); position: absolute; }
         .bolt-tl { top: 12px; left: 12px; } .bolt-tr { top: 12px; right: 12px; } .bolt-bl { bottom: 12px; left: 12px; } .bolt-br { bottom: 12px; right: 12px; }
@@ -48,7 +50,7 @@
         .patch-point.patched-blue { background: radial-gradient(circle, #78caff 20%, #248cdc 60%, #002752 100%); box-shadow: 0 0 14px #248cdc; }
         .patch-point.patched-green { background: radial-gradient(circle, #78ff9e 20%, #24dc4a 60%, #005211 100%); box-shadow: 0 0 14px #24dc4a; }
         
-        .knob-wrapper { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; width: 56px; }
+        .knob-wrapper { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; width: 56px; flex-shrink: 0; }
         .tick-container { position: relative; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; }
         .tick-ring { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; -webkit-mask: radial-gradient(circle, transparent 22px, #000 23px, #000 28px, transparent 28px); mask: radial-gradient(circle, transparent 22px, #000 23px, #000 28px, transparent 28px); background: conic-gradient(from -135deg, #221e1a 0deg 1.5deg, transparent 1.5deg 27deg, #221e1a 27deg 28.5deg, transparent 28.5deg 54deg, #221e1a 54deg 55.5deg, transparent 55.5deg 81deg, #221e1a 81deg 82.5deg, transparent 82.5deg 108deg, #221e1a 108deg 109.5deg, transparent 109.5deg 135deg, #221e1a 135deg 136.5deg, transparent 136.5deg 162deg, #221e1a 162deg 163.5deg, transparent 163.5deg 189deg, #221e1a 189deg 190.5deg, transparent 190.5deg 216deg, #221e1a 216deg 217.5deg, transparent 217.5deg 243deg, #221e1a 243deg 244.5deg, transparent 244.5deg 270deg, #221e1a 270deg 271.5deg, transparent 271.5deg 360deg); }
         .tick-label { position: absolute; font-size: 8px; font-weight: bold; color: #221e1a; line-height: 1; pointer-events: none; }
@@ -72,17 +74,17 @@
         .oct-btn, .dest-btn, .mode-btn, .wave-btn { background: linear-gradient(180deg, #2d3036 0%, #17181c 100%); border: 1.5px solid #000; color: #cebba8; font-weight: 900; font-size: 8px; padding: 4px 6px; border-radius: 3px; box-shadow: 0 2px 0 #000; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .oct-btn.oct-active, .dest-btn.dest-active, .mode-btn.mode-active, .wave-btn.wave-active { background: linear-gradient(180deg, #c83a2a 0%, #801f13 100%); border-color: #ff8878; color: #fff; box-shadow: 0 2px 0 #000, 0 0 10px rgba(200, 58, 42, 0.8); }
 
-        .volt-rocker { width: 26px; height: 44px; border-radius: 4px; background: linear-gradient(180deg, #15171a 0%, #2d3036 100%); border: 2px solid #000; box-shadow: 0 2px 4px rgba(0,0,0,0.4); display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 2px; cursor: pointer; }
+        .volt-rocker { width: 26px; height: 44px; border-radius: 4px; background: linear-gradient(180deg, #15171a 0%, #2d3036 100%); border: 2px solid #000; box-shadow: 0 2px 4px rgba(0,0,0,0.4); display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 2px; cursor: pointer; flex-shrink: 0; }
         .volt-rocker-cap { width: 18px; height: 18px; border-radius: 2px; background: linear-gradient(180deg, #3d424a 0%, #1a1c20 100%); border: 1px solid #000; transition: all 0.1s ease; }
         .volt-toggle-top .volt-rocker-cap { transform: translateY(0px); background: linear-gradient(180deg, #c83a2a 0%, #801f13 100%); }
         .volt-toggle-bottom .volt-rocker-cap { transform: translateY(18px); background: linear-gradient(180deg, #3d424a 0%, #1a1c20 100%); }
 
-        .key-white { background: linear-gradient(180deg, #ffffff 0%, #d8d3c5 100%); color: #111; border: 2px solid #111; border-radius: 0 0 4px 4px; box-shadow: 0 3px 4px rgba(0,0,0,0.25); }
+        .key-white { background: linear-gradient(180deg, #ffffff 0%, #d8d3c5 100%); color: #111; border: 2px solid #111; border-radius: 0 0 4px 4px; box-shadow: 0 3px 4px rgba(0,0,0,0.25); flex-shrink: 0; }
         .key-white.active-key { background: #c83a2a; color: #fff; box-shadow: 0 0 12px #c83a2a; }
         .key-black { background: linear-gradient(180deg, #222 0%, #050505 100%); color: #888; border: 2px solid #000; border-radius: 0 0 3px 3px; z-index: 10; box-shadow: 0 3px 4px rgba(0,0,0,0.5); }
         .key-black.active-key { background: #c83a2a; color: #fff; box-shadow: 0 0 12px #c83a2a; }
 
-        .grid-scroll { scrollbar-width: thin; scrollbar-color: #38342e #cebba8; }
+        .grid-scroll { scrollbar-width: thin; scrollbar-color: #38342e #cebba8; -webkit-overflow-scrolling: touch; }
         .grid-scroll::-webkit-scrollbar { height: 8px; }
         .grid-scroll::-webkit-scrollbar-track { background: #cebba8; border-radius: 4px; }
         .grid-scroll::-webkit-scrollbar-thumb { background: #38342e; border-radius: 4px; }
@@ -90,8 +92,8 @@
         .mod-select { font-family: monospace; font-size: 9px; font-weight: bold; background: transparent; border: 1px solid #38342e; border-radius: 3px; color: #1f1a14; outline: none; padding: 2px; cursor: pointer; text-align: right; }
 
         /* Oberheim SEM Style Dashed Fieldsets */
-        .sem-fieldset { border: 1.5px dashed #5a544a; border-radius: 4px; padding: 0 10px 10px 10px; margin: 0; display: flex; }
-        .sem-legend { font-size: 9px; font-weight: 800; color: #5a544a; padding: 0 6px; text-align: center; letter-spacing: 1px; margin: 0 auto; }
+        .sem-fieldset { border: 1.5px dashed #5a544a; border-radius: 4px; padding: 0 10px 10px 10px; margin: 0; display: flex; width: 100%; }
+        .sem-legend { font-size: 9px; font-weight: 800; color: #5a544a; padding: 0 6px; text-align: center; letter-spacing: 1px; margin: 0 auto; white-space: nowrap; }
     </style>
 </head>
 <body class="min-h-screen flex justify-center items-start">
@@ -102,9 +104,9 @@
             <div class="rack-bolt bolt-tl"></div><div class="rack-bolt bolt-tr"></div><div class="rack-bolt bolt-bl"></div><div class="rack-bolt bolt-br"></div>
             
             <!-- HEADER -->
-            <div class="flex items-center justify-between w-full mb-6 pb-4 border-b-2 border-[#38342e]/30">
-                <div class="flex flex-col gap-1.5">
-                    <div class="flex items-center gap-1.5 select-none">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between w-full mb-6 pb-4 border-b-2 border-[#38342e]/30 gap-4">
+                <div class="flex flex-col gap-1.5 w-full md:w-auto">
+                    <div class="flex items-center gap-1.5 select-none justify-center md:justify-start">
                         <div class="logo-panel-accent w-10 h-11 rounded flex flex-col items-center justify-center relative"><span class="logo-char font-mono font-black text-xl tracking-tighter leading-none">S</span><span class="text-[6px] font-bold text-[#ff9d93]/60 tracking-widest mt-0.5">MOD</span></div>
                         <div class="logo-panel-accent w-10 h-11 rounded flex flex-col items-center justify-between py-1 relative"><span class="logo-char font-mono font-black text-xl tracking-tighter leading-none mt-0.5">Q</span><div class="patch-jack-dot mb-0.5"></div></div>
                         <div class="logo-panel w-10 h-11 rounded flex flex-col items-center justify-center relative ml-1"><span class="logo-char font-mono font-black text-xl tracking-tighter leading-none">2</span><span class="text-[6px] font-bold text-[#82796e] tracking-widest mt-0.5">CH</span></div>
@@ -115,7 +117,7 @@
                     </div>
                 </div>
                 
-                <div class="crt-screen w-[320px] h-[72px] flex items-center justify-between px-4 py-2 flex-shrink-0 ml-4 hidden md:flex">
+                <div class="crt-screen w-full md:w-[320px] h-[72px] flex items-center justify-between px-4 py-2 flex-shrink-0">
                     <div class="flex-shrink-0 flex items-center justify-center"><canvas id="scopeCanvas" width="110" height="50" class="border border-[#111] z-10"></canvas></div>
                     <div class="border-l border-[#0f0]/30 h-[50px] mx-4 z-10"></div>
                     <div class="text-[#0f0] font-mono text-[10px] text-right leading-tight z-10 flex flex-col justify-center h-full flex-1">
@@ -128,8 +130,9 @@
             </div>
 
             <!-- STREAMLINED MASTER CONTROL ROW -->
-            <div class="panel-outline w-full mb-8 py-4 px-8 flex justify-center gap-16 items-center bg-[rgba(0,0,0,0.04)]">
-                <div class="flex items-center gap-6">
+            <div class="panel-outline w-full mb-8 py-4 px-4 lg:px-8 flex flex-col lg:flex-row justify-center gap-6 lg:gap-16 items-center bg-[rgba(0,0,0,0.04)]">
+                <!-- Transport & Clock -->
+                <div class="flex flex-wrap justify-center items-center gap-6">
                     <div class="flex flex-col gap-2 justify-center w-[120px]">
                         <button id="startStop" class="rocker-button text-white px-3 py-2 font-black rounded-sm flex items-center justify-center gap-2 w-full text-sm"><span class="w-2 h-2 rounded-full bg-red-400 opacity-60" id="rockerLed"></span>PLAY</button>
                         <div class="flex gap-1.5 w-full mt-1">
@@ -137,14 +140,15 @@
                             <button id="stepAdv" class="tactile-button py-1.5 flex items-center justify-center rounded-sm flex-1"><svg width="12" height="12" viewBox="0 0 14 14" fill="currentColor"><polygon points="1,1 10,7 1,13" /><rect x="11" y="2" width="2" height="10" /></svg></button>
                         </div>
                     </div>
-                    <div class="panel-divider h-16"></div>
+                    <div class="panel-divider h-16 hidden lg:block"></div>
                     <div class="flex gap-4">
-                        <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="clockSpeed" data-val="40"></div></div><span class="text-[9px] font-bold text-[#1f1a14]">CLOCK SPEED</span></div>
-                        <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="portamento" data-val="0"></div></div><span class="text-[9px] font-bold text-[#1f1a14]">GLIDE TIME</span></div>
+                        <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="clockSpeed" data-val="40"></div></div><span class="text-[9px] font-bold text-[#1f1a14] text-center">CLOCK SPEED</span></div>
+                        <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="portamento" data-val="0"></div></div><span class="text-[9px] font-bold text-[#1f1a14] text-center">GLIDE TIME</span></div>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-6">
+                <!-- Modes & Ranges -->
+                <div class="flex flex-wrap justify-center items-center gap-6">
                     <div class="flex flex-col items-center justify-center h-full">
                         <div class="flex gap-1" id="playModeBank">
                             <button class="mode-btn" data-play="step">STEP</button>
@@ -154,7 +158,7 @@
                         <span class="text-[8px] font-bold text-[#1f1a14] mt-2">PLAYBACK MODE</span>
                     </div>
 
-                    <div class="panel-divider h-16"></div>
+                    <div class="panel-divider h-16 hidden lg:block"></div>
 
                     <div class="flex flex-col items-center gap-1">
                         <span class="text-[7px] font-bold text-[#1f1a14]">&plusmn;5V</span>
@@ -175,32 +179,34 @@
             <!-- SEQUENCER 1 GRID & VOICE 1 -->
             <div class="w-full flex justify-between items-end px-2 mb-1">
                 <span class="text-[#82796e] font-bold text-[11px] tracking-widest" id="seq1Title">SEQ 1 (PRIMARY CV)</span>
-                <div class="flex gap-4 text-[10px] font-bold text-[#1f1a14]">
+                <div class="flex gap-4 text-[10px] font-bold text-[#1f1a14] flex-wrap justify-end">
                     <label>CLOCK: <select id="clk1" class="bg-transparent border border-[#38342e] rounded p-1 outline-none"><option value="int">INTERNAL</option><option value="ext">EXT (FROM S2)</option></select></label>
                     <label>RATE: <select id="rate1" class="bg-transparent border border-[#38342e] rounded p-1 outline-none"><option value="0.25">1/16</option><option value="0.375">3/16</option><option value="0.5">1/8</option></select></label>
                 </div>
             </div>
-            <div class="panel-outline w-full overflow-x-auto grid-scroll mb-6 !py-6 !px-4">
-                <div class="flex flex-nowrap min-w-max mx-auto px-2 items-center">
+            
+            <div class="panel-outline w-full mb-6 !py-6 !px-2 sm:!px-4 transition-all">
+                <div class="flex flex-col lg:flex-row gap-8 mx-auto items-center lg:items-stretch w-full">
                     
-                    <!-- Seq 1 Matrix -->
-                    <div class="flex flex-col gap-5 pr-4">
-                        <div class="flex"><div class="row-label"></div><div class="flex gap-4 flex-1" id="ledRow1"></div></div>
-                        <div class="flex"><div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot1A" class="pilot pilot-active"></div>ROW A</div><span class="text-[9px] font-bold mt-1" id="label1A">PITCH</span></div><div class="flex gap-4 flex-1" id="row1A"></div></div>
-                        <div class="flex"><div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot1B" class="pilot pilot-active"></div>ROW B</div><span class="text-[9px] font-bold mt-1" id="label1B">FILTER</span></div><div class="flex gap-4 flex-1" id="row1B"></div></div>
-                        <div class="flex"><div class="row-label text-[#1f1a14]">ROW C<select id="route1C" class="mod-select mt-1 w-full"><option value="filter">VCF MOD</option><option value="volume">VCA MOD</option></select></div><div class="flex gap-4 flex-1" id="row1C"></div></div>
-                        <div class="flex mt-2"><div class="row-label text-[#1f1a14] text-[10px] items-center justify-end">TRIG<br>OUT</div><div class="flex gap-4 flex-1" id="trigRow1"></div></div>
+                    <!-- Seq 1 Matrix (Scrollable independently on Mobile) -->
+                    <div class="w-full overflow-x-auto grid-scroll pb-4 lg:pb-0 lg:pr-4">
+                        <div class="flex flex-col gap-5 min-w-max">
+                            <div class="flex"><div class="row-label"></div><div class="flex gap-4 flex-1" id="ledRow1"></div></div>
+                            <div class="flex"><div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot1A" class="pilot pilot-active"></div>ROW A</div><span class="text-[9px] font-bold mt-1" id="label1A">PITCH</span></div><div class="flex gap-4 flex-1" id="row1A"></div></div>
+                            <div class="flex"><div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot1B" class="pilot pilot-active"></div>ROW B</div><span class="text-[9px] font-bold mt-1" id="label1B">FILTER</span></div><div class="flex gap-4 flex-1" id="row1B"></div></div>
+                            <div class="flex"><div class="row-label text-[#1f1a14]">ROW C<select id="route1C" class="mod-select mt-1 w-full"><option value="filter">VCF MOD</option><option value="volume">VCA MOD</option></select></div><div class="flex gap-4 flex-1" id="row1C"></div></div>
+                            <div class="flex mt-2"><div class="row-label text-[#1f1a14] text-[10px] items-center justify-end">TRIG<br>OUT</div><div class="flex gap-4 flex-1" id="trigRow1"></div></div>
+                        </div>
                     </div>
 
-                    <div class="panel-divider self-stretch"></div>
+                    <div class="panel-divider hidden lg:block self-stretch"></div>
 
                     <!-- Voice 1 Controls (SEM Vertical Style) -->
-                    <div class="pl-4 flex flex-col justify-center gap-3 w-[280px]">
+                    <div class="lg:pl-4 flex flex-col justify-center gap-3 w-full max-w-[320px] lg:w-[280px] mx-auto flex-shrink-0">
                         <div class="text-[10px] font-black text-[#1f1a14] tracking-widest text-center border-b border-[#38342e]/30 pb-1 mb-1">EXPANDER MODULE 1</div>
                         
-                        <!-- Top Row: SEQ & VCO -->
-                        <div class="flex gap-3">
-                            <fieldset class="sem-fieldset flex-col items-center gap-2">
+                        <div class="flex gap-3 w-full">
+                            <fieldset class="sem-fieldset flex-col items-center gap-2 flex-shrink-0 w-auto">
                                 <legend class="sem-legend">SEQ</legend>
                                 <div class="flex flex-col items-center gap-1 mt-1">
                                     <span class="text-[7px] font-bold text-[#1f1a14]">12</span>
@@ -221,7 +227,6 @@
                             </fieldset>
                         </div>
 
-                        <!-- Bottom Row: ADSR -->
                         <fieldset class="sem-fieldset gap-2 justify-between pt-2">
                             <legend class="sem-legend">ENV 1 (VCF / VCA)</legend>
                             <div class="knob-wrapper"><div class="tick-container"><div class="tick-ring"></div><div class="knob global-knob" id="v1Atk" data-val="5"></div></div><span class="text-[8px] font-bold text-[#1f1a14]">ATTACK</span></div>
@@ -235,9 +240,9 @@
             </div>
 
             <!-- SEQUENCER 2 GRID & VOICE 2 -->
-            <div class="w-full flex justify-between items-end px-2 mb-1 mt-2">
+            <div class="w-full flex justify-between items-end px-2 mb-1 mt-2 flex-wrap gap-2">
                 <span class="text-[#82796e] font-bold text-[11px] tracking-widest transition-all" id="seq2Title">SEQ 2 (MODULAR ASSIGN)</span>
-                <div class="flex gap-4 text-[10px] font-bold text-[#1f1a14]">
+                <div class="flex gap-4 text-[10px] font-bold text-[#1f1a14] flex-wrap justify-end">
                     <label>CLOCK: <select id="clk2" class="bg-transparent border border-[#38342e] rounded p-1 outline-none"><option value="int">INTERNAL</option><option value="ext">EXT (FROM S1)</option></select></label>
                     <label>RATE: <select id="rate2" class="bg-transparent border border-[#38342e] rounded p-1 outline-none"><option value="0.25">1/16</option><option value="0.375">3/16</option><option value="0.5">1/8</option></select></label>
                     <label>TRIG ASSIGN: <select id="trigAssign2" class="bg-transparent border border-[#38342e] rounded p-1 outline-none font-bold text-[#c83a2a]">
@@ -248,44 +253,47 @@
                     </select></label>
                 </div>
             </div>
-            <div class="panel-outline w-full overflow-x-auto grid-scroll mb-6 !py-6 !px-4 transition-all" id="seq2Container">
-                <div class="flex flex-nowrap min-w-max mx-auto px-2 items-center">
+            
+            <div class="panel-outline w-full mb-6 !py-6 !px-2 sm:!px-4 transition-all" id="seq2Container">
+                <div class="flex flex-col lg:flex-row gap-8 mx-auto items-center lg:items-stretch w-full">
                     
-                    <!-- Seq 2 Matrix -->
-                    <div class="flex flex-col gap-5 pr-4">
-                        <div class="flex"><div class="row-label"></div><div class="flex gap-4 flex-1" id="ledRow2"></div></div>
-                        <div class="flex">
-                            <div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot2A" class="pilot pilot-active"></div>ROW A</div>
-                                <select id="route2A" class="mod-select mt-1"><option value="pitch">+ PITCH</option><option value="filter">+ FILTER</option><option value="mod">+ MOD</option><option value="decay">DECAY TIME</option><option value="porta">GLIDE TIME</option></select>
-                                <span class="text-[9px] font-bold mt-1 hidden text-center" id="label2A">V2 PITCH</span>
+                    <!-- Seq 2 Matrix (Scrollable) -->
+                    <div class="w-full overflow-x-auto grid-scroll pb-4 lg:pb-0 lg:pr-4">
+                        <div class="flex flex-col gap-5 min-w-max">
+                            <div class="flex"><div class="row-label"></div><div class="flex gap-4 flex-1" id="ledRow2"></div></div>
+                            <div class="flex">
+                                <div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot2A" class="pilot pilot-active"></div>ROW A</div>
+                                    <select id="route2A" class="mod-select mt-1 w-full"><option value="pitch">+ PITCH</option><option value="filter">+ FILTER</option><option value="mod">+ MOD</option><option value="decay">DECAY TIME</option><option value="porta">GLIDE TIME</option></select>
+                                    <span class="text-[9px] font-bold mt-1 hidden text-center" id="label2A">V2 PITCH</span>
+                                </div>
+                                <div class="flex gap-4 flex-1" id="row2A"></div>
                             </div>
-                            <div class="flex gap-4 flex-1" id="row2A"></div>
-                        </div>
-                        <div class="flex">
-                            <div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot2B" class="pilot pilot-active"></div>ROW B</div>
-                                <select id="route2B" class="mod-select mt-1"><option value="filter">+ FILTER</option><option value="pitch">+ PITCH</option><option value="mod">+ MOD</option><option value="decay">DECAY TIME</option><option value="porta">GLIDE TIME</option></select>
-                                <span class="text-[9px] font-bold mt-1 hidden text-center" id="label2B">V2 FILTER</span>
+                            <div class="flex">
+                                <div class="row-label text-[#1f1a14]"><div class="flex items-center gap-1"><div id="pilot2B" class="pilot pilot-active"></div>ROW B</div>
+                                    <select id="route2B" class="mod-select mt-1 w-full"><option value="filter">+ FILTER</option><option value="pitch">+ PITCH</option><option value="mod">+ MOD</option><option value="decay">DECAY TIME</option><option value="porta">GLIDE TIME</option></select>
+                                    <span class="text-[9px] font-bold mt-1 hidden text-center" id="label2B">V2 FILTER</span>
+                                </div>
+                                <div class="flex gap-4 flex-1" id="row2B"></div>
                             </div>
-                            <div class="flex gap-4 flex-1" id="row2B"></div>
-                        </div>
-                        <div class="flex">
-                            <div class="row-label text-[#1f1a14]">ROW C
-                                <select id="route2C" class="mod-select mt-1"><option value="decay">DECAY TIME</option><option value="pitch">+ PITCH</option><option value="filter">+ FILTER</option><option value="mod">+ MOD</option><option value="porta">GLIDE TIME</option></select>
-                                <span class="text-[9px] font-bold mt-1 hidden text-center" id="label2C">V2 DECAY</span>
+                            <div class="flex">
+                                <div class="row-label text-[#1f1a14]">ROW C
+                                    <select id="route2C" class="mod-select mt-1 w-full"><option value="decay">DECAY TIME</option><option value="pitch">+ PITCH</option><option value="filter">+ FILTER</option><option value="mod">+ MOD</option><option value="porta">GLIDE TIME</option></select>
+                                    <span class="text-[9px] font-bold mt-1 hidden text-center" id="label2C">V2 DECAY</span>
+                                </div>
+                                <div class="flex gap-4 flex-1" id="row2C"></div>
                             </div>
-                            <div class="flex gap-4 flex-1" id="row2C"></div>
+                            <div class="flex mt-2"><div class="row-label text-[#1f1a14] text-[10px] items-center justify-end">TRIG<br>OUT</div><div class="flex gap-4 flex-1" id="trigRow2"></div></div>
                         </div>
-                        <div class="flex mt-2"><div class="row-label text-[#1f1a14] text-[10px] items-center justify-end">TRIG<br>OUT</div><div class="flex gap-4 flex-1" id="trigRow2"></div></div>
                     </div>
 
-                    <div class="panel-divider self-stretch opacity-30 transition-opacity" id="v2Divider"></div>
+                    <div class="panel-divider hidden lg:block self-stretch opacity-30 transition-opacity" id="v2Divider"></div>
 
                     <!-- Voice 2 Controls (SEM Vertical Style) -->
-                    <div class="pl-4 flex flex-col justify-center gap-3 w-[280px] opacity-30 pointer-events-none transition-opacity" id="v2Controls">
+                    <div class="lg:pl-4 flex flex-col justify-center gap-3 w-full max-w-[320px] lg:w-[280px] mx-auto opacity-30 pointer-events-none transition-opacity flex-shrink-0" id="v2Controls">
                         <div class="text-[10px] font-black text-[#1f1a14] tracking-widest text-center border-b border-[#38342e]/30 pb-1 mb-1">EXPANDER MODULE 2</div>
                         
-                        <div class="flex gap-3">
-                            <fieldset class="sem-fieldset flex-col items-center gap-2">
+                        <div class="flex gap-3 w-full">
+                            <fieldset class="sem-fieldset flex-col items-center gap-2 flex-shrink-0 w-auto">
                                 <legend class="sem-legend">SEQ</legend>
                                 <div class="flex flex-col items-center gap-1 mt-1">
                                     <span class="text-[7px] font-bold text-[#1f1a14]">12</span>
@@ -319,17 +327,17 @@
             </div>
             
             <!-- Footer -->
-            <div class="flex flex-wrap items-center justify-between gap-6 w-full pt-4 border-t-2 border-[#38342e]/30">
-                <div class="flex flex-col gap-1">
-                    <span class="text-[10px] font-bold text-[#1f1a14]">KEYBOARD TRANSPOSE / PREVIEW</span>
-                    <div class="flex relative h-16" id="keyboardContainer"></div>
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 w-full pt-4 border-t-2 border-[#38342e]/30">
+                <div class="flex flex-col gap-1 w-full md:w-auto">
+                    <span class="text-[10px] font-bold text-[#1f1a14] mb-1">KEYBOARD TRANSPOSE / PREVIEW</span>
+                    <div class="flex relative h-16 w-full overflow-x-auto grid-scroll pb-2 md:pb-0" id="keyboardContainer"></div>
                 </div>
-                <div class="flex flex-col items-end gap-3">
-                    <div class="flex gap-4">
+                <div class="flex flex-col items-center md:items-end gap-3 w-full md:w-auto">
+                    <div class="flex gap-4 flex-wrap justify-center">
                         <button id="demoPopBtn" class="tactile-button text-[10px] font-bold tracking-widest px-3 py-2 rounded-sm cursor-pointer outline-none hover:text-[#c83a2a] hover:border-[#c83a2a]">DEMO: TECHNOPOP</button>
                         <button id="demoMoroderBtn" class="tactile-button text-[10px] font-bold tracking-widest px-3 py-2 rounded-sm cursor-pointer outline-none hover:text-[#c83a2a] hover:border-[#c83a2a]">DEMO: MORODER</button>
                     </div>
-                    <div class="text-[9px] text-[#38342e] font-mono font-bold tracking-widest text-right mt-1">
+                    <div class="text-[9px] text-[#38342e] font-mono font-bold tracking-widest text-center md:text-right mt-1">
                         &copy; JOSE VELAZQUEZ MA / <a href="https://voltageandwave.co.uk/" target="_blank" rel="noopener noreferrer" class="hover:text-[#c83a2a] underline transition-colors">VOLTAGE &amp; WAVE</a>
                     </div>
                 </div>
@@ -662,7 +670,7 @@
             const t1_atk = t0 + Math.max(0.005, vState.atk);
             const t2_dec = t1_atk + dynDecay;
             
-            // Adjusted Gate Time Calculation (70% Gate for more Mojo)
+            // Adjusted Gate Time Calculation (70% Gate for more Mojo - no x4 multiplier)
             const stepDuration = (60.0 / bpm) * stepRate;
             const stepGateTime = Math.max(0.02, stepDuration * 0.7); 
             
@@ -1050,7 +1058,7 @@
                 if (isActive2) {
                     el.classList.add('patched-red');
                 } else if (isActive1) {
-                    if (seq2.trigAssign === 'reset2') el.classList.add('patched-yellow');
+                    if (seq2.trigAssign === 'reset2') el.classList.add('patched-red');
                     else if (seq2.trigAssign === 'accent') el.classList.add('patched-yellow');
                     else if (seq2.trigAssign === 'glide') el.classList.add('patched-blue');
                     else if (seq2.trigAssign === 'clock1') el.classList.add('patched-green');
@@ -1264,7 +1272,7 @@
                 const trigRow = document.getElementById(`trigRow${sId}`); if(trigRow) trigRow.innerHTML = '';
                 
                 for(let i=0; i<NUM_STEPS; i++) {
-                    if(ledRow) ledRow.innerHTML += `<div class="w-[56px] flex justify-center step-indicator" data-step="${i}"><div class="led"></div></div>`;
+                    if(ledRow) ledRow.innerHTML += `<div class="w-[56px] flex justify-center step-indicator flex-shrink-0" data-step="${i}"><div class="led"></div></div>`;
                     ['A', 'B', 'C'].forEach(ch => {
                         const defaultVal = 0;
                         const labels = (ch === 'A' || ch === 'B') ? `<span class="tick-label label-left">-5</span><span class="tick-label label-top">0</span><span class="tick-label label-right">+5</span>` : `<span class="tick-label label-left">0</span><span class="tick-label label-right">+5</span>`;
@@ -1273,7 +1281,7 @@
                     });
                     const pp = document.createElement('div'); pp.className = 'patch-point'; pp.dataset.step = i; 
                     if (sId === 1) pp.addEventListener('click', handlePatch1Click); else pp.addEventListener('click', handlePatch2Click);
-                    const pc = document.createElement('div'); pc.className = 'w-[56px] flex justify-center'; pc.appendChild(pp); 
+                    const pc = document.createElement('div'); pc.className = 'w-[56px] flex justify-center flex-shrink-0'; pc.appendChild(pp); 
                     if(trigRow) trigRow.appendChild(pc);
                 }
             });
@@ -1299,8 +1307,8 @@
             let whiteIndex = 0;
             keys.forEach(k => {
                 const btn = document.createElement('button'); btn.dataset.offset = k.offset;
-                if (k.isBlack) { btn.className = `key-black absolute w-5 h-10 text-[8px] font-bold flex items-end justify-center pb-1 ${k.offset === transposeSemitones ? 'active-key' : ''}`; btn.style.left = `${(whiteIndex * 24) - 10}px`; } 
-                else { btn.className = `key-white w-6 h-16 text-[9px] font-bold flex items-end justify-center pb-1 ${k.offset === transposeSemitones ? 'active-key' : ''}`; whiteIndex++; }
+                if (k.isBlack) { btn.className = `key-black absolute w-5 h-10 text-[8px] font-bold flex items-end justify-center pb-1 flex-shrink-0 ${k.offset === transposeSemitones ? 'active-key' : ''}`; btn.style.left = `${(whiteIndex * 24) - 10}px`; } 
+                else { btn.className = `key-white w-6 h-16 text-[9px] font-bold flex items-end justify-center pb-1 flex-shrink-0 ${k.offset === transposeSemitones ? 'active-key' : ''}`; whiteIndex++; }
                 btn.innerText = k.note;
                 btn.addEventListener('pointerdown', async (e) => {
                     await initAudio(); transposeSemitones = parseInt(e.target.dataset.offset);
