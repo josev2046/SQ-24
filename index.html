@@ -3,7 +3,7 @@
     SQ-24 DUAL Analog Sequencer (Duophonic 2-Voice Studio)
     Created & Developed by Jose Velazquez MA
     Voltage & Wave (https://voltageandwave.co.uk/)
-    Updated: Vertical 2-Tier Expander Module Layout (SEM Style)
+    Updated: Tempo Mathematics Fixed, Env Gate Tightened & Dual Demos
 -->
 <html lang="en">
 <head>
@@ -326,7 +326,8 @@
                 </div>
                 <div class="flex flex-col items-end gap-3">
                     <div class="flex gap-4">
-                        <button id="demoBtn" class="tactile-button text-[10px] font-bold tracking-widest px-3 py-2 rounded-sm cursor-pointer outline-none hover:text-white hover:border-[#c83a2a]">DEMO: DUOPHONIC</button>
+                        <button id="demoPopBtn" class="tactile-button text-[10px] font-bold tracking-widest px-3 py-2 rounded-sm cursor-pointer outline-none hover:text-[#c83a2a] hover:border-[#c83a2a]">DEMO: TECHNOPOP</button>
+                        <button id="demoMoroderBtn" class="tactile-button text-[10px] font-bold tracking-widest px-3 py-2 rounded-sm cursor-pointer outline-none hover:text-[#c83a2a] hover:border-[#c83a2a]">DEMO: MORODER</button>
                     </div>
                     <div class="text-[9px] text-[#38342e] font-mono font-bold tracking-widest text-right mt-1">
                         &copy; JOSE VELAZQUEZ MA / <a href="https://voltageandwave.co.uk/" target="_blank" rel="noopener noreferrer" class="hover:text-[#c83a2a] underline transition-colors">VOLTAGE &amp; WAVE</a>
@@ -362,11 +363,11 @@
                 audioCtx = new AudioCtxClass();
                 
                 synthOsc1 = audioCtx.createOscillator(); synthVcf1 = audioCtx.createBiquadFilter(); synthVca1 = audioCtx.createGain(); 
-                synthOsc1.type = v1State.wave; synthVcf1.type = 'lowpass'; synthVcf1.Q.value = 12; synthVca1.gain.value = 0.0001; 
+                synthOsc1.type = v1State.wave; synthVcf1.type = 'lowpass'; synthVcf1.Q.value = 4; synthVca1.gain.value = 0.0001; 
                 synthOsc1.connect(synthVcf1); synthVcf1.connect(synthVca1);
                 
                 synthOsc2 = audioCtx.createOscillator(); synthVcf2 = audioCtx.createBiquadFilter(); synthVca2 = audioCtx.createGain(); 
-                synthOsc2.type = v2State.wave; synthVcf2.type = 'lowpass'; synthVcf2.Q.value = 12; synthVca2.gain.value = 0.0001; 
+                synthOsc2.type = v2State.wave; synthVcf2.type = 'lowpass'; synthVcf2.Q.value = 4; synthVca2.gain.value = 0.0001; 
                 synthOsc2.connect(synthVcf2); synthVcf2.connect(synthVca2);
 
                 analyser = audioCtx.createAnalyser(); analyser.fftSize = 256;
@@ -614,8 +615,8 @@
             osc.frequency.setTargetAtTime(freq, time, dynPorta);
 
             let baseCutoff = 400 + (filterVal * 2000); 
-            let peakVolume = 0.8;
-            if (isAccent) { baseCutoff += 3000; peakVolume = 1.0; }
+            let peakVolume = 0.5; // Lower peak volume for duophonic headroom
+            if (isAccent) { baseCutoff += 3000; peakVolume = 0.7; }
             
             const normalizedC = Math.max(0, Math.min(1, modVal / 5)); 
             if (vState.dest === 'filter' || !vState.dest) baseCutoff = 100 + (normalizedC * 3000);
@@ -649,8 +650,8 @@
             osc.frequency.setTargetAtTime(freq, time, dynPorta);
 
             let baseCutoff = 400 + (filterVal * 2000); 
-            let peakVolume = 0.8;
-            if (isAccent) { baseCutoff += 3000; peakVolume = 1.0; }
+            let peakVolume = 0.5; // Lower peak volume for duophonic headroom
+            if (isAccent) { baseCutoff += 3000; peakVolume = 0.7; }
             
             const normalizedC = Math.max(0, Math.min(1, modVal / 5)); 
             if (vState.dest === 'filter' || !vState.dest) baseCutoff = 100 + (normalizedC * 3000);
@@ -660,7 +661,11 @@
             const t0 = time;
             const t1_atk = t0 + Math.max(0.005, vState.atk);
             const t2_dec = t1_atk + dynDecay;
-            const stepGateTime = Math.max(0.05, (60.0 / bpm) * stepRate * 4);
+            
+            // Adjusted Gate Time Calculation (70% Gate for more Mojo)
+            const stepDuration = (60.0 / bpm) * stepRate;
+            const stepGateTime = Math.max(0.02, stepDuration * 0.7); 
+            
             const t3_gateOff = Math.max(t2_dec + 0.005, t0 + stepGateTime); 
             const t4_rel = t3_gateOff + Math.max(0.005, vState.rel);
 
@@ -926,10 +931,10 @@
             let advanceS1 = false; let advanceS2 = false;
 
             if (seq1.clock === 'int' && seq1.nextTime < audioCtx.currentTime + 0.1) {
-                advanceS1 = true; seq1.nextTime += secondsPerBeat * seq1.rate * 4;
+                advanceS1 = true; seq1.nextTime += secondsPerBeat * seq1.rate;
             }
             if (seq2.clock === 'int' && seq2.nextTime < audioCtx.currentTime + 0.1) {
-                advanceS2 = true; seq2.nextTime += secondsPerBeat * seq2.rate * 4;
+                advanceS2 = true; seq2.nextTime += secondsPerBeat * seq2.rate;
             }
 
             let s1TriggerHit = false;
@@ -994,22 +999,28 @@
             const step = parseInt(e.target.dataset.step);
             const resetStatus = document.getElementById('resetStatus');
             
-            if (seq1.resetStep === step) {
-                if (seq1.length === 24) {
+            if (seq1.length === 24) {
+                if (seq1.resetStep === step) {
                     seq1.resetStep = step + 12;
                     e.target.classList.remove('patched'); e.target.classList.add('patched-red'); 
                     if(resetStatus) resetStatus.innerText = `TRIG: STEP ${seq1.resetStep + 1}`;
-                } else {
-                    seq1.resetStep = null; e.target.classList.remove('patched', 'patched-red');
+                } else if (seq1.resetStep === step + 12) {
+                    seq1.resetStep = null; e.target.classList.remove('patched-red');
                     if(resetStatus) resetStatus.innerText = "PATCH: NONE";
+                } else {
+                    document.querySelectorAll('#trigRow1 .patch-point').forEach(el => el.classList.remove('patched', 'patched-red'));
+                    seq1.resetStep = step; e.target.classList.add('patched');
+                    if(resetStatus) resetStatus.innerText = `TRIG: STEP ${step + 1}`;
                 }
-            } else if (seq1.resetStep === step + 12) {
-                seq1.resetStep = null; e.target.classList.remove('patched-red');
-                if(resetStatus) resetStatus.innerText = "PATCH: NONE";
             } else {
-                document.querySelectorAll('#trigRow1 .patch-point').forEach(el => el.classList.remove('patched', 'patched-red'));
-                seq1.resetStep = step; e.target.classList.add('patched');
-                if(resetStatus) resetStatus.innerText = `TRIG: STEP ${step + 1}`;
+                if (seq1.resetStep === step) {
+                    seq1.resetStep = null; e.target.classList.remove('patched');
+                    if(resetStatus) resetStatus.innerText = "PATCH: NONE";
+                } else {
+                    document.querySelectorAll('#trigRow1 .patch-point').forEach(el => el.classList.remove('patched'));
+                    seq1.resetStep = step; e.target.classList.add('patched');
+                    if(resetStatus) resetStatus.innerText = `TRIG: STEP ${step + 1}`;
+                }
             }
         }
 
@@ -1047,28 +1058,33 @@
             });
         }
 
-        const demoBtn = document.getElementById('demoBtn');
-        if(demoBtn) {
-            demoBtn.addEventListener('click', async () => {
-                await initAudio();
+        function resetDemoState() {
+            if(isPlaying) {
+                isPlaying = false; clearTimeout(timerId); stopPreview();
+                if(startStopBtn) startStopBtn.classList.remove('is-active'); 
                 const rockerLed = document.getElementById('rockerLed');
-                if(isPlaying) {
-                    isPlaying = false; clearTimeout(timerId); stopPreview();
-                    if(startStopBtn) startStopBtn.classList.remove('is-active'); 
-                    if(rockerLed) rockerLed.classList.replace('bg-red-200', 'bg-red-400');
-                }
+                if(rockerLed) rockerLed.classList.replace('bg-red-200', 'bg-red-400');
+            }
 
-                voiceMode = 'duo';
-                const vModeBtn = document.getElementById('voiceModeBtn');
-                if (vModeBtn) vModeBtn.classList.replace('volt-toggle-top', 'volt-toggle-bottom');
-                updateVoiceModeUI();
+            voiceMode = 'duo';
+            const vModeBtn = document.getElementById('voiceModeBtn');
+            if (vModeBtn) { vModeBtn.classList.remove('volt-toggle-top'); vModeBtn.classList.add('volt-toggle-bottom'); }
+            updateVoiceModeUI();
 
-                voltageRangeMultiplier = 1; 
-                const voltBtn = document.getElementById('voltRockerBtn');
-                if(voltBtn) {
-                    voltBtn.classList.remove('volt-toggle-bottom'); voltBtn.classList.add('volt-toggle-top');
-                }
+            voltageRangeMultiplier = 1; 
+            const voltBtn = document.getElementById('voltRockerBtn');
+            if(voltBtn) { voltBtn.classList.remove('volt-toggle-bottom'); voltBtn.classList.add('volt-toggle-top'); }
+            
+            playMode = 'cont';
+            document.querySelectorAll('#playModeBank .mode-btn').forEach(b => b.classList.toggle('mode-active', b.dataset.play === playMode));
+        }
+
+        const demoPopBtn = document.getElementById('demoPopBtn');
+        if(demoPopBtn) {
+            demoPopBtn.addEventListener('click', async () => {
+                await initAudio(); resetDemoState();
                 
+                // 12-Step Chaining
                 const s1LenBtn = document.querySelector('.seq-length-btn[data-seq="1"]');
                 if(s1LenBtn) { s1LenBtn.classList.remove('volt-toggle-bottom'); s1LenBtn.classList.add('volt-toggle-top'); }
                 seq1.length = 12; updateLabelsForLength(1, 12);
@@ -1076,14 +1092,12 @@
                 const s2LenBtn = document.querySelector('.seq-length-btn[data-seq="2"]');
                 if(s2LenBtn) { s2LenBtn.classList.remove('volt-toggle-bottom'); s2LenBtn.classList.add('volt-toggle-top'); }
                 seq2.length = 12; updateLabelsForLength(2, 12);
-                
-                playMode = 'cont';
-                document.querySelectorAll('#playModeBank .mode-btn').forEach(b => b.classList.toggle('mode-active', b.dataset.play === playMode));
 
-                bpm = 110; updateKnobVisual(document.getElementById('clockSpeed'), 30); const speedKnob = document.getElementById('clockSpeed'); if(speedKnob) speedKnob.dataset.val = 30;
+                // 120 BPM
+                bpm = 120; updateKnobVisual(document.getElementById('clockSpeed'), 40); const speedKnob = document.getElementById('clockSpeed'); if(speedKnob) speedKnob.dataset.val = 40;
                 portamentoTime = 0.01; updateKnobVisual(document.getElementById('portamento'), 0); const portaKnob = document.getElementById('portamento'); if(portaKnob) portaKnob.dataset.val = 0;
 
-                // Voice 1 
+                // Voice 1 (Bassline) 
                 v1State.atk = 0.01; updateKnobVisual(document.getElementById('v1Atk'), 2); const v1Atk = document.getElementById('v1Atk'); if(v1Atk) v1Atk.dataset.val = 2;
                 v1State.dec = 0.15; updateKnobVisual(document.getElementById('v1Dec'), 20); const v1Dec = document.getElementById('v1Dec'); if(v1Dec) v1Dec.dataset.val = 20;
                 v1State.sus = 0.1; updateKnobVisual(document.getElementById('v1Sus'), 10); const v1Sus = document.getElementById('v1Sus'); if(v1Sus) v1Sus.dataset.val = 10;
@@ -1093,33 +1107,41 @@
                 document.querySelectorAll('#waveBtnBank1 .wave-btn').forEach(b => b.classList.remove('wave-active'));
                 const w1Btn = document.querySelector('#waveBtnBank1 .wave-btn[data-wave="0"]'); if(w1Btn) w1Btn.classList.add('wave-active'); 
                 v1State.wave = 'sawtooth'; if(synthOsc1) synthOsc1.type = 'sawtooth';
+                
+                document.querySelectorAll('#octaveBtnBank1 .oct-btn').forEach(b => b.classList.remove('oct-active'));
+                const oct1Btn = document.querySelector('#octaveBtnBank1 .oct-btn[data-oct="1"]'); if(oct1Btn) oct1Btn.classList.add('oct-active'); v1State.oct = 0;
 
-                // Voice 2 
-                v2State.atk = 0.2; updateKnobVisual(document.getElementById('v2Atk'), 40); const v2Atk = document.getElementById('v2Atk'); if(v2Atk) v2Atk.dataset.val = 40;
-                v2State.dec = 0.5; updateKnobVisual(document.getElementById('v2Dec'), 60); const v2Dec = document.getElementById('v2Dec'); if(v2Dec) v2Dec.dataset.val = 60;
-                v2State.sus = 0.4; updateKnobVisual(document.getElementById('v2Sus'), 40); const v2Sus = document.getElementById('v2Sus'); if(v2Sus) v2Sus.dataset.val = 40;
-                v2State.rel = 0.3; updateKnobVisual(document.getElementById('v2Rel'), 35); const v2Rel = document.getElementById('v2Rel'); if(v2Rel) v2Rel.dataset.val = 35;
+                // Voice 2 (Arp)
+                v2State.atk = 0.01; updateKnobVisual(document.getElementById('v2Atk'), 2); const v2Atk = document.getElementById('v2Atk'); if(v2Atk) v2Atk.dataset.val = 2;
+                v2State.dec = 0.2; updateKnobVisual(document.getElementById('v2Dec'), 25); const v2Dec = document.getElementById('v2Dec'); if(v2Dec) v2Dec.dataset.val = 25;
+                v2State.sus = 0.1; updateKnobVisual(document.getElementById('v2Sus'), 10); const v2Sus = document.getElementById('v2Sus'); if(v2Sus) v2Sus.dataset.val = 10;
+                v2State.rel = 0.2; updateKnobVisual(document.getElementById('v2Rel'), 25); const v2Rel = document.getElementById('v2Rel'); if(v2Rel) v2Rel.dataset.val = 25;
                 v2State.tune = 0; updateKnobVisual(document.getElementById('v2Tune'), 50); const v2Tune = document.getElementById('v2Tune'); if(v2Tune) v2Tune.dataset.val = 50;
 
                 document.querySelectorAll('#waveBtnBank2 .wave-btn').forEach(b => b.classList.remove('wave-active'));
                 const w2Btn = document.querySelector('#waveBtnBank2 .wave-btn[data-wave="1"]'); if(w2Btn) w2Btn.classList.add('wave-active'); 
                 v2State.wave = 'square'; if(synthOsc2) synthOsc2.type = 'square';
+                
+                document.querySelectorAll('#octaveBtnBank2 .oct-btn').forEach(b => b.classList.remove('oct-active'));
+                const oct2Btn = document.querySelector('#octaveBtnBank2 .oct-btn[data-oct="2"]'); if(oct2Btn) oct2Btn.classList.add('oct-active'); v2State.oct = 12;
 
                 const clk1 = document.getElementById('clk1'); if(clk1) clk1.value = 'int'; seq1.clock = 'int';
                 const rate1 = document.getElementById('rate1'); if(rate1) rate1.value = '0.25'; seq1.rate = 0.25;
-                const clk2 = document.getElementById('clk2'); if(clk2) clk2.value = 'ext'; seq2.clock = 'ext';
-                const rate2 = document.getElementById('rate2'); if(rate2) rate2.value = '0.25'; seq2.rate = 0.25;
-                const trig2 = document.getElementById('trigAssign2'); if(trig2) trig2.value = 'reset2'; seq2.trigAssign = 'reset2';
+                
+                // Seq 2 Polyrhythm Sync
+                const clk2 = document.getElementById('clk2'); if(clk2) clk2.value = 'int'; seq2.clock = 'int';
+                const rate2 = document.getElementById('rate2'); if(rate2) rate2.value = '0.375'; seq2.rate = 0.375;
+                const trig2 = document.getElementById('trigAssign2'); if(trig2) trig2.value = 'accent'; seq2.trigAssign = 'accent';
 
-                const s1A = [0.0, 0.0, 0.0, 0.25, 0.0, 0.0, 0.0, -0.166, 0.0, 0.0, 0.0, 0.166];
-                const s1B = [0.5, 0.2, 0.1, 0.3, 0.5, 0.2, 0.1, 0.4, 0.5, 0.2, 0.1, 0.3];
+                const s1A = [0.0, 1.0, 0.0, 0.25, 0.0, 1.0, 0.0, 0.416, 0.0, 1.0, 0.0, 0.25];
+                const s1B = [0.5, 0.0, 0.2, 0.0, 0.6, 0.0, 0.3, 0.0, 0.5, 0.0, 0.2, 0.0];
                 const s1C = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
                 
-                const s2A = [1.0, 1.25, 1.583, 1.25, 1.0, 0.833, 0.5, 0.833, 1.0, 0.0, 0.0, 0.0];
-                const s2B = [0.2, 0.3, 0.4, 0.5, 0.4, 0.3, 0.2, 0.3, 0.4, 0.0, 0.0, 0.0];
-                const s2C = [2.0, 2.5, 3.0, 2.5, 2.0, 1.5, 1.0, 1.5, 2.0, 0.0, 0.0, 0.0]; 
+                const s2A = [1.0, 1.25, 1.583, 2.0, 1.583, 1.25, 1.0, 1.25, 1.583, 2.0, 1.583, 1.25];
+                const s2B = [0.2, 0.3, 0.4, 0.5, 0.4, 0.3, 0.2, 0.3, 0.4, 0.5, 0.4, 0.3];
+                const s2C = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]; 
                 const s2Trigs = new Array(24).fill(false);
-                s2Trigs[8] = true;
+                s2Trigs[3] = true; s2Trigs[9] = true;
 
                 for(let i=0; i<12; i++) {
                     seq1.tracks.A[i] = s1A[i]; seq1.tracks.B[i] = s1B[i]; seq1.tracks.C[i] = s1C[i];
@@ -1137,9 +1159,96 @@
 
                 seq1.resetStep = null;
                 document.querySelectorAll('#trigRow1 .patch-point').forEach(el => el.classList.remove('patched', 'patched-red'));
-                seq1.resetStep = 11;
+                renderTrig2Colors();
+                setTimeout(() => { if(startStopBtn) startStopBtn.click(); }, 150);
+            });
+        }
+
+        const demoMoroderBtn = document.getElementById('demoMoroderBtn');
+        if(demoMoroderBtn) {
+            demoMoroderBtn.addEventListener('click', async () => {
+                await initAudio(); resetDemoState();
+                
+                // 24-Step Chaining for Seq 1
+                const s1LenBtn = document.querySelector('.seq-length-btn[data-seq="1"]');
+                if(s1LenBtn) { s1LenBtn.classList.remove('volt-toggle-top'); s1LenBtn.classList.add('volt-toggle-bottom'); }
+                seq1.length = 24; updateLabelsForLength(1, 24);
+
+                const s2LenBtn = document.querySelector('.seq-length-btn[data-seq="2"]');
+                if(s2LenBtn) { s2LenBtn.classList.remove('volt-toggle-bottom'); s2LenBtn.classList.add('volt-toggle-top'); }
+                seq2.length = 12; updateLabelsForLength(2, 12);
+
+                // 130 BPM
+                bpm = 130; updateKnobVisual(document.getElementById('clockSpeed'), 45); const speedKnob = document.getElementById('clockSpeed'); if(speedKnob) speedKnob.dataset.val = 45;
+                portamentoTime = 0.01; updateKnobVisual(document.getElementById('portamento'), 0); const portaKnob = document.getElementById('portamento'); if(portaKnob) portaKnob.dataset.val = 0;
+
+                // Voice 1 (Bassline) 
+                v1State.atk = 0.01; updateKnobVisual(document.getElementById('v1Atk'), 2); const v1Atk = document.getElementById('v1Atk'); if(v1Atk) v1Atk.dataset.val = 2;
+                v1State.dec = 0.12; updateKnobVisual(document.getElementById('v1Dec'), 15); const v1Dec = document.getElementById('v1Dec'); if(v1Dec) v1Dec.dataset.val = 15;
+                v1State.sus = 0.05; updateKnobVisual(document.getElementById('v1Sus'), 5); const v1Sus = document.getElementById('v1Sus'); if(v1Sus) v1Sus.dataset.val = 5;
+                v1State.rel = 0.1; updateKnobVisual(document.getElementById('v1Rel'), 15); const v1Rel = document.getElementById('v1Rel'); if(v1Rel) v1Rel.dataset.val = 15;
+                v1State.tune = 0; updateKnobVisual(document.getElementById('v1Tune'), 50); const v1Tune = document.getElementById('v1Tune'); if(v1Tune) v1Tune.dataset.val = 50;
+                
+                document.querySelectorAll('#waveBtnBank1 .wave-btn').forEach(b => b.classList.remove('wave-active'));
+                const w1Btn = document.querySelector('#waveBtnBank1 .wave-btn[data-wave="0"]'); if(w1Btn) w1Btn.classList.add('wave-active'); 
+                v1State.wave = 'sawtooth'; if(synthOsc1) synthOsc1.type = 'sawtooth';
+                
+                document.querySelectorAll('#octaveBtnBank1 .oct-btn').forEach(b => b.classList.remove('oct-active'));
+                const oct1Btn = document.querySelector('#octaveBtnBank1 .oct-btn[data-oct="0"]'); if(oct1Btn) oct1Btn.classList.add('oct-active'); v1State.oct = -12;
+
+                // Voice 2 (Arp)
+                v2State.atk = 0.01; updateKnobVisual(document.getElementById('v2Atk'), 2); const v2Atk = document.getElementById('v2Atk'); if(v2Atk) v2Atk.dataset.val = 2;
+                v2State.dec = 0.15; updateKnobVisual(document.getElementById('v2Dec'), 20); const v2Dec = document.getElementById('v2Dec'); if(v2Dec) v2Dec.dataset.val = 20;
+                v2State.sus = 0.05; updateKnobVisual(document.getElementById('v2Sus'), 5); const v2Sus = document.getElementById('v2Sus'); if(v2Sus) v2Sus.dataset.val = 5;
+                v2State.rel = 0.1; updateKnobVisual(document.getElementById('v2Rel'), 15); const v2Rel = document.getElementById('v2Rel'); if(v2Rel) v2Rel.dataset.val = 15;
+                v2State.tune = 0; updateKnobVisual(document.getElementById('v2Tune'), 50); const v2Tune = document.getElementById('v2Tune'); if(v2Tune) v2Tune.dataset.val = 50;
+
+                document.querySelectorAll('#waveBtnBank2 .wave-btn').forEach(b => b.classList.remove('wave-active'));
+                const w2Btn = document.querySelector('#waveBtnBank2 .wave-btn[data-wave="1"]'); if(w2Btn) w2Btn.classList.add('wave-active'); 
+                v2State.wave = 'square'; if(synthOsc2) synthOsc2.type = 'square';
+                
+                document.querySelectorAll('#octaveBtnBank2 .oct-btn').forEach(b => b.classList.remove('oct-active'));
+                const oct2Btn = document.querySelector('#octaveBtnBank2 .oct-btn[data-oct="1"]'); if(oct2Btn) oct2Btn.classList.add('oct-active'); v2State.oct = 0;
+
+                const clk1 = document.getElementById('clk1'); if(clk1) clk1.value = 'int'; seq1.clock = 'int';
+                const rate1 = document.getElementById('rate1'); if(rate1) rate1.value = '0.25'; seq1.rate = 0.25;
+                
+                const clk2 = document.getElementById('clk2'); if(clk2) clk2.value = 'int'; seq2.clock = 'int';
+                const rate2 = document.getElementById('rate2'); if(rate2) rate2.value = '0.25'; seq2.rate = 0.25;
+                const trig2 = document.getElementById('trigAssign2'); if(trig2) trig2.value = 'glide'; seq2.trigAssign = 'glide';
+
+                // 24-step Driving Bass (C, Eb, Bb, F)
+                const s1A = [0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.25, 1.25, 0.25, 0.25, 0.25, 1.25];
+                const s1B = [-0.166, 0.833, -0.166, -0.166, -0.166, 0.833, 0.416, 1.416, 0.416, 0.416, 0.416, 1.416];
+                const s1C = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+                
+                const s2A = [1.0, 1.25, 1.583, 2.0, 1.583, 1.25, 1.0, 1.25, 1.583, 2.0, 1.583, 1.25];
+                const s2B = [0.2, 0.3, 0.4, 0.5, 0.4, 0.3, 0.2, 0.3, 0.4, 0.5, 0.4, 0.3];
+                const s2C = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]; 
+                const s2Trigs = new Array(24).fill(false);
+                s2Trigs[4] = true; s2Trigs[10] = true;
+
+                for(let i=0; i<12; i++) {
+                    seq1.tracks.A[i] = s1A[i]; seq1.tracks.B[i] = s1B[i]; seq1.tracks.C[i] = s1C[i];
+                    seq2.tracks.A[i] = s2A[i]; seq2.tracks.B[i] = s2B[i]; seq2.tracks.C[i] = s2C[i];
+                    seq2.activeTrigs[i] = s2Trigs[i];
+
+                    let k1A = document.querySelector(`.knob[data-seq="1"][data-ch="A"][data-step="${i}"]`); if(k1A) { k1A.dataset.val = s1A[i]; updateKnobVisual(k1A, s1A[i]); }
+                    let k1B = document.querySelector(`.knob[data-seq="1"][data-ch="B"][data-step="${i}"]`); if(k1B) { k1B.dataset.val = s1B[i]; updateKnobVisual(k1B, s1B[i]); }
+                    let k1C = document.querySelector(`.knob[data-seq="1"][data-ch="C"][data-step="${i}"]`); if(k1C) { k1C.dataset.val = s1C[i]; updateKnobVisual(k1C, s1C[i]); }
+                    
+                    let k2A = document.querySelector(`.knob[data-seq="2"][data-ch="A"][data-step="${i}"]`); if(k2A) { k2A.dataset.val = s2A[i]; updateKnobVisual(k2A, s2A[i]); }
+                    let k2B = document.querySelector(`.knob[data-seq="2"][data-ch="B"][data-step="${i}"]`); if(k2B) { k2B.dataset.val = s2B[i]; updateKnobVisual(k2B, s2B[i]); }
+                    let k2C = document.querySelector(`.knob[data-seq="2"][data-ch="C"][data-step="${i}"]`); if(k2C) { k2C.dataset.val = s2C[i]; updateKnobVisual(k2C, s2C[i]); }
+                }
+
+                // Patch Step 24 Reset on S1 (Index 11 of Row B)
+                seq1.resetStep = 23;
+                document.querySelectorAll('#trigRow1 .patch-point').forEach(el => el.classList.remove('patched', 'patched-red'));
                 const patch11 = document.querySelector('#trigRow1 .patch-point[data-step="11"]');
-                if(patch11) patch11.classList.add('patched');
+                if(patch11) patch11.classList.add('patched-red');
+                const resetStatus = document.getElementById('resetStatus');
+                if(resetStatus) resetStatus.innerText = `TRIG: STEP 24`;
                 
                 renderTrig2Colors();
                 setTimeout(() => { if(startStopBtn) startStopBtn.click(); }, 150);
